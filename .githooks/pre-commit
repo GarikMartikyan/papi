@@ -9,11 +9,43 @@
 # Аварийный обход: PAPI_ALLOW_LIB=1 git commit …
 [ -n "$PAPI_ALLOW_LIB" ] && exit 0
 
-# Ремоут `upstream` отличает панель от самого papi: в базовом репозитории его
-# нет, и ядро там правится свободно.
-git remote get-url upstream >/dev/null 2>&1 || exit 0
+# Слияние, cherry-pick и revert проходят мимо запрета.
+#
+# Без этого исключения обновить ядро было бы нельзя вовсе: конфликтующий merge
+# git завершает обычным `git commit`, то есть этим же хуком, а в индексе к тому
+# моменту лежит весь `lib/`, который приехал из upstream, — ровно то, ради чего
+# обновление и затевалось. Хук отклонял бы панель за чужую правку и советовал
+# ей повторить команду, которая только что не прошла.
+#
+# Merge без конфликтов сюда не попадает: его git завершает через
+# `pre-merge-commit`, которого в `.githooks/` нет.
+git_dir=$(git rev-parse --git-dir)
 
-changed=$(git diff --cached --name-only --diff-filter=ACMRD -- lib/)
+for state in MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD; do
+  [ -e "$git_dir/$state" ] && exit 0
+done
+
+# Панель отличается от самого papi по двум признакам, и достаточно любого:
+#
+# — ремоут `upstream`. Признак прямой, но живёт в `.git/config`, а он при
+#   клонировании не переносится: у второго разработчика панели ремоута уже не
+#   будет, и одного этого признака хватило бы только на тот клон, в котором
+#   форк делали руками;
+# — имя в `package.json`. Оно закоммичено, поэтому переживает клонирование.
+#   Панель меняет его на своё первым же шагом после форка — не ради хука, а
+#   потому что своё имя ей нужно и без него.
+is_panel=false
+
+git remote get-url upstream >/dev/null 2>&1 && is_panel=true
+
+name=$(sed -n 's/^[[:space:]]*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' package.json 2>/dev/null | head -1)
+[ -n "$name" ] && [ "$name" != "papi" ] && is_panel=true
+
+[ "$is_panel" = true ] || exit 0
+
+# Без `--diff-filter` намеренно: подмена файла симлинком — это тип `T`, и
+# привычным списком `ACMRD` она не ловится.
+changed=$(git diff --cached --name-only -- lib/)
 [ -z "$changed" ] && exit 0
 
 echo "lib/ — ядро papi, оно приходит из upstream и не правится в панели:" >&2

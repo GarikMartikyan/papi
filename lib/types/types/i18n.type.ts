@@ -24,7 +24,8 @@ export type AntdLocale = NonNullable<ConfigProviderProps['locale']>;
  * dayjs-локаль: `import ru from 'dayjs/locale/ru'`.
  *
  * Выводится из самого dayjs, а не пишется как `ILocale`: `ILocale` — глобальный
- * ambient-тип, и в собранном `.d.ts` он остался бы висеть без ссылки на dayjs.
- * У потребителя, который ещё не подтянул типы dayjs, он бы не разрешился.
+ * ambient-тип, он существует лишь пока в проект подтянуты типы dayjs и обратной
+ * ссылки на них не несёт. Через `Parameters` тип привязан к библиотеке явно и
+ * поедет за ней при обновлении.
  */
 export type DayjsLocale = Exclude<Parameters<typeof dayjs.locale>[0], string | undefined>;
