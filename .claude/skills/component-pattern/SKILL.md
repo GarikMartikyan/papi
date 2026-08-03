@@ -5,8 +5,9 @@ description: >
   destructured at the top, props interface extending the base antd component's props with the
   rest spread onward, and a fixed order of hooks, handlers, effects and JSX. Use whenever you
   create a new component, edit an existing one, or review component code. Triggers: adding a .tsx
-  file under src/components, writing a provider or layout, moving JSX out of one component into
-  another, any request like "напиши компонент", "add a component", "вынеси в компонент".
+  file under lib/components or src/pages, writing a provider or layout, moving JSX out of one
+  component into another, any request like "напиши компонент", "add a component", "вынеси в
+  компонент".
 ---
 
 # component-pattern — как писать компоненты в papi
