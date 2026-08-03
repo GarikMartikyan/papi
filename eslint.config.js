@@ -72,8 +72,12 @@ export default tseslint.config(
     ],
     settings: { react: { version: 'detect' } },
   },
+  // А эти — везде, где есть хуки, а не только в JSX. `rules-of-hooks` и
+  // `exhaustive-deps` про разметку ничего не знают, и по соглашению репозитория
+  // хук живёт в `.ts`, а не в `.tsx` (см. скилл hook-pattern). Сузь список до
+  // одних `.tsx` — и ни один хук проекта не будет проверен вовсе.
   {
-    files: ['**/*.tsx'],
+    files: ['**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat['recommended-latest']],
   },
 
@@ -84,6 +88,10 @@ export default tseslint.config(
    *
    * `@papi/styles.css` под шаблон не попадает — в нём один сегмент после
    * `@papi/`, а шаблон требует минимум два.
+   *
+   * Путь мимо алиаса запрещён отдельно: без него `../../lib/components/…` вёл
+   * бы ровно туда же, и правило запрещало бы не глубокий импорт, а только один
+   * способ его записать.
    */
   {
     files: ['src/**/*.{ts,tsx}'],
@@ -93,7 +101,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@papi/*/**'],
+              group: ['@papi/*/**', '**/lib/**'],
               message:
                 'Ядро импортируется только через барели: @papi/components, @papi/hooks и т.д.',
             },
