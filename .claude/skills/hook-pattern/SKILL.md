@@ -4,8 +4,8 @@ description: >
   The structure every custom hook in papi must follow — one hook per file, a fixed order of hooks,
   handlers and effects, stable returned callbacks, and the rule for choosing a hook over a util.
   Use whenever you create or edit a useX.ts file, extract logic out of a component, or review
-  hook code. Triggers: adding a file under src/hooks, requests like "напиши хук", "вынеси в хук",
-  "add a hook", "extract this logic".
+  hook code. Triggers: adding a file under lib/hooks or src/hooks, requests like "напиши хук",
+  "вынеси в хук", "add a hook", "extract this logic".
 ---
 
 # hook-pattern — как писать хуки в papi
