@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "noEmit": true,
+
+    /*
+     * Ядро видно панели только под этим именем. Записей две, потому что
+     * `@papi/*` не покрывает голый `@papi` — у шаблона обязателен хвост.
+     *
+     * Тот же алиас продублирован в `vite.config.ts`: TypeScript отвечает за
+     * типы, Vite — за резолв на рантайме, и знать друг о друге они не умеют.
+     */
+    "baseUrl": ".",
+    "paths": {
+      "@papi": ["lib/index.ts"],
+      "@papi/*": ["lib/*"]
+    },
+
+    /*
+     * `vite/client` объявляет модули для ассетов (`*.svg`, `*.css`) и
+     * `import.meta.env`. Своего `global.d.ts` у ядра из-за этого больше нет.
+     */
+    "types": ["vite/client", "node"]
+  },
+  "include": ["lib", "src", "vite.config.ts"],
+  "exclude": ["dist", "node_modules"]
+}

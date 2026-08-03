@@ -1,0 +1,21 @@
+node_modules
+dist
+coverage
+*.tsbuildinfo
+
+.DS_Store
+.idea
+.vscode
+
+*.log
+npm-debug.log*
+
+.env
+.env.local
+.env.*.local
+
+.playwright-mcp
+docs/superpowers
+
+# claude code — personal overrides stay local, the shared setup is committed
+.claude/settings.local.json

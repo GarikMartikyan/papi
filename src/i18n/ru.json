@@ -1,0 +1,11 @@
+{
+  "layout.changeLanguage": "Сменить язык",
+  "layout.toggleSidebar": "Свернуть меню",
+  "layout.toggleTheme": "Переключить тему",
+  "nav.home": "Главная",
+  "user.role": "Администратор",
+  "user.logout": "Выйти",
+  "user.loggedOut": "Токен убран",
+  "home.title": "Скелет панели",
+  "home.text": "Каркас приходит из ядра. Замени эту страницу на свою, остальные добавь в src/pages."
+}

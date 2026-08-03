@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Ядро (`lib/`) приезжает из upstream и в панели не правится: любая правка там
+# станет конфликтом при первом же обновлении ядра.
+#
+# Права файловой системы для этого не годятся — git их не хранит, и первый
+# `merge` снял бы их обратно. Поэтому запрет живёт здесь.
+
+# Аварийный обход: PAPI_ALLOW_LIB=1 git commit …
+[ -n "$PAPI_ALLOW_LIB" ] && exit 0
+
+# Ремоут `upstream` отличает панель от самого papi: в базовом репозитории его
+# нет, и ядро там правится свободно.
+git remote get-url upstream >/dev/null 2>&1 || exit 0
+
+changed=$(git diff --cached --name-only --diff-filter=ACMRD -- lib/)
+[ -z "$changed" ] && exit 0
+
+echo "lib/ — ядро papi, оно приходит из upstream и не правится в панели:" >&2
+echo "$changed" | sed 's/^/  /' >&2
+echo "" >&2
+echo "Нужно изменение в ядре — вноси его в репозиторий papi и подтяни через:" >&2
+echo "  git fetch upstream && git merge upstream/main" >&2
+exit 1

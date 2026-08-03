@@ -1,0 +1,11 @@
+{
+  "layout.changeLanguage": "Change language",
+  "layout.toggleSidebar": "Toggle sidebar",
+  "layout.toggleTheme": "Toggle colour scheme",
+  "nav.home": "Home",
+  "user.role": "Administrator",
+  "user.logout": "Sign out",
+  "user.loggedOut": "Token cleared",
+  "home.title": "Panel skeleton",
+  "home.text": "The shell comes from the core. Replace this page with your own and add the rest under src/pages."
+}

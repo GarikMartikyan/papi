@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Путь в src, а не в public: vite разбирает index.html как точку входа,
+         поэтому на сборке иконка попадёт в dist с хешем в имени. -->
+    <link rel="icon" type="image/svg+xml" href="/src/assets/icons/main.svg" />
+    <!-- TODO: заглушка — заголовок и иконку панель меняет на свои сразу после
+         форка. Этот файл принадлежит панели, ядро его не обновляет. -->
+    <title>papi</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
