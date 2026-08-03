@@ -9,12 +9,8 @@ import { configureApi } from '@papi/api';
  *
  * Стор ядра уже зарегистрировал редьюсер и middleware baseApi, так что панели
  * ничего подключать не нужно.
- *
- * TODO: заглушка — тегов у скелета нет, эндпоинтов тоже. Панель перечисляет
- * свои в `tagTypes` и добавляет файлы эндпоинтов рядом:
- * `api.injectEndpoints({ … })`.
  */
 export const api = configureApi({
   baseUrl: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
-  tagTypes: [],
+  tagTypes: ['User', 'Session'],
 });

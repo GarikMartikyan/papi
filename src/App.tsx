@@ -1,46 +1,70 @@
 import { App as AntdApp } from 'antd';
 import { Navigate, Route, Routes } from 'react-router';
 
-import { Icon, MainLayout, type NavItem, type UserMenuItem } from '@papi/components';
+import {
+  type AsideLink,
+  Icon,
+  MainLayout,
+  type NavItem,
+  type UserMenuItem,
+} from '@papi/components';
 import { removeAccessTokenLS } from '@papi/services';
 
 import { type MessageKey, useTranslation } from './hooks';
-import { HomePage } from './pages/HomePage/HomePage';
+import { SettingsPage } from './pages/SettingsPage/SettingsPage';
+import { UsersPage } from './pages/UsersPage/UsersPage';
 
 interface NavDefinition {
-  /** Совпадает с путём маршрута — по нему ядро и подсвечивает активный пункт. */
+  /** Совпадает с путём маршрута — по нему papi и подсвечивает активный пункт. */
   key: string;
   labelId: MessageKey;
   /** Имя иконки для `Icon`: здесь lucide, но подошло бы и antd-имя. */
   iconName: string;
 }
 
+/** Подписи переводятся на рендере, поэтому в константе лежат только их ключи. */
+const NAV: NavDefinition[] = [
+  { key: '/users', labelId: 'nav.users', iconName: 'users' },
+  { key: '/settings', labelId: 'nav.settings', iconName: 'settings' },
+];
+
+interface LinkDefinition {
+  href: string;
+  /** Название продукта: переводить нечего, поэтому строкой, а не ключом. */
+  label: string;
+  iconName: string;
+}
+
 /*
- * TODO: заглушка — один раздел, чтобы каркас было видно запущенным. Панель
- * заменяет список своим и заводит под каждый пункт страницу и маршрут ниже.
+ * Ссылки правой колонки — выходы наружу, каждая открывается в новой вкладке.
  *
- * Подписи переводятся на рендере, поэтому в константе лежат только их ключи.
+ * Иконка обязательна не по типу, а по делу: колонка открывается свёрнутой, и в
+ * свёрнутом виде от ссылки видно только её.
  */
-const NAV: NavDefinition[] = [{ key: '/home', labelId: 'nav.home', iconName: 'house' }];
+const ASIDE_LINKS: LinkDefinition[] = [
+  { href: 'https://ant.design/components/overview', label: 'Ant Design', iconName: 'book-open' },
+  { href: 'https://reactrouter.com', label: 'React Router', iconName: 'route' },
+  { href: 'https://redux-toolkit.js.org', label: 'Redux Toolkit', iconName: 'layers' },
+];
 
 /*
  * TODO: заглушка — имя придёт из запроса «кто я», когда в ядре появится
- * авторизация. Аватарки рядом нет намеренно: без неё видно, что ядро рисует в
- * кружке инициалы.
+ * авторизация. Аватарки рядом нет намеренно: без неё видно, что papi рисует в
+ * кружке инициалы («GM»).
  *
  * Имён два: короткое стоит на кнопке в шапке, полное — в карточке меню.
  */
-const USER_NAME = 'Admin';
-const USER_FULL_NAME = 'Panel Admin';
+const USER_NAME = 'Garik';
+const USER_FULL_NAME = 'Garik Martikyan';
 
 /**
  * Каркас и маршруты панели.
  *
  * Каркас целиком приходит из ядра: `MainLayout` — единственный компонент,
- * который панель импортирует ради вида, и всё, что в нём видно, передано ему
- * пропсами. Своего Layout, сайдбара и меню у панели нет.
+ * который панель импортирует из papi, и всё, что в нём видно, передано ему
+ * пропсами. Своего Layout, сайдбара и меню у панели больше нет.
  *
- * Роутер стоит выше, в `main.tsx`: ядро его намеренно не включает — выбор между
+ * Роутер стоит выше, в `main.tsx`: papi его намеренно не включает — выбор между
  * history, hash и memory остаётся за панелью. `MainLayout` при этом обязан быть
  * внутри роутера, иначе меню некуда навигировать.
  */
@@ -55,10 +79,17 @@ export const App = () => {
     label: t(item.labelId),
   }));
 
+  const asideItems: AsideLink[] = ASIDE_LINKS.map((link) => ({
+    href: link.href,
+    icon: <Icon name={link.iconName} />,
+    label: link.label,
+  }));
+
   /*
-   * TODO: заглушка — настоящего выхода в скелете нет, выходить не из чего.
-   * Пункт делает единственное осмысленное: убирает токен. Панель с авторизацией
-   * дёрнула бы здесь свой эндпоинт и ушла на экран входа.
+   * Настоящего выхода в панели нет — выходить пока не из чего, — поэтому пункт
+   * делает единственное осмысленное: убирает токен, который кладёт страница
+   * настроек. Панель с авторизацией дёрнула бы здесь свой эндпоинт и ушла на
+   * экран входа.
    *
    * Обработчик объявлен выше пунктов, а не ниже, как велит общий порядок:
    * массив пунктов ссылается на него прямо на рендере.
@@ -68,7 +99,19 @@ export const App = () => {
     message.success(t('user.loggedOut'));
   };
 
+  /*
+   * Здесь, а не константой рядом с NAV: у пунктов есть обработчик, а он живёт
+   * только внутри компонента. Видны все три вида пункта сразу — переход по
+   * маршруту, разделитель и красное действие без маршрута.
+   */
   const userMenuItems: UserMenuItem[] = [
+    {
+      key: 'settings',
+      label: t('user.settings'),
+      icon: <Icon name="settings" />,
+      to: '/settings',
+    },
+    { type: 'divider' },
     {
       key: 'logout',
       label: t('user.logout'),
@@ -80,12 +123,16 @@ export const App = () => {
 
   return (
     <MainLayout
-      /* `asideItems` и `headerExtra` не передаются: колонки ссылок наружу у
-         скелета нет, а язык и тему `MainLayout` ставит в шапку сам. */
+      /* `headerExtra` не передаётся: язык и тему MainLayout ставит в шапку сам,
+         а больше панели туда класть нечего — остаются только подписи. */
+      asideItems={asideItems}
       localeSelectLabel={t('layout.changeLanguage')}
       navItems={navItems}
       themeSwitcherLabel={t('layout.toggleTheme')}
       triggerLabel={t('layout.toggleSidebar')}
+      /* Аватар в шапке — одним объектом: и данные пользователя, и пункты его
+         меню. `label` не передаётся намеренно — имя видно на кнопке, и
+         `aria-label` поверх него подменил бы собой то, что читают с экрана. */
       user={{
         name: USER_NAME,
         fullName: USER_FULL_NAME,
@@ -94,9 +141,10 @@ export const App = () => {
       }}
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/users" replace />} />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/users" replace />} />
       </Routes>
     </MainLayout>
   );

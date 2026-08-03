@@ -1,18 +1,16 @@
 import { injectSlices, type RootState, type StateOf } from '@papi/store';
 
-/*
- * TODO: заглушка — слайсов у скелета нет. Панель заводит свои в
- * `src/store/slices` и перечисляет их здесь: `injectSlices([usersSlice])`.
- */
+import { usersSlice } from './slices/users.slice';
 
 /**
- * Слайсы панели в сторе ядра.
+ * Слайсы панели в сторе papi.
  *
  * Свой стор панель не создаёт: он один и живёт в ядре, `injectSlices` только
- * докладывает в него редьюсеры. Модуль должен быть загружен до первого рендера
- * — обычно это обеспечивает импорт из страницы, которая слайс читает.
+ * докладывает в него редьюсеры. Модуль должен быть загружен до первого рендера —
+ * это обеспечивает импорт из страниц (`UsersPage`). Понадобится страница без
+ * слайсов панели — импорт придётся добавить в `main.tsx` явно.
  */
-export const appSlices = injectSlices([]);
+export const appSlices = injectSlices([usersSlice]);
 
 /**
  * Состояние панели: ядро (`config`, `api`) плюс собственные слайсы.
@@ -21,3 +19,12 @@ export const appSlices = injectSlices([]);
  * при добавлении слайса.
  */
 export type AppState = RootState & StateOf<typeof appSlices>;
+
+/**
+ * Селекторы берутся у инжектированного слайса, а не у `usersSlice` напрямую:
+ * стор уже создан, и до первого dispatch ключа `users` в состоянии нет —
+ * обычный селектор на этом падает, а этот подставит начальное состояние.
+ */
+export const { selectSelectedUserId, selectSearch } = appSlices.users.selectors;
+
+export * from './slices/users.slice';
