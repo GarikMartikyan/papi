@@ -1,6 +1,6 @@
 import { Menu, type MenuProps } from 'antd';
 
-import type { AsideLink } from './MainLayout';
+import type { AsideLink } from '../MainLayout';
 
 type MenuItem = NonNullable<MenuProps['items']>[number];
 

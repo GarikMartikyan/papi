@@ -1,8 +1,9 @@
 /**
- * Routing — route building from panel config, guards, navigation helpers.
+ * Routing — маршруты панели, гард и каркас вокруг них.
  *
- * TODO: заглушка — пустой барель. Наполнится, когда появится построение
- * маршрутов из конфига панели.
+ * `PapiRouterLayout` наружу не выходит: это внутренность `PapiRouter`, маршрут-
+ * обёртка, которая сама по себе бессмысленна.
  */
 
-export {};
+export * from './PapiRouter';
+export * from './routes.constants';

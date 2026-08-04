@@ -12,10 +12,15 @@ import { papiBaseQuery } from './baseQuery';
  * ```ts
  * import { api } from '@papi/api';
  *
+ * import { APP_API_TAGS } from './tags.constants';
+ *
  * export const usersApi = api
- *   .enhanceEndpoints({ addTagTypes: ['User'] })
+ *   .enhanceEndpoints({ addTagTypes: [APP_API_TAGS.user] })
  *   .injectEndpoints({ endpoints: (build) => ({ … }) });
  * ```
+ *
+ * Тег — константой из своего файла тегов, а не строкой по месту: опечатка в
+ * строке не ломает сборку, она просто тихо перестаёт инвалидировать кеш.
  *
  * `tagTypes` здесь пуст, и заполнить его в ядре нельзя: `createApi` фиксирует
  * набор тегов при создании, а какие теги нужны — знает только панель. Поэтому

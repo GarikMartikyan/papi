@@ -1,7 +1,15 @@
-import { warn } from '../utils/logger.util';
+import {
+  getProjectIdLS,
+  removeProjectIdLS,
+  setProjectIdLS,
+} from '../services/localStorage.service';
+import {
+  getProjectIdSS,
+  removeProjectIdSS,
+  setProjectIdSS,
+} from '../services/sessionStorage.service';
 
-import { getProjectIdLS, removeProjectIdLS, setProjectIdLS } from './localStorage.service';
-import { getProjectIdSS, removeProjectIdSS, setProjectIdSS } from './sessionStorage.service';
+import { warn } from './logger.util';
 
 /**
  * `projectId` может прийти из адресной строки, то есть от кого угодно. Дальше
@@ -22,9 +30,9 @@ const isValidProjectId = (value: string): boolean => {
 };
 
 /** Чистое чтение: сначала вкладка, потом общее хранилище. Ничего не пишет. */
-export function getProjectIdService(): string | null {
+export const getStoredProjectId = (): string | null => {
   return getProjectIdSS() ?? getProjectIdLS();
-}
+};
 
 export const getProjectIdFromPath = (): string | null => {
   if (typeof window === 'undefined') return null;
@@ -41,27 +49,27 @@ export const getProjectIdFromPath = (): string | null => {
 };
 
 /** Единственное место, где хранилища синхронизируются между собой. */
-export function setProjectIdService(projectId: string | number): void {
+export const setProjectId = (projectId: string | number): void => {
   const value = projectId.toString();
 
   if (!isValidProjectId(value)) return;
 
   setProjectIdSS(value);
   setProjectIdLS(value);
-}
+};
 
-export function removeProjectIdService(): void {
+export const removeProjectId = (): void => {
   removeProjectIdSS();
   removeProjectIdLS();
-}
+};
 
 export const getProjectId = (): string | null => {
   const projectIdFromPath = getProjectIdFromPath();
 
   if (projectIdFromPath !== null) {
-    setProjectIdService(projectIdFromPath);
+    setProjectId(projectIdFromPath);
     return projectIdFromPath;
   }
 
-  return getProjectIdService();
+  return getStoredProjectId();
 };

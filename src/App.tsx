@@ -1,31 +1,45 @@
 import { App as AntdApp } from 'antd';
-import { Navigate, Route, Routes } from 'react-router';
 
-import {
-  type AsideLink,
-  Icon,
-  MainLayout,
-  type NavItem,
-  type UserMenuItem,
-} from '@papi/components';
-import { removeAccessTokenLS } from '@papi/services';
+import { type AsideLink, Icon, type UserMenuItem } from '@papi/components';
+import { useAuth } from '@papi/hooks';
+import { type PapiRoute, PapiRouter } from '@papi/routing';
 
 import { type MessageKey, useTranslation } from './hooks';
 import { SettingsPage } from './pages/SettingsPage/SettingsPage';
 import { UsersPage } from './pages/UsersPage/UsersPage';
+import { ROUTES } from './routes';
 
-interface NavDefinition {
-  /** Совпадает с путём маршрута — по нему papi и подсвечивает активный пункт. */
-  key: string;
-  labelId: MessageKey;
-  /** Имя иконки для `Icon`: здесь lucide, но подошло бы и antd-имя. */
-  iconName: string;
+/**
+ * Маршрут панели с проверкой ключа подписи.
+ *
+ * Ядро типизировать ключи не может — каталог принадлежит панели, — поэтому в
+ * `PapiRoute` подпись объявлена обычной строкой. Здесь она сужается до ключей
+ * `en.json`, и опечатка не доживает до рантайма.
+ */
+interface AppRoute extends PapiRoute {
+  labelId?: MessageKey;
 }
 
-/** Подписи переводятся на рендере, поэтому в константе лежат только их ключи. */
-const NAV: NavDefinition[] = [
-  { key: '/users', labelId: 'nav.users', iconName: 'users' },
-  { key: '/settings', labelId: 'nav.settings', iconName: 'settings' },
+/**
+ * Разделы панели: адрес, страница и вид в меню — одной записью.
+ *
+ * Раздел без `labelId` в меню не появится, но останется рабочим адресом — так
+ * описываются страницы, на которые ходят по ссылке.
+ */
+const APP_ROUTES: AppRoute[] = [
+  {
+    path: ROUTES.users,
+    element: <UsersPage />,
+    labelId: 'nav.users',
+    iconName: 'users',
+    index: true,
+  },
+  {
+    path: ROUTES.settings,
+    element: <SettingsPage />,
+    labelId: 'nav.settings',
+    iconName: 'settings',
+  },
 ];
 
 interface LinkDefinition {
@@ -49,8 +63,8 @@ const ASIDE_LINKS: LinkDefinition[] = [
 
 /*
  * TODO: заглушка — имя придёт из запроса «кто я», когда в ядре появится
- * авторизация. Аватарки рядом нет намеренно: без неё видно, что papi рисует в
- * кружке инициалы («GM»).
+ * эндпоинт профиля. Аватарки рядом нет намеренно: без неё видно, что papi
+ * рисует в кружке инициалы («GM»).
  *
  * Имён два: короткое стоит на кнопке в шапке, полное — в карточке меню.
  */
@@ -58,26 +72,21 @@ const USER_NAME = 'Garik';
 const USER_FULL_NAME = 'Garik Martikyan';
 
 /**
- * Каркас и маршруты панели.
+ * Панель целиком: разделы и то, что панель кладёт в каркас.
  *
- * Каркас целиком приходит из ядра: `MainLayout` — единственный компонент,
- * который панель импортирует из papi, и всё, что в нём видно, передано ему
- * пропсами. Своего Layout, сайдбара и меню у панели больше нет.
+ * Ни `MainLayout`, ни `<Routes>` здесь больше нет — их ставит `PapiRouter`.
+ * Вместе с ними ушли вход, ненайденный адрес, редирект с корня и проверка
+ * токена: всё это одинаково у всех панелей и живёт в ядре.
  *
- * Роутер стоит выше, в `main.tsx`: papi его намеренно не включает — выбор между
- * history, hash и memory остаётся за панелью. `MainLayout` при этом обязан быть
- * внутри роутера, иначе меню некуда навигировать.
+ * Роутер тоже приезжает из ядра: `BrowserRouter` ставит `PapiProvider`, поэтому
+ * в `main.tsx` его больше нет.
  */
 export const App = () => {
   const t = useTranslation();
 
   const { message } = AntdApp.useApp();
 
-  const navItems: NavItem[] = NAV.map((item) => ({
-    key: item.key,
-    icon: <Icon name={item.iconName} />,
-    label: t(item.labelId),
-  }));
+  const { logout } = useAuth();
 
   const asideItems: AsideLink[] = ASIDE_LINKS.map((link) => ({
     href: link.href,
@@ -86,30 +95,29 @@ export const App = () => {
   }));
 
   /*
-   * Настоящего выхода в панели нет — выходить пока не из чего, — поэтому пункт
-   * делает единственное осмысленное: убирает токен, который кладёт страница
-   * настроек. Панель с авторизацией дёрнула бы здесь свой эндпоинт и ушла на
-   * экран входа.
+   * Выход целиком в ядре: оно убирает токен и сбрасывает кеш запросов, а
+   * `PapiRouter` видит пустую сессию и уводит на вход. Панели остаётся сказать
+   * об этом вслух.
    *
    * Обработчик объявлен выше пунктов, а не ниже, как велит общий порядок:
    * массив пунктов ссылается на него прямо на рендере.
    */
   const handleLogout = () => {
-    removeAccessTokenLS();
+    logout();
     message.success(t('user.loggedOut'));
   };
 
   /*
-   * Здесь, а не константой рядом с NAV: у пунктов есть обработчик, а он живёт
-   * только внутри компонента. Видны все три вида пункта сразу — переход по
-   * маршруту, разделитель и красное действие без маршрута.
+   * Здесь, а не константой рядом с APP_ROUTES: у пунктов есть обработчик, а он
+   * живёт только внутри компонента. Видны все три вида пункта сразу — переход
+   * по маршруту, разделитель и красное действие без маршрута.
    */
   const userMenuItems: UserMenuItem[] = [
     {
       key: 'settings',
       label: t('user.settings'),
       icon: <Icon name="settings" />,
-      to: '/settings',
+      to: ROUTES.settings,
     },
     { type: 'divider' },
     {
@@ -122,30 +130,15 @@ export const App = () => {
   ];
 
   return (
-    <MainLayout
-      /* `headerExtra` не передаётся: язык и тему MainLayout ставит в шапку сам,
-         а больше панели туда класть нечего — остаются только подписи. */
+    <PapiRouter
       asideItems={asideItems}
-      localeSelectLabel={t('layout.changeLanguage')}
-      navItems={navItems}
-      themeSwitcherLabel={t('layout.toggleTheme')}
-      triggerLabel={t('layout.toggleSidebar')}
-      /* Аватар в шапке — одним объектом: и данные пользователя, и пункты его
-         меню. `label` не передаётся намеренно — имя видно на кнопке, и
-         `aria-label` поверх него подменил бы собой то, что читают с экрана. */
+      routes={APP_ROUTES}
       user={{
         name: USER_NAME,
         fullName: USER_FULL_NAME,
         description: t('user.role'),
         items: userMenuItems,
       }}
-    >
-      <Routes>
-        <Route path="/" element={<Navigate to="/users" replace />} />
-        <Route path="/users" element={<UsersPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/users" replace />} />
-      </Routes>
-    </MainLayout>
+    />
   );
 };

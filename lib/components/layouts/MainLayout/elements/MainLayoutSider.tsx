@@ -1,8 +1,8 @@
 import { Layout, type SiderProps } from 'antd';
 import type { ReactNode } from 'react';
 
-import { BLOCK_RADIUS } from '../../constants/theme.constants';
-import { useToken } from '../../hooks/useToken';
+import { BLOCK_RADIUS } from '../../../../constants/theme.constants';
+import { useToken } from '../../../../hooks/useToken';
 
 import { MainLayoutTrigger } from './MainLayoutTrigger';
 
@@ -54,7 +54,6 @@ export interface MainLayoutSiderProps extends SiderProps {
   side: 'start' | 'end';
   theme: 'light' | 'dark';
   width: number;
-  triggerLabel?: string;
 }
 
 /**
@@ -79,7 +78,6 @@ export const MainLayoutSider = (props: MainLayoutSiderProps) => {
     side,
     style,
     theme,
-    triggerLabel,
     width,
     ...rest
   } = props;
@@ -149,7 +147,6 @@ export const MainLayoutSider = (props: MainLayoutSiderProps) => {
             collapsed={collapsed}
             color={theme === 'dark' ? token.colorTextLightSolid : token.colorTextBase}
             opacity={theme === 'dark' ? 1 : MUTED_TRIGGER_OPACITY}
-            label={triggerLabel}
             onToggle={onToggle}
           />
         </div>

@@ -1,8 +1,5 @@
 {
   "app.title": "Example Panel",
-  "layout.changeLanguage": "Change language",
-  "layout.toggleSidebar": "Toggle sidebar",
-  "layout.toggleTheme": "Toggle colour scheme",
   "nav.users": "Users",
   "nav.settings": "Settings",
   "user.role": "Administrator",
@@ -19,6 +16,7 @@
   "users.column.actions": "Actions",
   "users.action.add": "Add user",
   "users.action.delete": "Delete",
+  "users.action.fail": "Fail a request",
   "users.created": "User created",
   "users.deleted": "User deleted",
   "users.selected": "Selected: {name}",

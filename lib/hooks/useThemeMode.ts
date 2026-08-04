@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import { selectThemeMode, setThemeMode } from '../store/slices/config.slice';
 import { ThemeMode } from '../types/enums/global.enum';
 
@@ -15,16 +13,13 @@ export const useThemeMode = () => {
   const mode = useAppSelector(selectThemeMode);
   const isDark = mode === ThemeMode.DARK;
 
-  const setMode = useCallback(
-    (next: ThemeMode) => {
-      dispatch(setThemeMode(next));
-    },
-    [dispatch],
-  );
+  const setMode = (next: ThemeMode) => {
+    dispatch(setThemeMode(next));
+  };
 
-  const toggleMode = useCallback(() => {
+  const toggleMode = () => {
     setMode(isDark ? ThemeMode.LIGHT : ThemeMode.DARK);
-  }, [isDark, setMode]);
+  };
 
   return { mode, isDark, setMode, toggleMode };
 };

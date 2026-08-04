@@ -2,9 +2,10 @@ import { Button, Card, DatePicker, Descriptions, Space, Typography } from 'antd'
 
 import { LocaleSelect, ThemeSwitcher } from '@papi/components';
 import { useLocale, useThemeMode } from '@papi/hooks';
-import { getProjectId, removeAccessTokenLS, setAccessTokenLS } from '@papi/services';
+import { removeAccessTokenLS, setAccessTokenLS } from '@papi/services';
+import { getProjectId } from '@papi/utils';
 
-import { useGetSessionQuery } from '../../api/users.api';
+import { useGetSessionQuery } from '../../api/endpoints/users.api';
 import { useTranslation } from '../../hooks';
 
 const FAKE_TOKEN = 'example-panel-demo-token';
@@ -42,13 +43,13 @@ export const SettingsPage = () => {
             <Space>
               {/* Вариант `switch`: в шапке стоит тот же переключатель кнопкой —
                   здесь видно, что оба варианта живут от одного состояния. */}
-              <ThemeSwitcher variant="switch" label={t('layout.toggleTheme')} />
+              <ThemeSwitcher variant="switch" />
               <Typography.Text code>{mode}</Typography.Text>
             </Space>
           </Descriptions.Item>
           <Descriptions.Item label={t('settings.language')}>
             <Space>
-              <LocaleSelect label={t('layout.changeLanguage')} />
+              <LocaleSelect />
               <Typography.Text code>{locale}</Typography.Text>
             </Space>
           </Descriptions.Item>

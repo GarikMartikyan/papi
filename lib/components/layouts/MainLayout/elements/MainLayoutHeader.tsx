@@ -1,11 +1,11 @@
 import { Layout, Space } from 'antd';
 import type { ReactNode } from 'react';
 
-import logoLarge from '../../assets/icons/logo-large.svg';
-import { useToken } from '../../hooks/useToken';
-import { LocaleSelect } from '../LocaleSelect/LocaleSelect';
-import { ThemeSwitcher, type ThemeSwitcherVariant } from '../ThemeSwitcher/ThemeSwitcher';
-import { UserMenu, type UserMenuProps } from '../UserMenu/UserMenu';
+import logoLarge from '../../../../assets/icons/logo-large.svg';
+import { useToken } from '../../../../hooks/useToken';
+import { LocaleSelect } from '../../../shared/LocaleSelect';
+import { ThemeSwitcher, type ThemeSwitcherVariant } from '../../../shared/ThemeSwitcher';
+import { UserMenu, type UserMenuProps } from '../../../shared/UserMenu';
 
 /**
  * Пропорции логотипа 124:49, поэтому ширина считается от высоты, а не задаётся.
@@ -16,10 +16,8 @@ const LOGO_HEIGHT = 48;
 export interface MainLayoutHeaderProps {
   extra?: ReactNode;
   localeSelect: boolean;
-  localeSelectLabel?: string;
   /** `undefined` пропускается насквозь: вид по умолчанию решает `ThemeSwitcher`. */
   themeSwitcher?: ThemeSwitcherVariant | 'none';
-  themeSwitcherLabel?: string;
   /** Не передан — аватара в шапке нет вовсе. */
   user?: UserMenuProps;
 }
@@ -32,7 +30,7 @@ export interface MainLayoutHeaderProps {
  * что сворачивает.
  */
 export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
-  const { extra, localeSelect, localeSelectLabel, themeSwitcher, themeSwitcherLabel, user } = props;
+  const { extra, localeSelect, themeSwitcher, user } = props;
 
   const token = useToken();
 
@@ -64,10 +62,8 @@ export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
           содержимым. Аватар при этом крайний: там его ищут в любой админке. */}
       <Space size="middle">
         {extra}
-        {themeSwitcher !== 'none' && (
-          <ThemeSwitcher label={themeSwitcherLabel} variant={themeSwitcher} />
-        )}
-        {localeSelect && <LocaleSelect label={localeSelectLabel} />}
+        {themeSwitcher !== 'none' && <ThemeSwitcher variant={themeSwitcher} />}
+        {localeSelect && <LocaleSelect />}
         {user !== undefined && <UserMenu {...user} />}
       </Space>
     </Layout.Header>

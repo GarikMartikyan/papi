@@ -1,13 +1,8 @@
 import { Button } from 'antd';
 
-import { Icon } from '../Icon/Icon';
-
-/**
- * Английский тут — осознанный постоянный дефолт, а не заглушка: у кнопки нет
- * видимого текста, а какой-то `aria-label` ей нужен. Переведённый передаёт
- * панель — `MainLayoutProps.triggerLabel`.
- */
-const DEFAULT_LABEL = 'Toggle sidebar';
+import { PAPI_MESSAGES } from '../../../../constants/messages.constants';
+import { useTranslation } from '../../../../hooks/useTranslation';
+import { Icon } from '../../../shared/Icon';
 
 /**
  * Иконка одна на оба состояния: она обозначает саму колонку навигации, а не
@@ -25,7 +20,6 @@ export interface MainLayoutTriggerProps {
    * нужен непрозрачный — приглушает иконку `opacity`.
    */
   color?: string;
-  label?: string;
   /**
    * Приглушённость иконки, 0..1.
    *
@@ -48,14 +42,19 @@ export interface MainLayoutTriggerProps {
  * две, и хранятся они по-разному — левая в `config`-слайсе, правая в локальном
  * стейте `MainLayout`. Кнопка, знающая про стор, умела бы сворачивать только
  * первую.
+ *
+ * А вот `aria-label` пропом не приходит: видимого текста у кнопки нет, и подпись
+ * она берёт из строк ядра сама — панели передавать её больше не нужно.
  */
 export const MainLayoutTrigger = (props: MainLayoutTriggerProps) => {
-  const { collapsed, color, label = DEFAULT_LABEL, onToggle, opacity } = props;
+  const { collapsed, color, onToggle, opacity } = props;
+
+  const t = useTranslation();
 
   return (
     <Button
       type="text"
-      aria-label={label}
+      aria-label={t(PAPI_MESSAGES.layoutToggleSidebar)}
       aria-expanded={!collapsed}
       // `opacity` на иконке, а не на кнопке: на кнопке она приглушила бы заодно
       // и подсветку фона под курсором.

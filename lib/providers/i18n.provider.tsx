@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 import { ConfigProvider } from 'antd';
 import dayjs from 'dayjs';
@@ -6,14 +6,13 @@ import { type IntlConfig, IntlProvider } from 'react-intl';
 
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
+import { setLocales } from '../services/locales.service';
 import { selectLocale, syncLocale } from '../store/slices/config.slice';
 import type { I18nConfig } from '../types/interfaces/i18nConfig.interface';
 import type { LocaleDefinition } from '../types/interfaces/localeDefinition.interface';
 import type { Locale, LocaleMessages } from '../types/types/i18n.type';
 import { resolveSupportedLocale } from '../utils/locale.util';
 import { warn } from '../utils/logger.util';
-
-import { LocalesContext } from './i18n.context';
 
 /** Объявлен на уровне модуля: новый объект на каждый рендер пересоздавал бы `intl`, а с ним и `t`. */
 const EMPTY_MESSAGES: LocaleMessages = {};
@@ -24,8 +23,9 @@ const EMPTY_MESSAGES: LocaleMessages = {};
  * добавлен префикс `[papi]`.
  *
  * Приходят и на язык из `defaultLocale`: react-intl молчит только там, где в
- * `formatMessage` передан `defaultMessage`, а `useTranslation` его не передаёт.
- * Вместо ненайденной строки в интерфейс попадёт её id.
+ * `formatMessage` передан `defaultMessage`, — то есть на строках ядра, которые
+ * едут дескриптором. Ключ панели запасного текста не несёт, и вместо
+ * ненайденной строки в интерфейс попадёт её id.
  */
 const handleIntlError: NonNullable<IntlConfig['onError']> = (error) => {
   warn(error.message);
@@ -87,7 +87,7 @@ export const I18nProvider = (props: I18nProviderProps) => {
   const dispatch = useAppDispatch();
   const storedLocale = useAppSelector(selectLocale);
 
-  const { definitions, fallback } = useMemo(() => resolveI18n(i18n), [i18n]);
+  const { definitions, fallback } = resolveI18n(i18n);
   const locale = resolveSupportedLocale(storedLocale, [...definitions.keys()], fallback);
   const definition = definitions.get(locale);
   const messages = definition?.messages ?? EMPTY_MESSAGES;
@@ -113,6 +113,17 @@ export const I18nProvider = (props: I18nProviderProps) => {
     dayjs.locale(definition.dayjs);
   }
 
+  /*
+   * Список языков — тем, кто рисует переключатель: активный язык лежит в сторе,
+   * а весь набор известен только здесь.
+   *
+   * В теле рендера по той же причине, что и `dayjs.locale` выше: `useLocale`
+   * читает реестр во время рендера, а дети рендерятся после родителя — так
+   * первый же `LocaleSelect` видит список. Из эффекта список приехал бы вторым
+   * кадром, и переключатель мигнул бы. Присваивание идемпотентно.
+   */
+  setLocales(i18n.locales);
+
   useEffect(() => {
     /*
      * В сторе мог остаться язык от другого набора языков — или ещё ничего.
@@ -131,9 +142,7 @@ export const I18nProvider = (props: I18nProviderProps) => {
         messages={messages}
         onError={handleIntlError}
       >
-        {/* Список языков — тем, кто рисует переключатель: активный язык лежит в
-            сторе, а весь набор известен только здесь. */}
-        <LocalesContext.Provider value={i18n.locales}>{children}</LocalesContext.Provider>
+        {children}
       </IntlProvider>
     </ConfigProvider>
   );

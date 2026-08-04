@@ -12,14 +12,9 @@ import {
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 
+import { PAPI_MESSAGES } from '../../constants/messages.constants';
 import { useToken } from '../../hooks/useToken';
-
-/**
- * Английский тут — осознанный постоянный дефолт, а не заглушка: без `name` у
- * кнопки не остаётся видимого текста, и подпись нужна хоть какая-то.
- * Переведённую передаёт панель.
- */
-const DEFAULT_LABEL = 'Account menu';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Аватар в карточке меню. Дефолтные 32 у antd: рядом с ним две строки текста —
@@ -175,11 +170,6 @@ export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
    * задан — в кружке инициалы из полного имени, а если имени нет — силуэт.
    */
   avatar?: AvatarProps;
-  /**
-   * `aria-label` кнопки. Нужен, когда имени нет вовсе: тогда на кнопке одна
-   * картинка и читать скринридеру нечего.
-   */
-  label?: string;
 }
 
 /**
@@ -222,9 +212,10 @@ export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
  * месте, и переданный узел встаёт триггером вместо аватара с именем.
  */
 export const UserMenu = (props: UserMenuProps) => {
-  const { avatar, children, description, fullName, items, label, name, ...rest } = props;
+  const { avatar, children, description, fullName, items, name, ...rest } = props;
 
   const token = useToken();
+  const t = useTranslation();
 
   /* Каждое имя подменяет другое, когда его не передали: панель, у которой имя
      одно, пишет любой из двух пропов и получает его в обоих местах. */
@@ -314,7 +305,9 @@ export const UserMenu = (props: UserMenuProps) => {
           type="text"
           /* Подпись только когда видимого имени нет: заданная поверх него, она
              подменила бы собой то, что пользователь читает на экране. */
-          aria-label={label ?? (triggerName === undefined ? DEFAULT_LABEL : undefined)}
+          // Подпись — только когда имени нет: иначе она дублировала бы видимый
+          // текст кнопки и скринридер прочитал бы его дважды.
+          aria-label={triggerName === undefined ? t(PAPI_MESSAGES.layoutAccountMenu) : undefined}
           style={{
             /* Раскладка задана явно: своих отступов между произвольными детьми
                кнопка antd не держит — их получают только `icon` с текстом. */

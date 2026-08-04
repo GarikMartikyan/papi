@@ -6,19 +6,19 @@ import {
   DEFAULT_ASIDE_WIDTH,
   DEFAULT_SIDER_COLLAPSED_WIDTH,
   DEFAULT_SIDER_WIDTH,
-} from '../../constants/defaults.constants';
-import { BLOCK_RADIUS } from '../../constants/theme.constants';
-import { useAppDispatch } from '../../hooks/useAppDispatch';
-import { useAppSelector } from '../../hooks/useAppSelector';
-import { useToken } from '../../hooks/useToken';
-import { selectSidebarCollapsed, toggleSidebar } from '../../store/slices/config.slice';
-import type { ThemeSwitcherVariant } from '../ThemeSwitcher/ThemeSwitcher';
-import type { UserMenuProps } from '../UserMenu/UserMenu';
+} from '../../../constants/defaults.constants';
+import { BLOCK_RADIUS } from '../../../constants/theme.constants';
+import { useAppDispatch } from '../../../hooks/useAppDispatch';
+import { useAppSelector } from '../../../hooks/useAppSelector';
+import { useToken } from '../../../hooks/useToken';
+import { selectSidebarCollapsed, toggleSidebar } from '../../../store/slices/config.slice';
+import type { ThemeSwitcherVariant } from '../../shared/ThemeSwitcher';
+import type { UserMenuProps } from '../../shared/UserMenu';
 
-import { MainLayoutHeader } from './MainLayoutHeader';
-import { MainLayoutLinks } from './MainLayoutLinks';
-import { MainLayoutNav } from './MainLayoutNav';
-import { MainLayoutSider } from './MainLayoutSider';
+import { MainLayoutHeader } from './elements/MainLayoutHeader';
+import { MainLayoutLinks } from './elements/MainLayoutLinks';
+import { MainLayoutNav } from './elements/MainLayoutNav';
+import { MainLayoutSider } from './elements/MainLayoutSider';
 
 /**
  * Правая колонка лежит выше контента: открытая она его перекрывает.
@@ -138,8 +138,6 @@ export interface MainLayoutProps {
    * С одним языком в `I18nConfig` не показывается сам: выбирать не из чего.
    */
   localeSelect?: boolean;
-  /** `aria-label` переключателя языка. */
-  localeSelectLabel?: string;
   navItems?: readonly NavItem[];
   /**
    * Тема навигации: от неё зависят цвета меню и логотипа, а с ними и то, какой
@@ -168,10 +166,6 @@ export interface MainLayoutProps {
    * пришлось бы держать в двух местах и следить, чтобы они совпадали.
    */
   themeSwitcher?: ThemeSwitcherVariant | 'none';
-  /** `aria-label` переключателя темы. */
-  themeSwitcherLabel?: string;
-  /** `aria-label` кнопки сворачивания навигации. Сама кнопка стоит в её шапке. */
-  triggerLabel?: string;
   /**
    * Пользователь в шапке: аватар с выпадающим меню, крайним справа. Не передан —
    * блока нет вовсе.
@@ -230,14 +224,11 @@ export const MainLayout = (props: MainLayoutProps) => {
     children,
     headerExtra,
     localeSelect = true,
-    localeSelectLabel,
     navItems,
     siderCollapsedWidth = DEFAULT_SIDER_COLLAPSED_WIDTH,
     siderTheme = 'light',
     siderWidth = DEFAULT_SIDER_WIDTH,
     themeSwitcher,
-    themeSwitcherLabel,
-    triggerLabel,
     user,
   } = props;
 
@@ -289,9 +280,7 @@ export const MainLayout = (props: MainLayoutProps) => {
       <MainLayoutHeader
         extra={headerExtra}
         localeSelect={localeSelect}
-        localeSelectLabel={localeSelectLabel}
         themeSwitcher={themeSwitcher}
-        themeSwitcherLabel={themeSwitcherLabel}
         user={user}
       />
 
@@ -302,7 +291,6 @@ export const MainLayout = (props: MainLayoutProps) => {
           gutter={gutter}
           side="start"
           theme={siderTheme}
-          triggerLabel={triggerLabel}
           width={siderWidth}
           onToggle={handleSiderToggle}
         >

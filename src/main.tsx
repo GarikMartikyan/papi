@@ -1,7 +1,5 @@
 import { createRoot } from 'react-dom/client';
 
-import { BrowserRouter } from 'react-router';
-
 import { PapiProvider } from '@papi/providers';
 
 import { App } from './App';
@@ -23,9 +21,10 @@ if (container === null) throw new Error('#root not found in index.html');
 createRoot(container).render(
   // Тема не передаётся: панель идёт на теме ядра. Своё она добавит пропом
   // `theme` — оно ляжет поверх, целиком её описывать не нужно.
+  //
+  // Роутер тоже не передаётся: `BrowserRouter` ставит сам `PapiProvider`, а
+  // `basename` берёт из `base` сборки.
   <PapiProvider i18n={I18N}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <App />
   </PapiProvider>,
 );

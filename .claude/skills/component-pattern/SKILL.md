@@ -3,7 +3,8 @@ name: component-pattern
 description: >
   The structure every React component in papi must follow — one component per file, props
   destructured at the top, props interface extending the base antd component's props with the
-  rest spread onward, and a fixed order of hooks, handlers, effects and JSX. Use whenever you
+  rest spread onward, a fixed order of hooks, handlers, effects and JSX, and no hand-written
+  useMemo or useCallback. Use whenever you
   create a new component, edit an existing one, or review component code. Triggers: adding a .tsx
   file under lib/components or src/pages, writing a provider or layout, moving JSX out of one
   component into another, any request like "напиши компонент", "add a component", "вынеси в
@@ -171,7 +172,7 @@ export const SidebarMenu = (props: SidebarMenuProps) => {
 4. **RTK Query** — сначала запросы, потом мутации
 5. **Локальный стейт** — `useState`, `useReducer`
 6. **Рефы** — `useRef`
-7. **Производные значения** — вычисления, `useMemo` (см. ниже)
+7. **Производные значения** — вычисления в теле, без обёрток (см. ниже)
 8. **Хендлеры** — `handleX`
 9. **Эффекты** — `useEffect`, `useLayoutEffect`
 10. **Ранние возвраты** — loading / error / empty
@@ -186,15 +187,31 @@ export const SidebarMenu = (props: SidebarMenuProps) => {
 - Ранние возвраты — строго после всех хуков. Иначе нарушается правило хуков и компонент падает
   при смене ветки.
 
-## useMemo и useCallback — только по необходимости
+## useMemo и useCallback не используются
 
-По умолчанию **не оборачивать**. Обёртка оправдана, когда есть конкретная причина:
+**Не оборачивать никогда.** Ни ради дочернего `React.memo`, ни ради массива зависимостей чужого
+хука, ни ради тяжёлого вычисления. Значение считается прямо в теле, колбэк объявляется обычной
+функцией:
 
-- значение или колбэк уходит в мемоизированный (`React.memo`) дочерний компонент;
-- значение попадает в массив зависимостей другого хука;
-- вычисление действительно тяжёлое (сортировка/фильтрация большого списка, разбор дерева).
+```tsx
+const activeKey = findActiveKey(items, pathname);
 
-Во всех остальных случаях обёртка — это шум плюс собственная стоимость сравнения зависимостей.
+const handleSelect = (key: string) => {
+  onSelect?.(key);
+  navigate(key);
+};
+```
+
+Мемоизацию делает React Compiler — он включён в `vite.config.ts` и на сборке расставляет кеш сам,
+по всему телу компонента разом. Ручная обёртка ему ничего не добавляет: она либо повторяет то, что
+он и так сделал, либо расходится с ним и начинает врать — массив зависимостей живёт отдельно от
+кода и устаревает молча.
+
+Импорт `useCallback` или `useMemo` из `react` отклоняет eslint. Обхода нет: понадобилось — значит
+сначала обсуждается правило, а не пишется исключение.
+
+`React.memo` под правило не попадает — он про то, перерисовывать ли компонент, а не про
+мемоизацию значений внутри него.
 
 ## Константы — вне компонента
 
@@ -202,8 +219,9 @@ export const SidebarMenu = (props: SidebarMenuProps) => {
 const SIDER_WIDTH = 240;
 ```
 
-Объект или массив, объявленный внутри тела, пересоздаётся на каждый рендер и ломает мемоизацию
-у детей. Всё, что не зависит от пропсов и стейта, выносится на уровень модуля.
+Всё, что не зависит от пропсов и стейта, выносится на уровень модуля. Дело не в производительности
+— пересоздание объекта внутри тела React Compiler и так закеширует, — а в чтении: константа на
+уровне модуля видна сразу и не притворяется частью логики рендера.
 
 ## Именование
 

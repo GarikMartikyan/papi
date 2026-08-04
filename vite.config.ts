@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 /**
@@ -12,8 +13,19 @@ import { defineConfig } from 'vite';
  */
 const papiCore = fileURLToPath(new URL('./lib', import.meta.url));
 
+/**
+ * React Compiler мемоизирует компоненты и хуки на сборке — поэтому ручных
+ * `useMemo` и `useCallback` в репозитории нет, и eslint их запрещает.
+ *
+ * Он же держит стабильными ссылки на функции, которые хук отдаёт наружу: без
+ * компилятора такая функция пересоздавалась бы каждый рендер и перезапускала
+ * `useEffect` у потребителя, положившего её в зависимости.
+ *
+ * Отдельным плагином, а не опцией `react()`: с шестой версии плагин работает
+ * на oxc, babel в нём больше нет, и компилятор подключается своим проходом.
+ */
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
     alias: { '@papi': papiCore },
   },

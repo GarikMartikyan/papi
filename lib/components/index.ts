@@ -1,17 +1,26 @@
 /**
  * Components — shared UI built on antd: layout, navigation, feedback, guards.
  *
- * Каркас панель собирает одним `MainLayout` и передаёт всё пропсами.
- * `MainLayoutHeader` и `MainLayoutNav` — его части, а не самостоятельные
- * компоненты, поэтому здесь их нет.
+ * Папок две. В `layouts/` — каркасы страницы; каждый лежит своей папкой, где
+ * сам каркас в корне, а его части — в `elements/`. В `shared/` — компоненты,
+ * которые вставляются куда угодно и о каркасе ничего не знают; они лежат
+ * файлами прямо в папке, без своей папки на каждый: части у них нет, и папка
+ * вокруг одного файла добавляла бы уровень, ничего не разделяя.
+ *
+ * Каркас панель собирает одним `MainLayout` и передаёт всё пропсами. Его части
+ * из `elements/` наружу не выходят — самостоятельными компонентами они не
+ * являются, поэтому в барели их нет.
  *
  * `LocaleSelect`, `ThemeSwitcher` и `UserMenu` выходят наружу отдельно: в шапку
  * их ставит сам `MainLayout`, но панель может показать их ещё раз — например
  * переключатель на странице настроек или аватар в своей шапке.
+ *
+ * Барель на всю папку один: `@papi/components` — то, что панель видит, и делить
+ * его по подпапкам незачем, границы `layouts`/`shared` внутренние.
  */
 
-export * from './Icon/Icon';
-export * from './LocaleSelect/LocaleSelect';
-export * from './MainLayout/MainLayout';
-export * from './ThemeSwitcher/ThemeSwitcher';
-export * from './UserMenu/UserMenu';
+export * from './layouts/MainLayout/MainLayout';
+export * from './shared/Icon';
+export * from './shared/LocaleSelect';
+export * from './shared/ThemeSwitcher';
+export * from './shared/UserMenu';

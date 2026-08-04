@@ -8,6 +8,21 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 /**
+ * Ручной мемоизации в репозитории нет: `useMemo` и `useCallback` пишет за нас
+ * React Compiler на сборке — см. `vite.config.ts`.
+ *
+ * Запрет добавляется в `paths` уже существующих блоков ниже, а не отдельным
+ * блоком: flat config заменяет правило целиком, и свой блок с
+ * `no-restricted-imports` стёр бы у `lib/` и `src/` запрет на импорты через
+ * границу.
+ */
+const NO_MANUAL_MEMO = {
+  name: 'react',
+  importNames: ['useCallback', 'useMemo'],
+  message: 'Ручной мемоизации в papi нет — за неё отвечает React Compiler.',
+};
+
+/**
  * Один конфиг на весь проект: ядро и панель живут в одном репозитории и линтятся
  * одними правилами. Отдельно описаны только границы между ними — см. ниже.
  */
@@ -107,6 +122,7 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
+          paths: [NO_MANUAL_MEMO],
           patterns: [
             {
               group: ['@papi/*/**', '**/lib/**'],
@@ -129,6 +145,7 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
+          paths: [NO_MANUAL_MEMO],
           patterns: [
             {
               group: ['@papi', '@papi/**', '**/src/**'],

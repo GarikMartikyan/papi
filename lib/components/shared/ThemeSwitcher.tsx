@@ -1,22 +1,12 @@
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { Button, type ButtonProps, Switch, type SwitchProps } from 'antd';
 
+import { PAPI_MESSAGES } from '../../constants/messages.constants';
 import { useThemeMode } from '../../hooks/useThemeMode';
 import { useToken } from '../../hooks/useToken';
-
-/**
- * Английский тут — осознанный постоянный дефолт, а не заглушка: у обоих
- * вариантов нет видимого текста, поэтому подпись нужна хоть какая-то.
- * Переведённую передаёт панель.
- */
-const DEFAULT_LABEL = 'Toggle colour scheme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export type ThemeSwitcherVariant = 'switch' | 'button';
-
-interface ThemeSwitcherOwnProps {
-  /** `aria-label`: у переключателя нет видимого текста. */
-  label?: string;
-}
 
 /**
  * Объединение по `variant`, а не один плоский интерфейс: базы разные, и
@@ -36,8 +26,7 @@ interface ThemeSwitcherOwnProps {
  * `type` и `color`.
  */
 export type ThemeSwitcherProps =
-  | (ThemeSwitcherOwnProps & Omit<ButtonProps, 'variant'> & { variant?: 'button' })
-  | (ThemeSwitcherOwnProps & SwitchProps & { variant: 'switch' });
+  (Omit<ButtonProps, 'variant'> & { variant?: 'button' }) | (SwitchProps & { variant: 'switch' });
 
 /**
  * Переключатель светлой и тёмной темы.
@@ -45,12 +34,17 @@ export type ThemeSwitcherProps =
  * Про стор и localStorage не знает: `useThemeMode` отдаёт состояние и
  * переключение, а запись выбора в хранилище делает слайс ядра.
  *
+ * `aria-label` берёт из строк ядра сам: видимого текста нет ни у одного из
+ * вариантов, а пропом подпись передавать больше не нужно. Панели, которой нужна
+ * своя, остаётся `aria-label` — он приходит через `...rest` и встаёт поверх.
+ *
  * `MainLayout` ставит его в шапку сам, поэтому отдельно этот компонент нужен
  * только там, где переключатель хочется показать ещё раз — например на
  * странице настроек.
  */
 export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
   const token = useToken();
+  const t = useTranslation();
 
   const { isDark, toggleMode } = useThemeMode();
 
@@ -65,7 +59,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
    */
   if (props.variant === 'switch') {
     // `_variant` вынимается только чтобы не попасть в `rest`: у `Switch` такого пропа нет.
-    const { label = DEFAULT_LABEL, variant: _variant, ...rest } = props;
+    const { variant: _variant, ...rest } = props;
 
     /*
      * Фон блока тумблеру не ставится, в отличие от кнопки: у него заливка
@@ -74,7 +68,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
      */
     return (
       <Switch
-        aria-label={label}
+        aria-label={t(PAPI_MESSAGES.layoutToggleTheme)}
         checked={isDark}
         checkedChildren={<MoonOutlined />}
         unCheckedChildren={<SunOutlined />}
@@ -84,7 +78,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
     );
   }
 
-  const { label = DEFAULT_LABEL, style, variant: _variant, ...rest } = props;
+  const { style, variant: _variant, ...rest } = props;
 
   return (
     // Локальным провайдером, а не токенами в теме: иначе плашкой стали бы все
@@ -92,7 +86,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
     <Button
       style={{ background: token.colorBgLayout, ...style }}
       type="text"
-      aria-label={label}
+      aria-label={t(PAPI_MESSAGES.layoutToggleTheme)}
       icon={isDark ? <MoonOutlined /> : <SunOutlined />}
       onClick={handleToggle}
       {...rest}

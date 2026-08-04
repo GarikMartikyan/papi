@@ -14,7 +14,7 @@ import { rootReducer } from './reducers';
 export type ReservedReducerPath = keyof ReturnType<typeof rootReducer>;
 
 const RESERVED_REDUCER_PATHS = new Set<string>(
-  Object.keys({ config: true, api: true } satisfies Record<ReservedReducerPath, true>),
+  Object.keys({ auth: true, config: true, api: true } satisfies Record<ReservedReducerPath, true>),
 );
 
 /**

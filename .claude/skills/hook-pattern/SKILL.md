@@ -2,7 +2,7 @@
 name: hook-pattern
 description: >
   The structure every custom hook in papi must follow — one hook per file, a fixed order of hooks,
-  handlers and effects, stable returned callbacks, and the rule for choosing a hook over a util.
+  handlers and effects, no hand-written useCallback, and the rule for choosing a hook over a util.
   Use whenever you create or edit a useX.ts file, extract logic out of a component, or review
   hook code. Triggers: adding a file under lib/hooks or src/hooks, requests like "напиши хук",
   "вынеси в хук", "add a hook", "extract this logic".
@@ -72,24 +72,22 @@ return isMobile;
 Заранее закладываться на рост не нужно: превратить `return t` в `return { t, … }` — правка
 вызовов, а не архитектуры, и делается она тогда, когда второе поле реально появилось.
 
-## Колбэки в возвращаемом значении оборачиваются
+## Колбэки в возвращаемом значении не оборачиваются
 
-Это **исключение** из правила «`useCallback` только по необходимости» из component-pattern.
-Всё, что хук отдаёт наружу как функцию, оборачивается в `useCallback`:
+Правило то же, что в [component-pattern](../component-pattern/SKILL.md), и исключений у него нет:
+`useCallback` не пишется. Функция, которую хук отдаёт наружу, объявляется обычной функцией.
 
 ```ts
-const setMode = useCallback(
-  (next: ThemeMode) => {
-    dispatch(setThemeMode(next));
-  },
-  [dispatch],
-);
+const setMode = (next: ThemeMode) => {
+  dispatch(setThemeMode(next));
+};
 ```
 
-Причина: потребитель не контролирует нутро хука, но вполне может положить колбэк в массив
-зависимостей своего `useEffect`. Нестабильная ссылка превращается в бесконечный цикл, который
-отлаживают в чужом коде. Для значений (не функций) правило обычное — мемоизировать только при
-реальной причине.
+Стабильность ссылки при этом никуда не девается — её обеспечивает React Compiler. Она хуку
+действительно нужна: потребитель не контролирует его нутро, но вполне может положить колбэк в
+массив зависимостей своего `useEffect`, и пересоздание на каждый рендер перезапускало бы эффект в
+чужом коде. Раньше это закрывал ручной `useCallback`, теперь — компилятор, и делает он это по
+всему телу хука разом, а не в тех местах, где кто-то не забыл.
 
 ## Аргументы
 
@@ -121,8 +119,6 @@ useTable({ items, pageSize: 20, sortable: true, sortBy: 'name' });
 ## Пример целиком
 
 ```ts
-import { useCallback } from 'react';
-
 import { selectThemeMode, setThemeMode } from '../store/slices/config.slice';
 import { ThemeMode } from '../types/enums/global.enum';
 
@@ -135,16 +131,13 @@ export const useThemeMode = () => {
 
   const isDark = mode === ThemeMode.DARK;
 
-  const setMode = useCallback(
-    (next: ThemeMode) => {
-      dispatch(setThemeMode(next));
-    },
-    [dispatch],
-  );
+  const setMode = (next: ThemeMode) => {
+    dispatch(setThemeMode(next));
+  };
 
-  const toggleMode = useCallback(() => {
+  const toggleMode = () => {
     setMode(isDark ? ThemeMode.LIGHT : ThemeMode.DARK);
-  }, [isDark, setMode]);
+  };
 
   return { mode, isDark, setMode, toggleMode };
 };

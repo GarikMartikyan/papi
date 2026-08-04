@@ -1,13 +1,14 @@
 import { type ChangeEvent, useState } from 'react';
 
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons';
 import { App as AntdApp, Button, Input, Result, Space, Table, Tag, Typography } from 'antd';
 
 import {
   useCreateUserMutation,
   useDeleteUserMutation,
+  useFailRequestMutation,
   useGetUsersQuery,
-} from '../../api/users.api';
+} from '../../api/endpoints/users.api';
 import { useAppDispatch, useAppSelector, useTranslation } from '../../hooks';
 import { selectSearch, selectSelectedUserId, setSearch, setSelectedUserId } from '../../store';
 import type { CreateUserPayload, User } from '../../types/user.interface';
@@ -25,6 +26,8 @@ export const UsersPage = () => {
   const { data, isLoading, isError, refetch } = useGetUsersQuery();
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
+  // TODO: временная проверка тоста ядра — удалить вместе с ручкой `failRequest`.
+  const [failRequest, { isLoading: isFailing }] = useFailRequestMutation();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -68,6 +71,19 @@ export const UsersPage = () => {
       .catch(() => {
         message.error(t('error.title'));
       });
+  };
+
+  /*
+   * TODO: временная проверка тоста ядра — удалить вместе с ручкой `failRequest`.
+   *
+   * Своего `message.error` здесь нет намеренно: тост на ошибку показывает ядро
+   * из `baseQuery`, и проверяется именно он. `catch` нужен только чтобы
+   * отклонённый `unwrap` не всплыл как unhandled rejection.
+   */
+  const handleFailRequest = () => {
+    void failRequest()
+      .unwrap()
+      .catch(() => undefined);
   };
 
   const columns = [
@@ -141,6 +157,10 @@ export const UsersPage = () => {
             }}
           >
             {t('users.action.add')}
+          </Button>
+          {/* TODO: временная кнопка — удалить вместе с ручкой `failRequest`. */}
+          <Button danger icon={<WarningOutlined />} loading={isFailing} onClick={handleFailRequest}>
+            {t('users.action.fail')}
           </Button>
         </Space>
 

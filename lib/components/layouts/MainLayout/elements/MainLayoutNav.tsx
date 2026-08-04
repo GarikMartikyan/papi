@@ -1,9 +1,8 @@
 import { ConfigProvider, Menu, type MenuProps } from 'antd';
 import { useLocation, useNavigate } from 'react-router';
 
-import { useToken } from '../../hooks/useToken';
-
-import type { NavItem } from './MainLayout';
+import { useToken } from '../../../../hooks/useToken';
+import type { NavItem } from '../MainLayout';
 
 type MenuItem = NonNullable<MenuProps['items']>[number];
 
