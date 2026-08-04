@@ -2,9 +2,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { getAccessTokenLS } from '../services/localStorage.service';
 
-import { getApiConfig } from './apiConfig';
-
-type FetchQuery = ReturnType<typeof fetchBaseQuery>;
+import { getApiBaseUrl } from './apiConfig';
 
 const prepareHeaders = (headers: Headers): Headers => {
   const token = getAccessTokenLS();
@@ -17,27 +15,11 @@ const prepareHeaders = (headers: Headers): Headers => {
 };
 
 /**
- * `fetchBaseQuery` принимает `baseUrl` строкой, а не функцией, поэтому запрос
- * пересобирается при смене адреса и переиспользуется, пока адрес тот же.
- */
-let cached: { baseUrl: string; query: FetchQuery } | null = null;
-
-const getFetchQuery = (): FetchQuery => {
-  const { baseUrl } = getApiConfig();
-
-  if (cached?.baseUrl !== baseUrl) {
-    cached = { baseUrl, query: fetchBaseQuery({ baseUrl, prepareHeaders }) };
-  }
-
-  return cached.query;
-};
-
-/**
- * baseQuery ядра: адрес из `configureApi`, токен из localStorage.
+ * baseQuery ядра: адрес из окружения, токен из localStorage.
  *
- * Обёртка нужна ровно затем, чтобы адрес читался в момент запроса — см.
- * `getApiConfig`.
+ * Адрес читается один раз, при загрузке модуля: `VITE_API_BASE_URL` Vite
+ * подставляет в сборку константой, и меняться на рантайме ему негде. Токен —
+ * наоборот, на каждом запросе: он появляется после входа и исчезает после
+ * выхода, а `prepareHeaders` вызывается заново каждый раз.
  */
-export const papiBaseQuery: FetchQuery = (args, api, extraOptions) => {
-  return getFetchQuery()(args, api, extraOptions);
-};
+export const papiBaseQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), prepareHeaders });

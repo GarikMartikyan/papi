@@ -17,5 +17,13 @@ npm-debug.log*
 .playwright-mcp
 docs/superpowers
 
+# локальная песочница: мок-бэкенда и прочего временного в репозитории быть не
+# должно. Папка спрятана и от eslint (eslint.config.js), и от prettier
+# (.prettierignore), и от tsc (include в tsconfig.json) — проверки её не видят.
+#
+# Путь от корня, а не голое имя: панели этот файл приезжает мержем, и неякорный
+# шаблон спрятал бы у неё любую вложенную папку с таким именем
+/tmp
+
 # claude code — personal overrides stay local, the shared setup is committed
 .claude/settings.local.json

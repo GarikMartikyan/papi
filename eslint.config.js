@@ -12,8 +12,16 @@ import tseslint from 'typescript-eslint';
  * одними правилами. Отдельно описаны только границы между ними — см. ниже.
  */
 export default tseslint.config(
+  /*
+   * `tmp/` — локальная песочница из .gitignore. В `tsconfig.json` её нет,
+   * поэтому type-aware правила на её файлах падали бы «file not in project», и
+   * `npm run lint` ломался бы от того, чего в репозитории даже нет.
+   *
+   * Шаблон начинается прямо с `tmp`, без ведущих звёздочек: прячется корневая
+   * песочница, а не любая папка с таким именем внутри `lib/` или `src/`.
+   */
   {
-    ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**', '**/*.d.ts'],
+    ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**', 'tmp/**', '**/*.d.ts'],
   },
 
   js.configs.recommended,

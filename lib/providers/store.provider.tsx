@@ -12,7 +12,7 @@ export interface StoreProviderProps {
  *
  * Стора в пропсах нет намеренно: он один и живёт в papi. Свои слайсы панель
  * докладывает в него через `injectSlices`, а не подменяет стор целиком — иначе
- * пришлось бы заново регистрировать middleware baseApi.
+ * пришлось бы заново регистрировать middleware api.
  */
 export const StoreProvider = (props: StoreProviderProps) => {
   const { children } = props;

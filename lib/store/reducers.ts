@@ -1,6 +1,6 @@
 import { combineSlices } from '@reduxjs/toolkit';
 
-import { baseApi } from '../api/baseApi';
+import { api } from '../api/api';
 
 import { configSlice } from './slices/config.slice';
 
@@ -11,4 +11,4 @@ import { configSlice } from './slices/config.slice';
  * Стор ядра подхватывает их без `replaceReducer` — `inject` меняет карту
  * редьюсеров на месте и возвращает ту же функцию.
  */
-export const rootReducer = combineSlices(configSlice, baseApi);
+export const rootReducer = combineSlices(configSlice, api);

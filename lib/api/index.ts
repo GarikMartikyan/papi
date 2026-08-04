@@ -5,7 +5,6 @@
  * 401 появятся, когда будет известен формат ошибок бэкенда.
  */
 
+export * from './api';
 export * from './apiConfig';
-export * from './baseApi';
 export * from './baseQuery';
-export * from './configureApi';
