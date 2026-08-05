@@ -67,11 +67,11 @@ Merge, а не rebase: у панели своя история, переписы
 
 Суффикс `Service` в именах ушёл вместе с папкой:
 
-| было | стало |
-|---|---|
-| `getProjectIdService` | `getStoredProjectId` |
-| `setProjectIdService` | `setProjectId` |
-| `removeProjectIdService` | `removeProjectId` |
+| было                     | стало                |
+| ------------------------ | -------------------- |
+| `getProjectIdService`    | `getStoredProjectId` |
+| `setProjectIdService`    | `setProjectId`       |
+| `removeProjectIdService` | `removeProjectId`    |
 
 `getProjectId` и `getProjectIdFromPath` не изменились — сменился только барель, из которого они
 приезжают. Первая читает адрес, потом хранилище; вторая — только адрес.

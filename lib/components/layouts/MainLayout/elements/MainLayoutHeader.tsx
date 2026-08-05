@@ -1,7 +1,7 @@
 import { Layout, Space } from 'antd';
 import type { ReactNode } from 'react';
 
-import logoLarge from '../../../../assets/icons/logo-large.svg';
+import logoLarge from '../../../../assets/images/logo-large.svg';
 import { useToken } from '../../../../hooks/useToken';
 import { LocaleSelect } from '../../../shared/LocaleSelect';
 import { ThemeSwitcher, type ThemeSwitcherVariant } from '../../../shared/ThemeSwitcher';
