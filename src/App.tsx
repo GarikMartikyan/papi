@@ -61,16 +61,6 @@ const ASIDE_LINKS: LinkDefinition[] = [
   { href: 'https://redux-toolkit.js.org', label: 'Redux Toolkit', iconName: 'layers' },
 ];
 
-/*
- * TODO: заглушка — имя придёт из запроса «кто я», когда в ядре появится
- * эндпоинт профиля. Аватарки рядом нет намеренно: без неё видно, что papi
- * рисует в кружке инициалы («GM»).
- *
- * Имён два: короткое стоит на кнопке в шапке, полное — в карточке меню.
- */
-const USER_NAME = 'Garik';
-const USER_FULL_NAME = 'Garik Martikyan';
-
 /**
  * Панель целиком: разделы и то, что панель кладёт в каркас.
  *
@@ -133,12 +123,9 @@ export const App = () => {
     <PapiRouter
       asideItems={asideItems}
       routes={APP_ROUTES}
-      user={{
-        name: USER_NAME,
-        fullName: USER_FULL_NAME,
-        description: t('user.role'),
-        items: userMenuItems,
-      }}
+      /* Одни пункты меню: имя, описание и аватар ядро берёт из `GET /me` — того
+         самого запроса, которым гард проверяет сессию перед каркасом. */
+      user={{ items: userMenuItems }}
     />
   );
 };

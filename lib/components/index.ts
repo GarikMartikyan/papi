@@ -18,6 +18,10 @@
  * их ставит сам `MainLayout`, но панель может показать их ещё раз — например
  * переключатель на странице настроек или аватар в своей шапке.
  *
+ * `SplashScreen` — ожидание на весь экран, до всякого каркаса. Ядро показывает
+ * его, пока гард проверяет сессию; панели он нужен под `Suspense` вокруг
+ * лениво подгружаемых страниц.
+ *
  * Барель на всю папку один: `@papi/components` — то, что панель видит, и делить
  * его по подпапкам незачем, границы `layouts`/`shared` внутренние.
  */
@@ -26,5 +30,6 @@ export * from './layouts/AuthLayout/AuthLayout';
 export * from './layouts/MainLayout/MainLayout';
 export * from './shared/Icon';
 export * from './shared/LocaleSelect';
+export * from './shared/SplashScreen';
 export * from './shared/ThemeSwitcher';
 export * from './shared/UserMenu';

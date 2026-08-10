@@ -47,6 +47,16 @@ export const PAPI_MESSAGES = {
     id: 'papi.error.unknown',
     defaultMessage: 'Something went wrong',
   },
+  /*
+   * Тост на удачную мутацию с `showSuccess: true`, когда бэкенд не прислал
+   * своего текста. Нарочно ни о чём: ядро не знает, что именно случилось, —
+   * эндпоинту, которому нужна точная формулировка, вместо `true` передаётся
+   * своя строка.
+   */
+  successDefault: {
+    id: 'papi.success.default',
+    defaultMessage: 'Done',
+  },
   loginTitle: {
     id: 'papi.login.title',
     defaultMessage: 'Sign in',
@@ -74,6 +84,23 @@ export const PAPI_MESSAGES = {
   loginSubmit: {
     id: 'papi.login.submit',
     defaultMessage: 'Sign in',
+  },
+  /*
+   * Экран гарда: сессия есть, но подтвердить её не вышло — бэкенд не ответил
+   * или ответил ошибкой. Про сам токен здесь не говорится ни слова намеренно: с
+   * ним всё может быть в порядке, а лежать — сервер.
+   */
+  sessionTitle: {
+    id: 'papi.session.title',
+    defaultMessage: 'We could not confirm your session',
+  },
+  sessionRetry: {
+    id: 'papi.session.retry',
+    defaultMessage: 'Try again',
+  },
+  sessionSignOut: {
+    id: 'papi.session.signOut',
+    defaultMessage: 'Sign out',
   },
   notFoundTitle: {
     id: 'papi.notFound.title',

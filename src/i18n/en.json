@@ -2,7 +2,6 @@
   "app.title": "Example Panel",
   "nav.users": "Users",
   "nav.settings": "Settings",
-  "user.role": "Administrator",
   "user.settings": "Settings",
   "user.logout": "Sign out",
   "user.loggedOut": "Token cleared — that is what signing out looks like",

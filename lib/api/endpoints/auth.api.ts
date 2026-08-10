@@ -23,14 +23,14 @@ export interface LoginResponse {
 /**
  * Вход. Единственный эндпоинт, который ядро заводит само.
  *
- * `silent` — потому что ошибку показывает сама форма: тост поверх неё накрыл бы
- * поле, в которое пользователю и нужно вернуться.
+ * `hideError` — потому что ошибку показывает сама форма: тост поверх неё
+ * накрыл бы поле, в которое пользователю и нужно вернуться.
  */
 export const authApi = api.injectEndpoints({
   endpoints: (build) => ({
     login: build.mutation<LoginResponse, LoginPayload>({
       query: (body) => ({ url: LOGIN_PATH, method: 'POST', body }),
-      extraOptions: { silent: true },
+      extraOptions: { hideError: true },
     }),
   }),
 });

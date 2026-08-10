@@ -12,6 +12,7 @@
  */
 
 export * from './apiError.util';
+export * from './apiMessage.util';
 export * from './locale.util';
 export * from './projectId.util';
 export * from './sidebar.util';

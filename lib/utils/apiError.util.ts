@@ -4,6 +4,8 @@ import type { MessageDescriptor } from 'react-intl';
 
 import { PAPI_MESSAGES } from '../constants/messages.constants';
 
+import { readApiMessage } from './apiMessage.util';
+
 /**
  * Ответ «сессии больше нет». Единственный статус, на который ядро не только
  * показывает текст, но и действует, — поэтому он и выходит наружу.
@@ -30,26 +32,6 @@ export interface PapiApiError {
   /** Строка ядра на случай, если своего текста у ответа не оказалось. */
   descriptor: MessageDescriptor;
 }
-
-/**
- * Достаёт текст ошибки из тела ответа.
- *
- * Договорённость одна: бэкенд кладёт текст в поле `message`. Голая строка в
- * теле тоже принимается — это тот же текст, только без обёртки.
- *
- * Остальные формы (`error`, `detail`, список ошибок) намеренно не угадываются:
- * панели ходят к разным бэкендам, и угаданное поле однажды окажется не текстом
- * для пользователя, а внутренним кодом, который ему покажут.
- */
-const readMessage = (data: unknown): string | undefined => {
-  if (typeof data === 'string' && data.trim() !== '') return data;
-
-  if (typeof data !== 'object' || data === null) return undefined;
-
-  const { message } = data as { message?: unknown };
-
-  return typeof message === 'string' && message.trim() !== '' ? message : undefined;
-};
 
 /** Строка ядра под статус ответа. */
 const resolveDescriptor = (status: number): MessageDescriptor => {
@@ -80,7 +62,7 @@ export const toApiError = (error: FetchBaseQueryError | SerializedError): PapiAp
   if (typeof error.status === 'number') {
     return {
       status: error.status,
-      message: readMessage(error.data),
+      message: readApiMessage(error.data),
       descriptor: resolveDescriptor(error.status),
     };
   }

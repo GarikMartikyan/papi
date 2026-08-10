@@ -1,9 +1,9 @@
 /**
  * API layer — RTK Query base query, error handling and endpoint injection.
  *
- * `errorNotifier` наружу не выходит: это мостик между `baseQuery` и antd, и
- * ставит его `ApiProvider`. Панель показывает свои сообщения через
- * `App.useApp()` напрямую.
+ * `notifier` наружу не выходит: это мостик между `baseQuery` и antd, и ставит
+ * его `ApiProvider`. Панель показывает свои сообщения через `App.useApp()`
+ * напрямую.
  *
  * Ручки лежат в `endpoints/`, по файлу на ресурс; рядом с ними — `api.ts` с
  * самим `createApi` и `baseQuery`. Панель складывает свои так же —

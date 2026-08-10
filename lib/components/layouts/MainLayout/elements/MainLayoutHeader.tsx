@@ -63,7 +63,7 @@ export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
       <Space size="middle">
         {extra}
         {themeSwitcher !== 'none' && <ThemeSwitcher variant={themeSwitcher} />}
-        {localeSelect && <LocaleSelect />}
+        {localeSelect && <LocaleSelect variant="button" />}
         {user !== undefined && <UserMenu {...user} />}
       </Space>
     </Layout.Header>

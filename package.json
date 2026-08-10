@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "vite --host",
+    "//": "TODO: заглушка — `start` поднимает мок бэкенда из tmp/, а её нет в git. Появится настоящий: адрес в .env, здесь остаётся `vite --host --open`, tmp/ удаляется.",
+    "start": "vite --config tmp/vite.config.mock.ts --host --open",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
