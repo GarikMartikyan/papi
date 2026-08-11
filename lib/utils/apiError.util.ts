@@ -2,7 +2,7 @@ import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { MessageDescriptor } from 'react-intl';
 
-import { PAPI_MESSAGES } from '../constants/messages.constants';
+import { papiMessage } from '../i18n/messages';
 
 import { readApiMessage } from './apiMessage.util';
 
@@ -35,12 +35,15 @@ export interface PapiApiError {
 
 /** Строка ядра под статус ответа. */
 const resolveDescriptor = (status: number): MessageDescriptor => {
-  if (status === UNAUTHORIZED_STATUS) return PAPI_MESSAGES.errorUnauthorized;
-  if (status === FORBIDDEN) return PAPI_MESSAGES.errorForbidden;
-  if (status === NOT_FOUND) return PAPI_MESSAGES.errorNotFound;
-  if (status >= SERVER_ERROR) return PAPI_MESSAGES.errorServer;
+  if (status === UNAUTHORIZED_STATUS) {
+    return papiMessage('the session has ended — please sign in again');
+  }
 
-  return PAPI_MESSAGES.errorUnknown;
+  if (status === FORBIDDEN) return papiMessage('you have no access to this');
+  if (status === NOT_FOUND) return papiMessage('nothing found at this address');
+  if (status >= SERVER_ERROR) return papiMessage('the server failed to handle the request');
+
+  return papiMessage('something went wrong');
 };
 
 /**
@@ -57,7 +60,7 @@ const resolveDescriptor = (status: number): MessageDescriptor => {
  * стека.
  */
 export const toApiError = (error: FetchBaseQueryError | SerializedError): PapiApiError => {
-  if (!('status' in error)) return { descriptor: PAPI_MESSAGES.errorUnknown };
+  if (!('status' in error)) return { descriptor: papiMessage('something went wrong') };
 
   if (typeof error.status === 'number') {
     return {
@@ -67,14 +70,22 @@ export const toApiError = (error: FetchBaseQueryError | SerializedError): PapiAp
     };
   }
 
-  if (error.status === 'TIMEOUT_ERROR') return { descriptor: PAPI_MESSAGES.errorTimeout };
-  if (error.status === 'PARSING_ERROR') return { descriptor: PAPI_MESSAGES.errorParse };
-  if (error.status === 'FETCH_ERROR') return { descriptor: PAPI_MESSAGES.errorNetwork };
+  if (error.status === 'TIMEOUT_ERROR') {
+    return { descriptor: papiMessage('the server took too long to answer') };
+  }
+
+  if (error.status === 'PARSING_ERROR') {
+    return { descriptor: papiMessage('the server sent an answer we could not read') };
+  }
+
+  if (error.status === 'FETCH_ERROR') {
+    return { descriptor: papiMessage('no connection to the server') };
+  }
 
   /*
    * Остаётся `CUSTOM_ERROR` — его никто не бросает, пока панель не напишет свой
    * baseQuery. Текст в нём произвольный и не для пользователя, поэтому в
    * `message` он не идёт.
    */
-  return { descriptor: PAPI_MESSAGES.errorUnknown };
+  return { descriptor: papiMessage('something went wrong') };
 };

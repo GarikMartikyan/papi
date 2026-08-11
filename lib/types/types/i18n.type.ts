@@ -12,8 +12,9 @@ export type Locale = string;
 /**
  * Message catalogue: message id → ICU string.
  *
- * Ключи плоские (`'users.title'`), потому что react-intl ищет id как есть и во
- * вложенный объект не заглядывает.
+ * Ключ — сам английский текст строки в нижнем регистре (`'sign out'`,
+ * `'{count} users'`), а не путь вроде `'users.title'`. Плоские они при этом
+ * по-прежнему: react-intl ищет id как есть и во вложенный объект не заглядывает.
  */
 export type LocaleMessages = Record<string, string>;
 

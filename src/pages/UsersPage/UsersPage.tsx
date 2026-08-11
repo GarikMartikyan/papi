@@ -54,22 +54,23 @@ export const UsersPage = () => {
       .then(() => {
         setIsFormOpen(false);
         // Список обновится сам: мутация инвалидирует тег `User`.
-        message.success(t('users.created'));
+        message.success(t('user created'));
       })
       .catch(() => {
-        message.error(t('error.title'));
+        message.error(t('request failed'));
       });
   };
 
+  // Своего `message.success` здесь нет: тост на удаление показывает ядро —
+  // эндпоинт объявил его через `showSuccessMessage`.
   const handleDelete = (id: string) => {
     void deleteUser(id)
       .unwrap()
       .then(() => {
         if (id === selectedUserId) dispatch(setSelectedUserId(null));
-        message.success(t('users.deleted'));
       })
       .catch(() => {
-        message.error(t('error.title'));
+        message.error(t('request failed'));
       });
   };
 
@@ -88,30 +89,30 @@ export const UsersPage = () => {
 
   const columns = [
     {
-      title: t('users.column.name'),
+      title: t('name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: t('users.column.email'),
+      title: t('email'),
       dataIndex: 'email',
       key: 'email',
     },
     {
-      title: t('users.column.role'),
+      title: t('role'),
       dataIndex: 'role',
       key: 'role',
       render: (role: string) => <Tag>{role}</Tag>,
     },
     {
-      title: t('users.column.actions'),
+      title: t('actions'),
       key: 'actions',
       render: (_: unknown, user: User) => (
         <Button
           type="text"
           danger
           icon={<DeleteOutlined />}
-          aria-label={t('users.action.delete')}
+          aria-label={t('delete')}
           onClick={() => {
             handleDelete(user.id);
           }}
@@ -124,14 +125,14 @@ export const UsersPage = () => {
     return (
       <Result
         status="error"
-        title={t('error.title')}
+        title={t('request failed')}
         extra={
           <Button
             onClick={() => {
               void refetch();
             }}
           >
-            {t('error.retry')}
+            {t('try again')}
           </Button>
         }
       />
@@ -145,7 +146,7 @@ export const UsersPage = () => {
           <Input.Search
             allowClear
             value={search}
-            placeholder={t('users.search')}
+            placeholder={t('search by name or email')}
             onChange={handleSearch}
             style={{ width: 280 }}
           />
@@ -156,20 +157,20 @@ export const UsersPage = () => {
               setIsFormOpen(true);
             }}
           >
-            {t('users.action.add')}
+            {t('add user')}
           </Button>
           {/* TODO: временная кнопка — удалить вместе с ручкой `failRequest`. */}
           <Button danger icon={<WarningOutlined />} loading={isFailing} onClick={handleFailRequest}>
-            {t('users.action.fail')}
+            {t('fail a request')}
           </Button>
         </Space>
 
         <Typography.Text type="secondary">
-          {t('users.count', { count: visible.length })}
+          {t('{count} users', { count: visible.length })}
           {selected !== undefined && (
             <>
               {' · '}
-              {t('users.selected', { name: selected.name })}
+              {t('selected: {name}', { name: selected.name })}
             </>
           )}
         </Typography.Text>
@@ -180,7 +181,7 @@ export const UsersPage = () => {
           dataSource={visible}
           columns={columns}
           pagination={false}
-          locale={{ emptyText: t('users.empty') }}
+          locale={{ emptyText: t('no users match your search') }}
           rowSelection={{
             type: 'radio',
             selectedRowKeys: selectedUserId === null ? [] : [selectedUserId],

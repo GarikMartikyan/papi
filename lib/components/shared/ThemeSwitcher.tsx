@@ -1,10 +1,9 @@
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { Button, type ButtonProps, Switch, type SwitchProps } from 'antd';
 
-import { PAPI_MESSAGES } from '../../constants/messages.constants';
+import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { useThemeMode } from '../../hooks/useThemeMode';
 import { useToken } from '../../hooks/useToken';
-import { useTranslation } from '../../hooks/useTranslation';
 
 export type ThemeSwitcherVariant = 'switch' | 'button';
 
@@ -44,7 +43,7 @@ export type ThemeSwitcherProps =
  */
 export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
   const token = useToken();
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   const { isDark, toggleMode } = useThemeMode();
 
@@ -68,7 +67,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
      */
     return (
       <Switch
-        aria-label={t(PAPI_MESSAGES.layoutToggleTheme)}
+        aria-label={t('toggle colour scheme')}
         checked={isDark}
         checkedChildren={<MoonOutlined />}
         unCheckedChildren={<SunOutlined />}
@@ -86,7 +85,7 @@ export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
     <Button
       style={{ background: token.colorBgLayout, ...style }}
       type="text"
-      aria-label={t(PAPI_MESSAGES.layoutToggleTheme)}
+      aria-label={t('toggle colour scheme')}
       icon={isDark ? <MoonOutlined /> : <SunOutlined />}
       onClick={handleToggle}
       {...rest}

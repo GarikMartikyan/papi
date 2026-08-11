@@ -12,9 +12,8 @@ import {
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 
-import { PAPI_MESSAGES } from '../../constants/messages.constants';
+import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { useToken } from '../../hooks/useToken';
-import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Аватар в карточке меню. Дефолтные 32 у antd: рядом с ним две строки текста —
@@ -82,7 +81,7 @@ const getInitials = (name: string): string | undefined => {
  *
  * Подпись приходит готовым узлом, а не ключом сообщения: собственного каталога
  * строк у ядра нет — языки целиком задаёт панель (см. `I18nConfig`). Панель
- * пишет `label: t('menu.logout')`.
+ * пишет `label: t('sign out')`.
  */
 export interface UserMenuAction {
   key: string;
@@ -216,7 +215,7 @@ export const UserMenu = (props: UserMenuProps) => {
   const { avatar, children, description, fullName, items, name, ...rest } = props;
 
   const token = useToken();
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   /* Каждое имя подменяет другое, когда его не передали: панель, у которой имя
      одно, пишет любой из двух пропов и получает его в обоих местах. */
@@ -308,7 +307,7 @@ export const UserMenu = (props: UserMenuProps) => {
              подменила бы собой то, что пользователь читает на экране. */
           // Подпись — только когда имени нет: иначе она дублировала бы видимый
           // текст кнопки и скринридер прочитал бы его дважды.
-          aria-label={triggerName === undefined ? t(PAPI_MESSAGES.layoutAccountMenu) : undefined}
+          aria-label={triggerName === undefined ? t('account menu') : undefined}
           style={{
             /* Раскладка задана явно: своих отступов между произвольными детьми
                кнопка antd не держит — их получают только `icon` с текстом. */

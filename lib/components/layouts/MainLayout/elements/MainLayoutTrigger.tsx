@@ -1,7 +1,6 @@
 import { Button } from 'antd';
 
-import { PAPI_MESSAGES } from '../../../../constants/messages.constants';
-import { useTranslation } from '../../../../hooks/useTranslation';
+import { usePapiTranslation } from '../../../../hooks/usePapiTranslation';
 import { Icon } from '../../../shared/Icon';
 
 /**
@@ -49,12 +48,12 @@ export interface MainLayoutTriggerProps {
 export const MainLayoutTrigger = (props: MainLayoutTriggerProps) => {
   const { collapsed, color, onToggle, opacity } = props;
 
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   return (
     <Button
       type="text"
-      aria-label={t(PAPI_MESSAGES.layoutToggleSidebar)}
+      aria-label={t('toggle sidebar')}
       aria-expanded={!collapsed}
       // `opacity` на иконке, а не на кнопке: на кнопке она приглушила бы заодно
       // и подсветку фона под курсором.

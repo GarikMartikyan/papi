@@ -10,9 +10,8 @@ import {
 import { Icon } from '../components/shared/Icon';
 import { SplashScreen } from '../components/shared/SplashScreen';
 import type { UserMenuProps } from '../components/shared/UserMenu';
-import { PAPI_MESSAGES } from '../constants/messages.constants';
 import { useAuth } from '../hooks/useAuth';
-import { useTranslation } from '../hooks/useTranslation';
+import { usePapiTranslation } from '../hooks/usePapiTranslation';
 import { toApiError } from '../utils/apiError.util';
 
 import type { PapiRoute } from './PapiRouter';
@@ -71,7 +70,7 @@ export const PapiRouterLayout = (props: PapiRouterLayoutProps) => {
   const { routes, user, ...rest } = props;
 
   const { pathname } = useLocation();
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   const { isAuthenticated, logout } = useAuth();
 
@@ -90,7 +89,9 @@ export const PapiRouterLayout = (props: PapiRouterLayoutProps) => {
       : [
           {
             key: route.path,
-            label: t(route.labelId),
+            /* Дескриптором, а не строкой: `t` здесь сужен до ключей ядра, а
+               подпись приехала из каталога панели — их ядро не знает. */
+            label: t({ id: route.labelId }),
             icon: route.iconName === undefined ? undefined : <Icon name={route.iconName} />,
           },
         ],
@@ -123,18 +124,18 @@ export const PapiRouterLayout = (props: PapiRouterLayoutProps) => {
       <SplashScreen>
         <Result
           status="warning"
-          title={t(PAPI_MESSAGES.sessionTitle)}
+          title={t('we could not confirm your session')}
           /* Текст бэкенда, если он есть: он точнее любого нашего — там знают,
              что именно не так. Нет — остаётся строка ядра под статус. */
           subTitle={apiError.message ?? t(apiError.descriptor)}
           extra={[
             <Button key="retry" type="primary" onClick={handleRetry}>
-              {t(PAPI_MESSAGES.sessionRetry)}
+              {t('try again')}
             </Button>,
             /* Выход рядом с «Повторить»: если сервер лежит не первый час,
                единственное, что тут остаётся сделать, — уйти. */
             <Button key="logout" onClick={logout}>
-              {t(PAPI_MESSAGES.sessionSignOut)}
+              {t('sign out')}
             </Button>,
           ]}
         />

@@ -2,10 +2,9 @@ import { Button, type ButtonProps, Dropdown, type MenuProps, Select, type Select
 import type { CSSProperties } from 'react';
 
 import { getLocaleFlag } from '../../assets/icons/flags/flags';
-import { PAPI_MESSAGES } from '../../constants/messages.constants';
 import { useToken } from '../../hooks';
 import { useLocale } from '../../hooks/useLocale';
-import { useTranslation } from '../../hooks/useTranslation';
+import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import type { LocaleDefinition } from '../../types/interfaces/localeDefinition.interface';
 import type { Locale } from '../../types/types/i18n.type';
 
@@ -95,7 +94,7 @@ export type LocaleSelectProps =
  */
 export const LocaleSelect = (props: LocaleSelectProps) => {
   const token = useToken();
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   const { locale, locales, setLocale } = useLocale();
 
@@ -139,7 +138,7 @@ export const LocaleSelect = (props: LocaleSelectProps) => {
           style={{ background: token.colorBgLayout, ...style }}
           shape="circle"
           type="text"
-          aria-label={t(PAPI_MESSAGES.layoutChangeLanguage)}
+          aria-label={t('change language')}
           {...rest}
         >
           {/* Флага нет — остаётся код языка: `shape="circle"` задаёт минимальную
@@ -166,7 +165,7 @@ export const LocaleSelect = (props: LocaleSelectProps) => {
      */
     <Select
       variant="filled"
-      aria-label={t(PAPI_MESSAGES.layoutChangeLanguage)}
+      aria-label={t('change language')}
       options={locales.map(toOption)}
       style={{ width: DEFAULT_WIDTH, background: token.colorBgLayout, ...style }}
       value={locale}

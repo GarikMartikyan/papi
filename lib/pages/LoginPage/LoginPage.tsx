@@ -3,9 +3,8 @@ import { Navigate, useLocation } from 'react-router';
 
 import { useLoginMutation } from '../../api/endpoints/auth.api';
 import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/AuthLayout/AuthLayout';
-import { PAPI_MESSAGES } from '../../constants/messages.constants';
 import { useAuth } from '../../hooks/useAuth';
-import { useTranslation } from '../../hooks/useTranslation';
+import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { PAPI_ROUTES, type PapiLoginState } from '../../routing/routes.constants';
 import { toApiError } from '../../utils/apiError.util';
 
@@ -39,7 +38,7 @@ export type LoginPageProps = Omit<AuthLayoutProps, 'children'>;
  */
 export const LoginPage = (props: LoginPageProps) => {
   const location = useLocation();
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   const { isAuthenticated, login: startSession } = useAuth();
 
@@ -66,33 +65,33 @@ export const LoginPage = (props: LoginPageProps) => {
   if (isAuthenticated) return <Navigate to={from} replace />;
 
   return (
-    <AuthLayout title={t(PAPI_MESSAGES.loginTitle)} {...props}>
+    <AuthLayout title={t('sign in (page title)')} {...props}>
       {errorText !== undefined && (
         <Alert showIcon style={ALERT_STYLE} title={errorText} type="error" />
       )}
 
       <Form<LoginFormValues> layout="vertical" onFinish={handleFinish} requiredMark={false}>
         <Form.Item
-          label={t(PAPI_MESSAGES.loginEmail)}
+          label={t('email')}
           name="email"
           rules={[
-            { required: true, message: t(PAPI_MESSAGES.loginEmailRequired) },
-            { type: 'email', message: t(PAPI_MESSAGES.loginEmailInvalid) },
+            { required: true, message: t('enter your email') },
+            { type: 'email', message: t('this does not look like an email') },
           ]}
         >
           <Input autoComplete="email" size="large" />
         </Form.Item>
 
         <Form.Item
-          label={t(PAPI_MESSAGES.loginPassword)}
+          label={t('password')}
           name="password"
-          rules={[{ required: true, message: t(PAPI_MESSAGES.loginPasswordRequired) }]}
+          rules={[{ required: true, message: t('enter your password') }]}
         >
           <Input.Password autoComplete="current-password" size="large" />
         </Form.Item>
 
         <Button block htmlType="submit" loading={isLoading} size="large" type="primary">
-          {t(PAPI_MESSAGES.loginSubmit)}
+          {t('sign in')}
         </Button>
       </Form>
     </AuthLayout>

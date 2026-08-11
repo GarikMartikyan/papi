@@ -1,9 +1,9 @@
 /**
  * Hooks — typed store hooks, auth/permission access, UI state helpers.
  *
- * `useTranslation` один на всех: строки панели он форматирует по ключу с
- * проверкой, строки ядра — по дескриптору из `PAPI_MESSAGES`, с запасным
- * текстом. Отдельного хука под ядро нет.
+ * `useTranslation` наружу выходит generic-ом: панель подставляет в него ключи
+ * своего каталога. Строки ядра сужает `usePapiTranslation` — он рядом, но в
+ * барель не входит: панели её ключи он не проверит, а чужие запретит.
  */
 
 export * from './useAppDispatch';

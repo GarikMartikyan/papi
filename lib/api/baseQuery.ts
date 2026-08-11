@@ -7,7 +7,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import type { MessageDescriptor } from 'react-intl';
 
-import { PAPI_MESSAGES } from '../constants/messages.constants';
+import { papiMessage } from '../i18n/messages';
 import { getApiBaseUrl } from '../services/env.service';
 import { getAccessTokenLS } from '../services/localStorage.service';
 import { loggedOut } from '../store/slices/auth.slice';
@@ -43,7 +43,7 @@ export interface PapiQueryExtraOptions {
    * Не задан или `false` — обычный тост ядра: текст бэкенда, а нет его — строка
    * под статус ответа.
    */
-  hideError?: boolean | MessageDescriptor;
+  hideErrorMessage?: boolean | MessageDescriptor;
   /**
    * Показать тост на удачный ответ. Только для мутаций — см. `papiBaseQuery`.
    *
@@ -57,8 +57,12 @@ export interface PapiQueryExtraOptions {
    * Дескриптор, а не готовая строка, потому что `extraOptions` задаются на
    * определении эндпоинта — вне React и до первого рендера, где перевести
    * нечем. Переводится строка в момент показа.
+   *
+   * И потому, что готовая строка здесь тоже бывает — та, что пришла от бэкенда
+   * по `true`. Ключ у нас сам выглядит текстом, так что различить их можно
+   * только по форме: объект идёт в `t`, строка показывается как есть.
    */
-  showSuccess?: boolean | MessageDescriptor;
+  showSuccessMessage?: boolean | MessageDescriptor;
 }
 
 /**
@@ -70,28 +74,28 @@ export interface PapiQueryExtraOptions {
  * ровно ту строку, ради которой проп и передали.
  */
 const resolveError = (
-  hideError: PapiQueryExtraOptions['hideError'],
+  hideErrorMessage: PapiQueryExtraOptions['hideErrorMessage'],
   error: PapiApiError,
 ): PapiApiError | undefined => {
-  if (hideError === true) return undefined;
+  if (hideErrorMessage === true) return undefined;
 
-  if (hideError === undefined || hideError === false) return error;
+  if (hideErrorMessage === undefined || hideErrorMessage === false) return error;
 
-  return { ...error, message: undefined, descriptor: hideError };
+  return { ...error, message: undefined, descriptor: hideErrorMessage };
 };
 
 /**
  * Текст тоста об успехе — или `undefined`, когда показывать нечего.
  */
 const resolveSuccess = (
-  showSuccess: PapiQueryExtraOptions['showSuccess'],
+  showSuccessMessage: PapiQueryExtraOptions['showSuccessMessage'],
   data: unknown,
 ): string | MessageDescriptor | undefined => {
-  if (showSuccess === undefined || showSuccess === false) return undefined;
+  if (showSuccessMessage === undefined || showSuccessMessage === false) return undefined;
 
-  if (showSuccess !== true) return showSuccess;
+  if (showSuccessMessage !== true) return showSuccessMessage;
 
-  return readApiMessage(data) ?? PAPI_MESSAGES.successDefault;
+  return readApiMessage(data) ?? papiMessage('done');
 };
 
 const prepareHeaders = (headers: Headers): Headers => {
@@ -140,7 +144,7 @@ export const papiBaseQuery: BaseQueryFn<
      * что.
      */
     if (api.type === 'mutation') {
-      const success = resolveSuccess(extraOptions?.showSuccess, result.data);
+      const success = resolveSuccess(extraOptions?.showSuccessMessage, result.data);
 
       if (success !== undefined) notifyApiSuccess(success);
     }
@@ -157,7 +161,7 @@ export const papiBaseQuery: BaseQueryFn<
    */
   if (error.status === UNAUTHORIZED_STATUS) api.dispatch(loggedOut());
 
-  const shown = resolveError(extraOptions?.hideError, error);
+  const shown = resolveError(extraOptions?.hideErrorMessage, error);
 
   if (shown !== undefined) notifyApiError(shown);
 

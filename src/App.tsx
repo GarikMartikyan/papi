@@ -30,14 +30,14 @@ const APP_ROUTES: AppRoute[] = [
   {
     path: ROUTES.users,
     element: <UsersPage />,
-    labelId: 'nav.users',
+    labelId: 'users',
     iconName: 'users',
     index: true,
   },
   {
     path: ROUTES.settings,
     element: <SettingsPage />,
-    labelId: 'nav.settings',
+    labelId: 'settings',
     iconName: 'settings',
   },
 ];
@@ -94,7 +94,7 @@ export const App = () => {
    */
   const handleLogout = () => {
     logout();
-    message.success(t('user.loggedOut'));
+    message.success(t('signed out hint'));
   };
 
   /*
@@ -105,14 +105,14 @@ export const App = () => {
   const userMenuItems: UserMenuItem[] = [
     {
       key: 'settings',
-      label: t('user.settings'),
+      label: t('settings'),
       icon: <Icon name="settings" />,
       to: ROUTES.settings,
     },
     { type: 'divider' },
     {
       key: 'logout',
-      label: t('user.logout'),
+      label: t('sign out'),
       icon: <Icon name="log-out" />,
       danger: true,
       onClick: handleLogout,

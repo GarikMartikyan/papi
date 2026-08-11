@@ -6,26 +6,62 @@ import { type IntlConfig, IntlProvider } from 'react-intl';
 
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
+import { PAPI_CATALOGS } from '../i18n/messages';
 import { setLocales } from '../services/locales.service';
 import { selectLocale, syncLocale } from '../store/slices/config.slice';
 import type { I18nConfig } from '../types/interfaces/i18nConfig.interface';
 import type { LocaleDefinition } from '../types/interfaces/localeDefinition.interface';
-import type { Locale, LocaleMessages } from '../types/types/i18n.type';
+import type { Locale } from '../types/types/i18n.type';
 import { resolveSupportedLocale } from '../utils/locale.util';
 import { warn } from '../utils/logger.util';
 
-/** Объявлен на уровне модуля: новый объект на каждый рендер пересоздавал бы `intl`, а с ним и `t`. */
-const EMPTY_MESSAGES: LocaleMessages = {};
+/**
+ * Строки языка — четырьмя слоями: чем ниже, тем запаснее.
+ *
+ * Верхние два — активный язык: каталог ядра, поверх него каталог панели. Порядок
+ * именно такой, чтобы одноимённый ключ панели перекрывал строку ядра: панель,
+ * которой не нравится формулировка ядра, пишет свою у себя и не трогает `lib/`.
+ *
+ * Нижние два — те же каталоги на запасном языке, и без них теперь нельзя.
+ * Ключ у нас — сам английский текст, поэтому ненайденную строку react-intl
+ * возвращает как id, то есть в интерфейс попадает английский в нижнем регистре:
+ * `sign in` вместо «Войти», а у ключа с уточнением — и вовсе
+ * `sign in (page title)`. Раньше на это же место приезжал `defaultMessage`, но
+ * он держал вторую копию каждой строки ядра. Слой запасного языка делает то же
+ * самое одной ссылкой на уже существующий каталог.
+ *
+ * Ядро подкладывает именно `en`: это язык его исходных строк. Панели —
+ * `I18nConfig.default`, тот, который она обещала переводить всегда.
+ *
+ * Ссылку на результат держит стабильной React Compiler: новый объект на каждый
+ * рендер пересоздавал бы `intl`, а с ним и `t`, — а `t` лежит в зависимостях
+ * эффектов, вплоть до регистрации тостов в `ApiProvider`.
+ */
+const resolveMessages = (
+  definition: LocaleDefinition | undefined,
+  fallbackDefinition: LocaleDefinition | undefined,
+  locale: Locale,
+) => ({
+  ...PAPI_CATALOGS.en,
+  ...fallbackDefinition?.messages,
+  ...PAPI_CATALOGS[locale],
+  ...definition?.messages,
+});
 
 /**
  * По умолчанию react-intl пишет о пропущенных переводах через `console.error`.
  * Это не ошибка приложения, а недоделанный перевод, поэтому уровень снижен и
  * добавлен префикс `[papi]`.
  *
- * Приходят и на язык из `defaultLocale`: react-intl молчит только там, где в
- * `formatMessage` передан `defaultMessage`, — то есть на строках ядра, которые
- * едут дескриптором. Ключ панели запасного текста не несёт, и вместо
- * ненайденной строки в интерфейс попадёт её id.
+ * Смысл у сообщения теперь другой, и он уже. Слои `resolveMessages` склеены в
+ * один объект до того, как react-intl что-либо ищет, поэтому ключ, найденный на
+ * запасном языке, для него ничем не отличается от переведённого. Ругань
+ * означает «ключа нет ни в одном каталоге» — то есть опечатку или забытую
+ * строку, а не отставший перевод.
+ *
+ * За отставшими переводами этот канал больше не следит: непереведённый ключ
+ * молча показывается по-английски. Замечать такое должна сверка каталогов, а не
+ * консоль рантайма.
  */
 const handleIntlError: NonNullable<IntlConfig['onError']> = (error) => {
   warn(error.message);
@@ -90,7 +126,8 @@ export const I18nProvider = (props: I18nProviderProps) => {
   const { definitions, fallback } = resolveI18n(i18n);
   const locale = resolveSupportedLocale(storedLocale, [...definitions.keys()], fallback);
   const definition = definitions.get(locale);
-  const messages = definition?.messages ?? EMPTY_MESSAGES;
+  const fallbackDefinition = definitions.get(fallback);
+  const messages = resolveMessages(definition, fallbackDefinition, locale);
 
   /*
    * Глобальная локаль dayjs — для дат самой панели, а не для antd.

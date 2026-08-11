@@ -42,9 +42,9 @@ export interface Me {
  * Только чтение: правка профиля — дело панели, у каждой она своя, и общего
  * контракта на неё нет.
  *
- * `hideError` — потому что ошибку показывает сам гард: он рисует её экраном с
- * кнопкой «Повторить», и тост поверх пустого экрана сказал бы то же самое
- * второй раз.
+ * `hideErrorMessage` — потому что ошибку показывает сам гард: он рисует её
+ * экраном с кнопкой «Повторить», и тост поверх пустого экрана сказал бы то же
+ * самое второй раз.
  *
  * Тег объявляется здесь, а не в `api.ts`: `createApi` фиксирует набор тегов при
  * создании, поэтому в ядре `tagTypes` пуст, и каждый файл эндпоинтов добавляет
@@ -58,7 +58,7 @@ export const meApi = api.enhanceEndpoints({ addTagTypes: [rtkTags.me] }).injectE
     getMe: build.query<Me, void>({
       query: () => ME_PATH,
       providesTags: [rtkTags.me],
-      extraOptions: { hideError: true },
+      extraOptions: { hideErrorMessage: true },
     }),
   }),
 });

@@ -37,9 +37,9 @@ export const SettingsPage = () => {
 
   return (
     <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-      <Card title={t('settings.appearance')}>
+      <Card title={t('appearance')}>
         <Descriptions column={1} size="small">
-          <Descriptions.Item label={t('settings.theme')}>
+          <Descriptions.Item label={t('dark theme')}>
             <Space>
               {/* Вариант `switch`: в шапке стоит тот же переключатель кнопкой —
                   здесь видно, что оба варианта живут от одного состояния. */}
@@ -47,7 +47,7 @@ export const SettingsPage = () => {
               <Typography.Text code>{mode}</Typography.Text>
             </Space>
           </Descriptions.Item>
-          <Descriptions.Item label={t('settings.language')}>
+          <Descriptions.Item label={t('language')}>
             <Space>
               <LocaleSelect />
               <Typography.Text code>{locale}</Typography.Text>
@@ -56,12 +56,14 @@ export const SettingsPage = () => {
         </Descriptions>
       </Card>
 
-      <Card title={t('settings.session')}>
+      <Card title={t('session')}>
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
           <Descriptions column={1} size="small">
-            <Descriptions.Item label={t('settings.session.header')}>
+            <Descriptions.Item label={t('authorization header the mock api received')}>
               {session?.authorization === null || session?.authorization === undefined ? (
-                <Typography.Text type="secondary">{t('settings.session.none')}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {t('no token — papi sent no header')}
+                </Typography.Text>
               ) : (
                 <Typography.Text code>{session.authorization}</Typography.Text>
               )}
@@ -75,23 +77,25 @@ export const SettingsPage = () => {
 
           {session !== undefined && (
             <Typography.Text type="secondary">
-              {t('settings.session.at', { time: new Date(session.receivedAt) })}
+              {t('answered at {time}', { time: new Date(session.receivedAt) })}
             </Typography.Text>
           )}
 
           <Space wrap>
-            <Button onClick={handleSetToken}>{t('settings.session.setToken')}</Button>
-            <Button onClick={handleClearToken}>{t('settings.session.clearToken')}</Button>
+            <Button onClick={handleSetToken}>{t('store a fake token')}</Button>
+            <Button onClick={handleClearToken}>{t('clear token')}</Button>
           </Space>
         </Space>
       </Card>
 
-      <Card title={t('settings.session')}>
+      <Card title={t('session')}>
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
           <Descriptions column={1} size="small">
-            <Descriptions.Item label={t('settings.session.header')}>
+            <Descriptions.Item label={t('authorization header the mock api received')}>
               {session?.authorization === null || session?.authorization === undefined ? (
-                <Typography.Text type="secondary">{t('settings.session.none')}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {t('no token — papi sent no header')}
+                </Typography.Text>
               ) : (
                 <Typography.Text code>{session.authorization}</Typography.Text>
               )}
@@ -105,23 +109,25 @@ export const SettingsPage = () => {
 
           {session !== undefined && (
             <Typography.Text type="secondary">
-              {t('settings.session.at', { time: new Date(session.receivedAt) })}
+              {t('answered at {time}', { time: new Date(session.receivedAt) })}
             </Typography.Text>
           )}
 
           <Space wrap>
-            <Button onClick={handleSetToken}>{t('settings.session.setToken')}</Button>
-            <Button onClick={handleClearToken}>{t('settings.session.clearToken')}</Button>
+            <Button onClick={handleSetToken}>{t('store a fake token')}</Button>
+            <Button onClick={handleClearToken}>{t('clear token')}</Button>
           </Space>
         </Space>
       </Card>
 
-      <Card title={t('settings.session')}>
+      <Card title={t('session')}>
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
           <Descriptions column={1} size="small">
-            <Descriptions.Item label={t('settings.session.header')}>
+            <Descriptions.Item label={t('authorization header the mock api received')}>
               {session?.authorization === null || session?.authorization === undefined ? (
-                <Typography.Text type="secondary">{t('settings.session.none')}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {t('no token — papi sent no header')}
+                </Typography.Text>
               ) : (
                 <Typography.Text code>{session.authorization}</Typography.Text>
               )}
@@ -135,23 +141,25 @@ export const SettingsPage = () => {
 
           {session !== undefined && (
             <Typography.Text type="secondary">
-              {t('settings.session.at', { time: new Date(session.receivedAt) })}
+              {t('answered at {time}', { time: new Date(session.receivedAt) })}
             </Typography.Text>
           )}
 
           <Space wrap>
-            <Button onClick={handleSetToken}>{t('settings.session.setToken')}</Button>
-            <Button onClick={handleClearToken}>{t('settings.session.clearToken')}</Button>
+            <Button onClick={handleSetToken}>{t('store a fake token')}</Button>
+            <Button onClick={handleClearToken}>{t('clear token')}</Button>
           </Space>
         </Space>
       </Card>
 
-      <Card title={t('settings.session')}>
+      <Card title={t('session')}>
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
           <Descriptions column={1} size="small">
-            <Descriptions.Item label={t('settings.session.header')}>
+            <Descriptions.Item label={t('authorization header the mock api received')}>
               {session?.authorization === null || session?.authorization === undefined ? (
-                <Typography.Text type="secondary">{t('settings.session.none')}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {t('no token — papi sent no header')}
+                </Typography.Text>
               ) : (
                 <Typography.Text code>{session.authorization}</Typography.Text>
               )}
@@ -165,21 +173,21 @@ export const SettingsPage = () => {
 
           {session !== undefined && (
             <Typography.Text type="secondary">
-              {t('settings.session.at', { time: new Date(session.receivedAt) })}
+              {t('answered at {time}', { time: new Date(session.receivedAt) })}
             </Typography.Text>
           )}
 
           <Space wrap>
-            <Button onClick={handleSetToken}>{t('settings.session.setToken')}</Button>
-            <Button onClick={handleClearToken}>{t('settings.session.clearToken')}</Button>
+            <Button onClick={handleSetToken}>{t('store a fake token')}</Button>
+            <Button onClick={handleClearToken}>{t('clear token')}</Button>
           </Space>
         </Space>
       </Card>
 
-      <Card title={t('settings.dates')}>
+      <Card title={t('dates')}>
         <Space orientation="vertical">
           <DatePicker />
-          <Typography.Text type="secondary">{t('settings.dates.hint')}</Typography.Text>
+          <Typography.Text type="secondary">{t('dates hint')}</Typography.Text>
         </Space>
       </Card>
     </Space>

@@ -1,8 +1,7 @@
 import { Button, Result, type ResultProps } from 'antd';
 import { Link } from 'react-router';
 
-import { PAPI_MESSAGES } from '../../constants/messages.constants';
-import { useTranslation } from '../../hooks/useTranslation';
+import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { PAPI_ROUTES } from '../../routing/routes.constants';
 
 export type NotFoundPageProps = ResultProps;
@@ -18,16 +17,16 @@ export type NotFoundPageProps = ResultProps;
  * знает `PapiRouter`, и с корня он уводит туда сам.
  */
 export const NotFoundPage = (props: NotFoundPageProps) => {
-  const t = useTranslation();
+  const t = usePapiTranslation();
 
   return (
     <Result
       status="404"
-      title={t(PAPI_MESSAGES.notFoundTitle)}
-      subTitle={t(PAPI_MESSAGES.notFoundText)}
+      title={t('page not found')}
+      subTitle={t('the address is wrong, or the page has moved')}
       extra={
         <Link to={PAPI_ROUTES.home}>
-          <Button type="primary">{t(PAPI_MESSAGES.notFoundBack)}</Button>
+          <Button type="primary">{t('back to the panel')}</Button>
         </Link>
       }
       {...props}
