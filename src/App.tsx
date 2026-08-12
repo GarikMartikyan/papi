@@ -4,10 +4,10 @@ import { type AsideLink, Icon, type UserMenuItem } from '@papi/components';
 import { useAuth } from '@papi/hooks';
 import { type PapiRoute, PapiRouter } from '@papi/routing';
 
-import { useTranslation } from './hooks';
+import { ROUTES } from './constants/routes.constants';
+import { useTranslation } from './hooks/useTranslation';
 import { SettingsPage } from './pages/SettingsPage/SettingsPage';
 import { UsersPage } from './pages/UsersPage/UsersPage';
-import { ROUTES } from './routes';
 
 /**
  * Разделы панели: адрес, страница и вид в меню — одной записью.

@@ -1,10 +1,14 @@
 import { api } from '@papi/api';
 
-import type { CreateUserPayload, Session, User } from '../../types/user.interface';
-import { APP_API_TAGS } from '../tags.constants';
+import { APP_API_TAGS } from '../constants/tags.constants';
+import type { CreateUserPayload, Session, User } from '../types/user.interface';
 
 /**
  * Эндпоинты панели дописываются в api ядра.
+ *
+ * Своего api панель не создаёт: он один, живёт в ядре и приходит из `@papi/api`.
+ * Адрес бэкенда ему не передаётся — ядро читает `VITE_API_BASE_URL` само. Ресурс
+ * — файл: новая сущность заводит рядом свой `<имя>.api.ts`.
  *
  * Теги объявляются здесь же: `createApi` внутри ядра фиксирует их набор при
  * создании, и расширить его можно только `enhanceEndpoints`. Эндпоинты идут

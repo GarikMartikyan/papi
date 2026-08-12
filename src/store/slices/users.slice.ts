@@ -13,7 +13,7 @@ const initialState: UsersState = {
 };
 
 /**
- * Слайс панели. В стор papi попадает через `injectSlices` — см. `store/index.ts`.
+ * Слайс панели. В стор papi попадает через `injectSlices` — см. `store/store.ts`.
  *
  * Селекторы объявлены здесь же (`selectors`), чтобы после инжекта отдать их
  * наружу уже безопасными: до первого dispatch ключа `users` в состоянии нет.

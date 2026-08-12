@@ -5,8 +5,8 @@ import { useLocale, useThemeMode } from '@papi/hooks';
 import { removeAccessTokenLS, setAccessTokenLS } from '@papi/services';
 import { getProjectId } from '@papi/utils';
 
-import { useGetSessionQuery } from '../../api/endpoints/users.api';
-import { useTranslation } from '../../hooks';
+import { useGetSessionQuery } from '../../api/users.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const FAKE_TOKEN = 'example-panel-demo-token';
 

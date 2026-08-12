@@ -8,9 +8,12 @@ import {
   useDeleteUserMutation,
   useFailRequestMutation,
   useGetUsersQuery,
-} from '../../api/endpoints/users.api';
-import { useAppDispatch, useAppSelector, useTranslation } from '../../hooks';
-import { selectSearch, selectSelectedUserId, setSearch, setSelectedUserId } from '../../store';
+} from '../../api/users.api';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useTranslation } from '../../hooks/useTranslation';
+import { setSearch, setSelectedUserId } from '../../store/slices/users.slice';
+import { selectSearch, selectSelectedUserId } from '../../store/store';
 import type { CreateUserPayload, User } from '../../types/user.interface';
 
 import { UserFormModal } from './UserFormModal';

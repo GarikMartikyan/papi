@@ -26,5 +26,3 @@ export type AppState = RootState & StateOf<typeof appSlices>;
  * обычный селектор на этом падает, а этот подставит начальное состояние.
  */
 export const { selectSelectedUserId, selectSearch } = appSlices.users.selectors;
-
-export * from './slices/users.slice';

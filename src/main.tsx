@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { PapiProvider } from '@papi/providers';
 
 import { App } from './App';
-import { I18N } from './i18n';
+import { I18N } from './i18n/i18n';
 
 // Панель не знает ни про reset antd, ни про правки поверх темы, — это забота ядра.
 import '@papi/styles.css';

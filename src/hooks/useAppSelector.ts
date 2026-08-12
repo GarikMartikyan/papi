@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-import type { AppState } from '../store';
+import type { AppState } from '../store/store';
 
 /**
  * `useSelector`, привязанный к состоянию панели.

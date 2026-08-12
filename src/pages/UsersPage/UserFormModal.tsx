@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 
-import { useTranslation } from '../../hooks';
+import { useTranslation } from '../../hooks/useTranslation';
 import type { CreateUserPayload } from '../../types/user.interface';
 
 export interface UserFormModalProps {

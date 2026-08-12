@@ -12,7 +12,7 @@ import { papiBaseQuery } from './baseQuery';
  * ```ts
  * import { api } from '@papi/api';
  *
- * import { APP_API_TAGS } from './tags.constants';
+ * import { APP_API_TAGS } from '../../constants/tags.constants';
  *
  * export const usersApi = api
  *   .enhanceEndpoints({ addTagTypes: [APP_API_TAGS.user] })
