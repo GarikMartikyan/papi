@@ -11,7 +11,7 @@ import { setLocales } from '../services/locales.service';
 import { selectLocale, syncLocale } from '../store/slices/config.slice';
 import type { I18nConfig } from '../types/interfaces/i18nConfig.interface';
 import type { LocaleDefinition } from '../types/interfaces/localeDefinition.interface';
-import type { Locale } from '../types/types/i18n.type';
+import type { Locale, MessageId } from '../types/types/i18n.type';
 import { resolveSupportedLocale } from '../utils/locale.util';
 import { warn } from '../utils/logger.util';
 
@@ -176,7 +176,12 @@ export const I18nProvider = (props: I18nProviderProps) => {
       <IntlProvider
         locale={locale}
         defaultLocale={fallback}
-        messages={messages}
+        /* Утверждением, потому что доказать полноту набора компилятору нечем:
+           объявив свои ключи в `FormatjsIntl`, панель требует здесь их все
+           разом, а каталоги приезжают из JSON и склеиваются слоями — статически
+           это `Record<string, string>`. Что ключ на месте, проверяет сверка
+           каталогов; чего в них нет, покажет `handleIntlError`. */
+        messages={messages as Record<MessageId, string>}
         onError={handleIntlError}
       >
         {children}

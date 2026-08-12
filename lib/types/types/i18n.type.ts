@@ -1,5 +1,6 @@
 import type { ConfigProviderProps } from 'antd';
 import type dayjs from 'dayjs';
+import type { MessageDescriptor } from 'react-intl';
 
 /**
  * BCP-47 language tag: `'en'`, `'ru'`, `'pt-BR'`.
@@ -17,6 +18,19 @@ export type Locale = string;
  * по-прежнему: react-intl ищет id как есть и во вложенный объект не заглядывает.
  */
 export type LocaleMessages = Record<string, string>;
+
+/**
+ * Ключ сообщения — тот, что знает react-intl.
+ *
+ * Обычный `string`, пока панель не объявила свои ключи в `FormatjsIntl.Message`
+ * (см. `src/types/formatjs.d.ts`); объявила — union её каталога. Ядро берёт его
+ * отсюда, а не из своего `PapiMessageKey`, там, где ключ приходит **снаружи**:
+ * подпись маршрута пишет панель, и сверяться он должен с её каталогом.
+ *
+ * Через `MessageDescriptor`, а не через сам `FormatjsIntl`: у formatjs это
+ * глобальный namespace, а вывод из него — внутренний тип, наружу не выходящий.
+ */
+export type MessageId = NonNullable<MessageDescriptor['id']>;
 
 /** antd не экспортирует `Locale` из корня — берём тип из пропсов провайдера. */
 export type AntdLocale = NonNullable<ConfigProviderProps['locale']>;

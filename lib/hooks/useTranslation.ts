@@ -1,5 +1,7 @@
 import { type MessageDescriptor, type PrimitiveType, useIntl } from 'react-intl';
 
+import type { MessageId } from '../types/types/i18n.type';
+
 /** Значения для подстановки в ICU-строку: `{count}`, `{name}`. */
 export type MessageValues = Record<string, PrimitiveType>;
 
@@ -28,8 +30,13 @@ export type MessageValues = Record<string, PrimitiveType>;
  *
  * Возвращает саму функцию, а не объект с ней: сущность здесь одна, и обёртка
  * заставляла бы разворачивать её на каждом вызове.
+ *
+ * Параметр ограничен `MessageId`, а не `string`: этим же типом объявлен `id` у
+ * дескриптора, и без ограничения ключ не пролез бы в `formatMessage`. Он же
+ * стоит умолчанием, так что панель, объявившая свои ключи в `FormatjsIntl`,
+ * получает проверку и без собственной обёртки — та остаётся ради имени.
  */
-export const useTranslation = <Key extends string = string>() => {
+export const useTranslation = <Key extends MessageId = MessageId>() => {
   const intl = useIntl();
 
   return (message: Key | MessageDescriptor, values?: MessageValues) => {

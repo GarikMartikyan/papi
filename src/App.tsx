@@ -4,29 +4,22 @@ import { type AsideLink, Icon, type UserMenuItem } from '@papi/components';
 import { useAuth } from '@papi/hooks';
 import { type PapiRoute, PapiRouter } from '@papi/routing';
 
-import { type MessageKey, useTranslation } from './hooks';
+import { useTranslation } from './hooks';
 import { SettingsPage } from './pages/SettingsPage/SettingsPage';
 import { UsersPage } from './pages/UsersPage/UsersPage';
 import { ROUTES } from './routes';
-
-/**
- * Маршрут панели с проверкой ключа подписи.
- *
- * Ядро типизировать ключи не может — каталог принадлежит панели, — поэтому в
- * `PapiRoute` подпись объявлена обычной строкой. Здесь она сужается до ключей
- * `en.json`, и опечатка не доживает до рантайма.
- */
-interface AppRoute extends PapiRoute {
-  labelId?: MessageKey;
-}
 
 /**
  * Разделы панели: адрес, страница и вид в меню — одной записью.
  *
  * Раздел без `labelId` в меню не появится, но останется рабочим адресом — так
  * описываются страницы, на которые ходят по ссылке.
+ *
+ * Ключ подписи проверяется прямо в `PapiRoute`: ключи каталога объявлены в
+ * `types/formatjs.d.ts`, и ядро берёт их оттуда. Своего сужения маршруту больше
+ * не нужно.
  */
-const APP_ROUTES: AppRoute[] = [
+const APP_ROUTES: PapiRoute[] = [
   {
     path: ROUTES.users,
     element: <UsersPage />,

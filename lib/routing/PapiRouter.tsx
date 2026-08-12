@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import type { MainLayoutProps } from '../components/layouts/MainLayout/MainLayout';
 import { LoginPage } from '../pages/LoginPage/LoginPage';
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
+import type { MessageId } from '../types/types/i18n.type';
 
 import { PapiRouterLayout } from './PapiRouterLayout';
 import { PAPI_ROUTES } from './routes.constants';
@@ -24,8 +25,12 @@ export interface PapiRoute {
    *
    * Ключ, а не готовая строка: подпись переводится на рендере, а список
    * маршрутов панель обычно держит константой вне компонента.
+   *
+   * `MessageId`, а не `string`: панель, объявившая свои ключи в
+   * `FormatjsIntl.Message`, получает здесь их список и проверку опечаток. Не
+   * объявившая — обычную строку, как было.
    */
-  labelId?: string;
+  labelId?: MessageId;
   /** Имя иконки для `Icon`: подойдёт и lucide, и antd. */
   iconName?: string;
   /**
