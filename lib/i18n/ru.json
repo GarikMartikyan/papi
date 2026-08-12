@@ -21,6 +21,8 @@
   "page not found": "Страница не найдена",
   "the address is wrong, or the page has moved": "Адрес неверный или страница переехала",
   "back to the panel": "Вернуться в панель",
+  "access denied": "Доступ запрещён",
+  "server error": "Ошибка сервера",
   "change language": "Сменить язык",
   "toggle colour scheme": "Переключить тему",
   "toggle sidebar": "Свернуть меню",

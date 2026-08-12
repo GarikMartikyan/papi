@@ -21,6 +21,8 @@
   "page not found": "Page not found",
   "the address is wrong, or the page has moved": "The address is wrong, or the page has moved",
   "back to the panel": "Back to the panel",
+  "access denied": "Access denied",
+  "server error": "Server error",
   "change language": "Change language",
   "toggle colour scheme": "Toggle colour scheme",
   "toggle sidebar": "Toggle sidebar",
