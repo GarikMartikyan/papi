@@ -1,5 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+import { papiRtkTags } from '../constants/tags.constants';
+import type { PapiTag } from '../types/types/tag.type';
+
 import { papiBaseQuery } from './baseQuery';
 
 /**
@@ -12,25 +15,30 @@ import { papiBaseQuery } from './baseQuery';
  * ```ts
  * import { api } from '@papi/api';
  *
- * import { APP_API_TAGS } from '../../constants/tags.constants';
- *
- * export const usersApi = api
- *   .enhanceEndpoints({ addTagTypes: [APP_API_TAGS.user] })
- *   .injectEndpoints({ endpoints: (build) => ({ … }) });
+ * export const usersApi = api.injectEndpoints({ endpoints: (build) => ({ … }) });
  * ```
  *
- * Тег — константой из своего файла тегов, а не строкой по месту: опечатка в
- * строке не ломает сборку, она просто тихо перестаёт инвалидировать кеш.
+ * `tagTypes` — весь набор ядра сразу, а не по тегу на файл эндпоинтов:
+ * `createApi` фиксирует набор при создании, и файл, объявляющий только свои
+ * теги, не смог бы инвалидировать чужой. Теги перечислены константами из
+ * `constants/tags.constants` — опечатка в строке по месту не ломает сборку, она
+ * просто тихо перестаёт инвалидировать кеш.
  *
- * `tagTypes` здесь пуст, и заполнить его в ядре нельзя: `createApi` фиксирует
- * набор тегов при создании, а какие теги нужны — знает только панель. Поэтому
- * теги объявляет файл эндпоинтов, через `enhanceEndpoints`. В рантайме это тот
- * же объект, набор расширяется только на уровне типов, — но `injectEndpoints`
- * вызывается именно у результата: через `api` TS не пропустит новый тег в
- * `providesTags`.
+ * Значений панели в массиве нет и быть не может: ядро о её сущностях не знает.
+ * Она дописывает их в рантайме — `injectTags` в `src/constants/tags.constants`.
+ * Приведение к `PapiTag` — вторая половина того же: тип `TagTypes` выводится из
+ * этого массива, и без него `providesTags` не принял бы тег панели, сколько бы
+ * их ни добавили в рантайме. Сам `PapiTag` собирается из объявления
+ * `Papi.ApiTags`, которое панель пишет у себя.
+ *
+ * Отдельной переменной с типом, а не значением по месту: `TagTypes` выводится из
+ * того, что лежит в `tagTypes`, и без аннотации вывелся бы `'Me'`.
  */
+const tagTypes: PapiTag[] = Object.values(papiRtkTags);
+
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: papiBaseQuery,
+  tagTypes,
   endpoints: () => ({}),
 });

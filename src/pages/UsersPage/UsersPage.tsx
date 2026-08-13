@@ -14,7 +14,8 @@ import { useAppSelector } from '../../hooks/useAppSelector';
 import { useTranslation } from '../../hooks/useTranslation';
 import { setSearch, setSelectedUserId } from '../../store/slices/users.slice';
 import { selectSearch, selectSelectedUserId } from '../../store/store';
-import type { CreateUserPayload, User } from '../../types/user.interface';
+import type { User } from '../../types/interfaces/user.interfaces';
+import type { CreateUserPayload } from '../../types/types/user.types';
 
 import { UserFormModal } from './UserFormModal';
 
@@ -49,14 +50,11 @@ export const UsersPage = () => {
     dispatch(setSearch(event.target.value));
   };
 
-  // `.unwrap()` отклоняется на ошибке запроса, поэтому `catch` обязателен:
-  // без него неудачная мутация всплывает как unhandled rejection.
   const handleCreate = (payload: CreateUserPayload) => {
     void createUser(payload)
       .unwrap()
       .then(() => {
         setIsFormOpen(false);
-        // Список обновится сам: мутация инвалидирует тег `User`.
         message.success(t('user created'));
       })
       .catch(() => {
@@ -64,8 +62,6 @@ export const UsersPage = () => {
       });
   };
 
-  // Своего `message.success` здесь нет: тост на удаление показывает ядро —
-  // эндпоинт объявил его через `showSuccessMessage`.
   const handleDelete = (id: string) => {
     void deleteUser(id)
       .unwrap()
@@ -77,13 +73,7 @@ export const UsersPage = () => {
       });
   };
 
-  /*
-   * TODO: временная проверка тоста ядра — удалить вместе с ручкой `failRequest`.
-   *
-   * Своего `message.error` здесь нет намеренно: тост на ошибку показывает ядро
-   * из `baseQuery`, и проверяется именно он. `catch` нужен только чтобы
-   * отклонённый `unwrap` не всплыл как unhandled rejection.
-   */
+  // TODO: временная проверка тоста ядра — удалить вместе с ручкой `failRequest`.
   const handleFailRequest = () => {
     void failRequest()
       .unwrap()

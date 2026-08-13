@@ -3,3 +3,5 @@
  */
 
 export * from './i18n.type';
+export * from './permission.type';
+export * from './tag.type';

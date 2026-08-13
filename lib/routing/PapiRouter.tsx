@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
+import { Route, Routes } from 'react-router';
 
 import type { MainLayoutProps } from '../components/layouts/MainLayout/MainLayout';
+import { papiRoutes } from '../constants/routes.constants';
 import { LoginPage } from '../pages/LoginPage/LoginPage';
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
 import type { MessageId } from '../types/types/i18n.type';
+import type { PapiPermission } from '../types/types/permission.type';
 
 import { PapiRouterLayout } from './PapiRouterLayout';
-import { PAPI_ROUTES } from './routes.constants';
+import { PermissionGate } from './PermissionGate';
+import { RouteProtector } from './RouteProtector';
 
 /**
  * Раздел панели: адрес, страница и то, как он выглядит в меню.
@@ -34,8 +37,23 @@ export interface PapiRoute {
   /** Имя иконки для `Icon`: подойдёт и lucide, и antd. */
   iconName?: string;
   /**
+   * Право, которое раздел требует. Не указано — раздел открыт всем вошедшим.
+   *
+   * Не перечислением ядра: набор прав у каждой панели свой, приезжает с её
+   * бэкенда и ядру неизвестен. Панель объявляет свой enum у себя, и `PapiRoute`
+   * получает здесь именно его — через `Papi.Permissions`, см. `PapiPermission`.
+   * Панель без объявления пишет сюда обычную строку.
+   *
+   * Права вошедшего ядро берёт из `GET /me`. Нет права — раздела нет в меню, а
+   * по прямому адресу вместо страницы стоит `ForbiddenPage`. Прячется и то, и
+   * другое: убрать только пункт значит оставить адрес открытым, а закрыть
+   * только адрес — оставить в меню пункт, который всегда отвечает отказом.
+   */
+  permission?: PapiPermission;
+  /**
    * Первый раздел панели: на него уходит корень. Не отмечен ни один — берётся
-   * первый в списке.
+   * первый в списке. Отмеченный, но закрытый правом пропускается — корень
+   * уводит на первый доступный.
    */
   index?: boolean;
 }
@@ -57,7 +75,8 @@ export interface PapiRouterProps extends Omit<MainLayoutProps, 'children' | 'nav
  *
  * Панель передаёт список разделов и пропсы каркаса, а всё остальное — общее для
  * панелей — приезжает отсюда: вход и ненайденный адрес вне каркаса, гард перед
- * всем остальным, подстановка первого раздела на корень.
+ * всем остальным, подстановка первого доступного раздела на корень и проверка
+ * прав на каждом разделе.
  *
  * Ненайденный адрес стоит рядом с входом, а не внутри каркаса: раздела, в
  * котором находится человек, тут нет, а каркас вокруг пустоты выдаёт себя за
@@ -66,36 +85,53 @@ export interface PapiRouterProps extends Omit<MainLayoutProps, 'children' | 'nav
  * несуществующим независимо от того, кто по нему пришёл, а требовать вход, чтобы
  * сообщить об опечатке в ссылке, значит отвечать не на тот вопрос.
  *
- * Гард проверяет не только наличие токена: перед каркасом он спрашивает у
- * бэкенда `GET /me` и ждёт ответа — см. `PapiRouterLayout`. Оттуда же в шапку
+ * Гард — `RouteProtector`, и он проверяет не только наличие токена: перед
+ * каркасом он спрашивает у бэкенда `GET /me` и ждёт ответа. Оттуда же в шапку
  * приходят имя и аватар, поэтому в пропе `user` панели остаются пункты меню.
+ * Каркас за ним — `PapiRouterLayout` — рисует уже только себя.
+ *
+ * `logo` уходит не только в каркас, но и на экраны вне его — ожидание сессии,
+ * ошибку гарда, отказ и 404. Иначе панель со своим логотипом показывала бы чужой
+ * ровно там, где кроме логотипа на экране ничего нет.
  *
  * Здесь `Routes`, а не `Router`: сам `BrowserRouter` ставит `PapiProvider`, и
  * второй роутер вокруг этих маршрутов был бы вложенным в первый.
  */
 export const PapiRouter = (props: PapiRouterProps) => {
-  const { routes, loginElement, notFoundElement, ...rest } = props;
+  const { routes, loginElement, notFoundElement, logo, ...rest } = props;
 
-  const indexRoute = routes.find((route) => route.index) ?? routes[0];
+  /* Раздел на самом корне панель объявить вправе — тогда своей ветки корню не
+     нужно: она стала бы вторым маршрутом на тот же адрес, и какой из двух
+     совпадёт, решал бы react-router. */
+  const hasHomeRoute = routes.some((route) => route.path === papiRoutes.home);
 
   return (
     <Routes>
-      <Route path={PAPI_ROUTES.login} element={loginElement ?? <LoginPage />} />
+      <Route path={papiRoutes.login} element={loginElement ?? <LoginPage />} />
 
-      <Route element={<PapiRouterLayout routes={routes} {...rest} />}>
-        {/* Разделов нет вовсе — редиректа с корня тоже: он вёл бы сам на себя. */}
-        {indexRoute !== undefined && (
-          <Route path={PAPI_ROUTES.home} element={<Navigate to={indexRoute.path} replace />} />
-        )}
+      <Route element={<RouteProtector routes={routes} logo={logo} />}>
+        {/* До элемента корень не доходит: с него уводит сам протектор, и уводит
+            на первый доступный раздел. Маршрут всё же объявлен — иначе ветка не
+            совпадёт, и `/` достанется `*`, то есть странице «не найдено».
+            Разделов нет вовсе — нет и его: вести с корня некуда. */}
+        {routes.length > 0 && !hasHomeRoute && <Route path={papiRoutes.home} element={null} />}
 
-        {routes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
+        <Route element={<PapiRouterLayout routes={routes} logo={logo} {...rest} />}>
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <PermissionGate permission={route.permission}>{route.element}</PermissionGate>
+              }
+            />
+          ))}
+        </Route>
       </Route>
 
       {/* Последним по порядку, но не по приоритету: react-router сортирует
           маршруты по точности, и `*` проигрывает любому совпавшему. */}
-      <Route path="*" element={notFoundElement ?? <NotFoundPage />} />
+      <Route path="*" element={notFoundElement ?? <NotFoundPage logo={logo} />} />
     </Routes>
   );
 };

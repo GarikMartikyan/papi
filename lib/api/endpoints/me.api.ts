@@ -1,4 +1,5 @@
-import { rtkTags } from '../../constants/tags.constants';
+import { papiRtkTags } from '../../constants/tags.constants';
+import type { Me } from '../../types/interfaces/me.interface';
 import { api } from '../api';
 
 /**
@@ -9,27 +10,6 @@ import { api } from '../api';
  * в `MainLayout` своего пользователя пропсами — так это работает и сейчас.
  */
 const ME_PATH = '/me';
-
-/**
- * Текущий пользователь.
- *
- * TODO: заглушка формы ответа — заменить на реальную, когда будет известен
- * контракт бэкенда. Поля выбраны под `UserMenuProps` (`name`, `fullName`,
- * `description`, `avatar.src`), потому что единственный потребитель в ядре —
- * карточка в шапке. Обязателен только `id`: всё остальное `UserMenu` умеет не
- * показывать.
- */
-export interface Me {
-  id: string;
-  /** Короткое имя для кнопки в шапке — там место делится с языком и темой. */
-  name?: string;
-  /** Полное имя для карточки меню. */
-  fullName?: string;
-  /** Вторая строка карточки: роль, почта, компания. */
-  description?: string;
-  /** Ссылка на аватар. Нет — `UserMenu` покажет инициалы или силуэт. */
-  avatarUrl?: string;
-}
 
 /**
  * Вошедший пользователь — парный к `login` эндпоинт ядра.
@@ -46,18 +26,15 @@ export interface Me {
  * экраном с кнопкой «Повторить», и тост поверх пустого экрана сказал бы то же
  * самое второй раз.
  *
- * Тег объявляется здесь, а не в `api.ts`: `createApi` фиксирует набор тегов при
- * создании, поэтому в ядре `tagTypes` пуст, и каждый файл эндпоинтов добавляет
- * свои через `enhanceEndpoints` — см. комментарий к `api`.
- *
- * Тег нужен, чтобы панель могла сбросить карточку после собственной мутации:
- * `invalidatesTags: [rtkTags.me]` в её файле эндпоинтов перезапросит её.
+ * Тег объявлен не здесь, а в `constants/tags.constants`, и в набор попадает
+ * сразу при `createApi` — этому файлу остаётся им пользоваться. Нужен он ради
+ * панели: `invalidatesTags: [rtkTags.me]` в её мутации перезапросит карточку.
  */
-export const meApi = api.enhanceEndpoints({ addTagTypes: [rtkTags.me] }).injectEndpoints({
+export const meApi = api.injectEndpoints({
   endpoints: (build) => ({
     getMe: build.query<Me, void>({
       query: () => ME_PATH,
-      providesTags: [rtkTags.me],
+      providesTags: [papiRtkTags.me],
       extraOptions: { hideErrorMessage: true },
     }),
   }),

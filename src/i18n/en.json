@@ -23,12 +23,6 @@
   "appearance": "Appearance",
   "dark theme": "Dark theme",
   "language": "Language",
-  "session": "Session",
-  "authorization header the mock api received": "Authorization header the mock API received",
-  "no token — papi sent no header": "No token — papi sent no header",
-  "answered at {time}": "Answered at {time, time, medium}",
-  "store a fake token": "Store a fake token",
-  "clear token": "Clear token",
   "dates": "Dates",
   "dates hint": "The picker's month names follow the active language via dayjs"
 }

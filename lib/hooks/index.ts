@@ -10,6 +10,7 @@ export * from './useAppDispatch';
 export * from './useAppSelector';
 export * from './useAuth';
 export * from './useLocale';
+export * from './usePermissions';
 export * from './useThemeMode';
 export * from './useToken';
 export * from './useTranslation';

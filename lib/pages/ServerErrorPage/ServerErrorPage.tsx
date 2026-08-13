@@ -1,8 +1,8 @@
 import { Button, Result, type ResultProps } from 'antd';
 import { Link } from 'react-router';
 
+import { papiRoutes } from '../../constants/routes.constants';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
-import { PAPI_ROUTES } from '../../routing/routes.constants';
 
 export type ServerErrorPageProps = ResultProps;
 
@@ -23,7 +23,7 @@ export const ServerErrorPage = (props: ServerErrorPageProps) => {
       title={t('server error')}
       subTitle={t('the server failed to handle the request')}
       extra={
-        <Link to={PAPI_ROUTES.home}>
+        <Link to={papiRoutes.home}>
           <Button type="primary">{t('back to the panel')}</Button>
         </Link>
       }

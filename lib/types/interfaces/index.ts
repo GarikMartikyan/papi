@@ -6,3 +6,5 @@ export * from './authState.interface';
 export * from './configState.interface';
 export * from './i18nConfig.interface';
 export * from './localeDefinition.interface';
+export * from './loginState.interface';
+export * from './me.interface';

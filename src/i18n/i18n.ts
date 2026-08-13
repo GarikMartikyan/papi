@@ -8,12 +8,6 @@ import type { I18nConfig, LocaleDefinition } from '@papi/types';
 import enMessages from './en.json';
 import ruMessages from './ru.json';
 
-/**
- * Языки описываются одинаково — выделенного среди них нет.
- *
- * Локали antd и dayjs обязательны для каждого: ядро своих не возит, включая
- * английский. Панель сама решает, какой язык запасной, — см. `default` ниже.
- */
 const EN: LocaleDefinition = {
   code: 'en',
   label: 'English',

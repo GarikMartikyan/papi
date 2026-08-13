@@ -3,9 +3,10 @@ import { Navigate, useLocation } from 'react-router';
 
 import { useLoginMutation } from '../../api/endpoints/auth.api';
 import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/AuthLayout/AuthLayout';
+import { papiRoutes } from '../../constants/routes.constants';
 import { useAuth } from '../../hooks/useAuth';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
-import { PAPI_ROUTES, type PapiLoginState } from '../../routing/routes.constants';
+import type { PapiLoginState } from '../../types/interfaces/loginState.interface';
 import { toApiError } from '../../utils/apiError.util';
 
 const ALERT_STYLE = { marginBottom: 16 };
@@ -44,7 +45,7 @@ export const LoginPage = (props: LoginPageProps) => {
 
   const [login, { isLoading, error }] = useLoginMutation();
 
-  const from = (location.state as PapiLoginState | null)?.from ?? PAPI_ROUTES.home;
+  const from = (location.state as PapiLoginState | null)?.from ?? papiRoutes.home;
 
   const apiError = error === undefined ? undefined : toApiError(error);
   const errorText =

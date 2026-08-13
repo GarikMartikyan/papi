@@ -1,7 +1,6 @@
-import { Button, Result } from 'antd';
-import { Navigate, Outlet, useLocation } from 'react-router';
+import { Outlet } from 'react-router';
 
-import { type Me, useGetMeQuery } from '../api/endpoints/me.api';
+import { useGetMeQuery } from '../api/endpoints/me.api';
 import {
   MainLayout,
   type MainLayoutProps,
@@ -10,12 +9,11 @@ import {
 import { Icon } from '../components/shared/Icon';
 import { SplashScreen } from '../components/shared/SplashScreen';
 import type { UserMenuProps } from '../components/shared/UserMenu';
-import { useAuth } from '../hooks/useAuth';
 import { usePapiTranslation } from '../hooks/usePapiTranslation';
-import { toApiError } from '../utils/apiError.util';
+import { usePermissions } from '../hooks/usePermissions';
+import type { Me } from '../types/interfaces/me.interface';
 
 import type { PapiRoute } from './PapiRouter';
-import { PAPI_ROUTES, type PapiLoginState } from './routes.constants';
 
 /**
  * Ответ «кто я» → карточка пользователя в шапке.
@@ -39,52 +37,35 @@ export interface PapiRouterLayoutProps extends Omit<MainLayoutProps, 'children' 
 }
 
 /**
- * Гард, проверка сессии и каркас — одним маршрутом-обёрткой.
+ * Каркас панели — и только он.
  *
- * Вместе, а не по отдельности, потому что это один ответ на один вопрос: пускать
- * ли внутрь. Пускаем — рисуем каркас и подставляем страницу в `Outlet`, не
- * пускаем — уводим на вход. Разделённые, они дали бы мигание: каркас успел бы
- * отрисоваться до редиректа.
- *
- * Дверей две, и токен открывает только первую. Есть ли токен — вопрос к
- * localStorage, ответ на него мгновенный; жив ли он — знает лишь бэкенд,
- * поэтому следом уходит запрос «кто я», а каркас ждёт ответа за
- * `SplashScreen`. Спрашивается это именно на загрузке страницы: токен лежит в
- * хранилище неделями и переживает и смену пароля, и удаление пользователя, —
- * без проверки панель открывалась бы с мёртвой сессией и падала на первом же
- * запросе за данными.
- *
- * Три ответа и три исхода:
- *
- * — ответ пришёл: рисуем каркас, а имя и аватар из него уходят в шапку;
- * — 401: `baseQuery` убирает токен сам, сессия становится пустой, и следующий
- *   же рендер уводит на вход — отдельной ветки под это здесь нет;
- * — любая другая ошибка: экран с «Повторить». Токен при этом не трогаем — с ним
- *   всё может быть в порядке, а лежать может сервер, и выкидывать из-за этого на
- *   форму входа значит требовать пароль там, где хватит перезапроса.
- *
- * Адрес, с которого увели, уходит в `state` — после входа человек вернётся
- * туда, куда шёл.
+ * Пускать ли внутрь, решено выше, в `RouteProtector`: сюда доходит вошедший, с
+ * подтверждённой сессией. Поэтому своего запроса тут нет — `useGetMeQuery`
+ * попадает в уже наполненный кеш и отдаёт тот же ответ, из которого собирается
+ * карточка в шапке.
  */
 export const PapiRouterLayout = (props: PapiRouterLayoutProps) => {
-  const { routes, user, ...rest } = props;
+  const { routes, user, logo, ...rest } = props;
 
-  const { pathname } = useLocation();
   const t = usePapiTranslation();
 
-  const { isAuthenticated, logout } = useAuth();
+  const { hasPermission } = usePermissions();
 
-  /* Без токена спрашивать нечего: запрос ушёл бы без заголовка и вернулся бы
-     401, то есть сообщил бы то, что и так известно. */
-  const { data: me, error, refetch } = useGetMeQuery(undefined, { skip: !isAuthenticated });
+  const { data: me } = useGetMeQuery();
 
   /*
    * Пункт меню появляется у маршрута с подписью. Без неё маршрут остаётся
    * рабочим адресом, но в навигацию не попадает — так описываются страницы,
    * на которые ходят по ссылке: карточка записи, экран печати.
+   *
+   * Второе условие — право: закрытый раздел из меню исчезает целиком, а не
+   * гаснет заблокированным пунктом. Заблокированный пункт сообщал бы, что у
+   * панели есть раздел, к которому этого человека не пускают, — знание, ради
+   * которого его никто не спрашивал. Сам адрес при этом закрыт отдельно, в
+   * `PermissionGate`: пункт в меню — не единственный путь на страницу.
    */
   const navItems: NavItem[] = routes.flatMap((route) =>
-    route.labelId === undefined
+    route.labelId === undefined || !hasPermission(route.permission)
       ? []
       : [
           {
@@ -97,56 +78,13 @@ export const PapiRouterLayout = (props: PapiRouterLayoutProps) => {
         ],
   );
 
-  const apiError = error === undefined ? undefined : toApiError(error);
-
-  const handleRetry = () => {
-    void refetch();
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <Navigate
-        to={PAPI_ROUTES.login}
-        state={{ from: pathname } satisfies PapiLoginState}
-        replace
-      />
-    );
-  }
-
-  /*
-   * Ошибка гасит панель, только пока показывать нечего. Упавший перезапрос —
-   * он приходит от панели, инвалидировавшей тег, — оставляет в кеше прошлый
-   * ответ, и сворачивать открытую панель в экран ошибки из-за него неверно:
-   * человек в это время работает, а устарела карточка в шапке.
-   */
-  if (apiError !== undefined && me === undefined) {
-    return (
-      <SplashScreen>
-        <Result
-          status="warning"
-          title={t('we could not confirm your session')}
-          /* Текст бэкенда, если он есть: он точнее любого нашего — там знают,
-             что именно не так. Нет — остаётся строка ядра под статус. */
-          subTitle={apiError.message ?? t(apiError.descriptor)}
-          extra={[
-            <Button key="retry" type="primary" onClick={handleRetry}>
-              {t('try again')}
-            </Button>,
-            /* Выход рядом с «Повторить»: если сервер лежит не первый час,
-               единственное, что тут остаётся сделать, — уйти. */
-            <Button key="logout" onClick={logout}>
-              {t('sign out')}
-            </Button>,
-          ]}
-        />
-      </SplashScreen>
-    );
-  }
-
-  if (me === undefined) return <SplashScreen />;
+  /* До каркаса ответ уже получен — ветка нужна одному TypeScript: кеш он
+     типизирует как «данные или ничего», ничего не зная о протекторе. */
+  if (me === undefined) return <SplashScreen logo={logo} />;
 
   return (
     <MainLayout
+      logo={logo}
       navItems={navItems}
       /* Данные из ответа, а поверх них — то, что передала панель: у неё может
          быть свой профиль, побогаче общего `/me`. Пункты меню приходят только

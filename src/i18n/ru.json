@@ -23,12 +23,6 @@
   "appearance": "Оформление",
   "dark theme": "Тёмная тема",
   "language": "Язык",
-  "session": "Сессия",
-  "authorization header the mock api received": "Какой Authorization получил мок",
-  "no token — papi sent no header": "Токена нет — papi не отправил заголовок",
-  "answered at {time}": "Ответ получен в {time, time, medium}",
-  "store a fake token": "Положить тестовый токен",
-  "clear token": "Убрать токен",
   "dates": "Даты",
   "dates hint": "Названия месяцев в календаре идут за языком через dayjs"
 }

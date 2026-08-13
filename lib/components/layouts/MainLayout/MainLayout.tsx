@@ -138,6 +138,14 @@ export interface MainLayoutProps {
    * С одним языком в `I18nConfig` не показывается сам: выбирать не из чего.
    */
   localeSelect?: boolean;
+  /**
+   * Свой логотип в шапке вместо логотипа ядра — тот же проп, что у `AuthLayout`
+   * и `SplashScreen`, и с тем же смыслом.
+   *
+   * Ссылкой на картинку, а не узлом: логотип стоит в трёх местах разного размера
+   * (шапка, вход, экран ожидания), и высоту каждое из них задаёт себе само.
+   */
+  logo?: string;
   navItems?: readonly NavItem[];
   /**
    * Тема навигации: от неё зависят цвета меню и логотипа, а с ними и то, какой
@@ -226,6 +234,7 @@ export const MainLayout = (props: MainLayoutProps) => {
     children,
     headerExtra,
     localeSelect = true,
+    logo,
     navItems,
     siderCollapsedWidth = DEFAULT_SIDER_COLLAPSED_WIDTH,
     siderTheme = 'light',
@@ -282,6 +291,7 @@ export const MainLayout = (props: MainLayoutProps) => {
       <MainLayoutHeader
         extra={headerExtra}
         localeSelect={localeSelect}
+        logo={logo}
         themeSwitcher={themeSwitcher}
         user={user}
       />

@@ -1,7 +1,7 @@
 import { Form, Input, Modal } from 'antd';
 
 import { useTranslation } from '../../hooks/useTranslation';
-import type { CreateUserPayload } from '../../types/user.interface';
+import type { CreateUserPayload } from '../../types/types/user.types';
 
 export interface UserFormModalProps {
   open: boolean;
@@ -25,10 +25,7 @@ export const UserFormModal = (props: UserFormModalProps) => {
         onSubmit(values);
         form.resetFields();
       })
-      .catch(() => {
-        // Невалидная форма — antd уже подсветил поля. Без catch это был бы
-        // unhandled rejection на каждой неудачной валидации.
-      });
+      .catch(() => undefined);
   };
 
   const handleCancel = () => {
@@ -49,8 +46,6 @@ export const UserFormModal = (props: UserFormModalProps) => {
     >
       <Form form={form} layout="vertical" initialValues={{ role: 'viewer' }}>
         <Form.Item name="name" label={t('name')} rules={required}>
-          {/* Без autoFocus: правило jsx-a11y его запрещает, а фокус в диалог
-              antd заводит сам. */}
           <Input />
         </Form.Item>
         <Form.Item name="email" label={t('email')} rules={required}>

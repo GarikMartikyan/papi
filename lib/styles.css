@@ -92,3 +92,92 @@ input:-webkit-autofill:focus {
 .papi-scroll-hidden::-webkit-scrollbar {
   display: none;
 }
+
+/*
+ * Экран загрузки: цвет наливается в логотип слева направо и так же уходит.
+ *
+ * Два одинаковых логотипа друг на друге: нижний обесцвечен, верхний цветной и
+ * открывается маской — градиентом, который едет поперёк. Граница поэтому
+ * размытая, а не резкая: резкая читалась бы как полоса, ползущая по картинке.
+ *
+ * В CSS, а не в `style` компонента: `@keyframes` из инлайн-стиля не объявить, а
+ * маска в React-типах стилей описана неполно.
+ *
+ * Маска прозрачна с обоих концов и сплошная посередине, вчетверо шире логотипа.
+ * Отсюда весь ход: на позиции 100% под логотипом её правый прозрачный край —
+ * цвета нет; на 50% — сплошная середина, логотип залит целиком; на 0% — левый
+ * прозрачный край, цвета снова нет. Цикл поэтому кончается тем же, чем начался,
+ * и заливка не срывается рывком: она доходит до конца и уходит дальше вправо.
+ *
+ * Пауза посередине (45% → 55%) — чтобы залитый логотип успели увидеть.
+ *
+ * Префиксы обязательны: `mask-*` без `-webkit-` Safari до 16.4 не понимает, а
+ * панель открывают и с рабочих машин, которые обновляют не сразу.
+ */
+@keyframes papi-splash-fill {
+  0% {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  45%,
+  55% {
+    -webkit-mask-position: 50% 0;
+    mask-position: 50% 0;
+  }
+  100% {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+@keyframes papi-splash-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.papi-splash {
+  display: inline-block;
+  line-height: 0;
+  position: relative;
+}
+
+.papi-splash-base {
+  filter: grayscale(1);
+  opacity: 0.25;
+}
+
+.papi-splash-fill {
+  animation: papi-splash-fill 3s ease-in-out infinite;
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0 25%, #000 35% 65%, transparent 75% 100%);
+  mask-image: linear-gradient(90deg, transparent 0 25%, #000 35% 65%, transparent 75% 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 400% 100%;
+  mask-size: 400% 100%;
+}
+
+/*
+ * Человеку, который просил меньше движения, остаётся одно затухание: заливка
+ * замирает залитой, а вместе с ней целиком дышит логотип. Признак загрузки при
+ * этом никуда не девается — исчезает движение поперёк экрана.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .papi-splash {
+    animation: papi-splash-pulse 2.4s ease-in-out infinite;
+  }
+
+  .papi-splash-fill {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}

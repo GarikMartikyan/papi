@@ -16,6 +16,8 @@ const LOGO_HEIGHT = 48;
 export interface MainLayoutHeaderProps {
   extra?: ReactNode;
   localeSelect: boolean;
+  /** Свой логотип панели. Не передан — логотип ядра. */
+  logo?: string;
   /** `undefined` пропускается насквозь: вид по умолчанию решает `ThemeSwitcher`. */
   themeSwitcher?: ThemeSwitcherVariant | 'none';
   /** Не передан — аватара в шапке нет вовсе. */
@@ -30,7 +32,7 @@ export interface MainLayoutHeaderProps {
  * что сворачивает.
  */
 export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
-  const { extra, localeSelect, themeSwitcher, user } = props;
+  const { extra, localeSelect, logo = logoLarge, themeSwitcher, user } = props;
 
   const token = useToken();
 
@@ -55,7 +57,7 @@ export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
     >
       {/* alt пустой намеренно: логотип декоративный, а своих строк ядро не
           возит — подпись на чужом языке была бы хуже её отсутствия. */}
-      <img src={logoLarge} alt="" height={LOGO_HEIGHT} style={{ display: 'block' }} />
+      <img src={logo} alt="" height={LOGO_HEIGHT} style={{ display: 'block' }} />
 
       {/* Язык, тема и пользователь — после `extra`: они есть у каждой панели,
           поэтому держатся на постоянном месте, а не переезжают вслед за её

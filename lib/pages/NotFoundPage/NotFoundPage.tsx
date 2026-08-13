@@ -2,10 +2,16 @@ import { Button, Result, type ResultProps } from 'antd';
 import { Link } from 'react-router';
 
 import { SplashScreen } from '../../components/shared/SplashScreen';
+import { papiRoutes } from '../../constants/routes.constants';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
-import { PAPI_ROUTES } from '../../routing/routes.constants';
 
-export type NotFoundPageProps = ResultProps;
+export interface NotFoundPageProps extends ResultProps {
+  /**
+   * Логотип панели: страница стоит вместо каркаса, поэтому обрамление — и лицо
+   * вместе с ним — приходит сюда, а не берётся из шапки.
+   */
+  logo?: string;
+}
 
 /**
  * Ненайденный адрес.
@@ -27,20 +33,22 @@ export type NotFoundPageProps = ResultProps;
  * знает `PapiRouter`, и с корня он уводит туда сам.
  */
 export const NotFoundPage = (props: NotFoundPageProps) => {
+  const { logo, ...rest } = props;
+
   const t = usePapiTranslation();
 
   return (
-    <SplashScreen>
+    <SplashScreen logo={logo}>
       <Result
         status="404"
         title={t('page not found')}
         subTitle={t('the address is wrong, or the page has moved')}
         extra={
-          <Link to={PAPI_ROUTES.home}>
+          <Link to={papiRoutes.home}>
             <Button type="primary">{t('back to the panel')}</Button>
           </Link>
         }
-        {...props}
+        {...rest}
       />
     </SplashScreen>
   );
