@@ -1,4 +1,4 @@
-import { TriangleAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 import { LogoTemplate, type LogoTemplateProps } from './LogoTemplate';
 
@@ -33,7 +33,7 @@ export const panelLogos = {
   rmp: {
     abbr: 'RMP',
     name: 'Risk Management Panel',
-    icon: <TriangleAlert />,
+    icon: <ShieldAlert />,
   },
 } as const satisfies Record<string, PanelLogoBrand>;
 
