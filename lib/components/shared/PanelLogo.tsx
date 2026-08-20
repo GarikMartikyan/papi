@@ -1,5 +1,8 @@
 import { CircleStar, Mail, ShieldAlert } from 'lucide-react';
+import { Link, useInRouterContext } from 'react-router';
+
 import { getPanelAbbr } from '../../services/env.service';
+
 import { LogoTemplate, type LogoTemplateProps } from './LogoTemplate';
 
 /**
@@ -13,7 +16,13 @@ import { LogoTemplate, type LogoTemplateProps } from './LogoTemplate';
  * входе, поэтому `size` с `height` задаются в месте вызова.
  */
 export type PanelLogoBrand = Required<Pick<LogoTemplateProps, 'abbr' | 'icon' | 'name'>> &
-  Pick<LogoTemplateProps, 'color'>;
+  Pick<LogoTemplateProps, 'color'> & {
+    /**
+     * Где панель живёт. Нужен колонке соседей: логотип там — ссылка, и вести ей
+     * некуда, если адреса в записи нет.
+     */
+    url: string;
+  };
 
 /**
  * Панели, собранные на papi, и их логотипы. Ключ — короткое имя панели, оно же
@@ -31,24 +40,33 @@ export type PanelLogoBrand = Required<Pick<LogoTemplateProps, 'abbr' | 'icon' | 
  *
  * Цвет у записи можно опустить: без него `LogoTemplate` берёт `PAPI_LOGO_COLOR`.
  * У RMP он и опущен — красный ядра и есть её цвет.
+ *
+ * Адреса пока заглушки: панели ещё не задеплоены, а поле обязательное — пустая
+ * строка вместо адреса дала бы ссылку в никуда, и молча.
  */
 export const panelLogos = {
   papi: {
     abbr: 'PAPI',
     name: 'Platform Admin Panel Init',
     icon: <CircleStar />,
+    url: 'https://papi.example.com',
   },
   rmp: {
     abbr: 'RMP',
     name: 'Risk Management Panel',
     icon: <ShieldAlert />,
+    url: 'https://rmp.example.com',
   },
   mmp: {
     abbr: 'MMP',
     name: 'Message Management Panel',
     icon: <Mail />,
+    url: 'https://mmp.example.com',
   },
 } as const satisfies Record<string, PanelLogoBrand>;
+
+/** Куда ведёт свой логотип: корень панели, он же её первая страница. */
+const ROOT_ROUTE = '/';
 
 /** Короткие имена панелей из каталога — то, что принимает проп `panel`. */
 export type PanelName = keyof typeof panelLogos;
@@ -73,6 +91,25 @@ const panelLogosByAbbr: Record<string, PanelLogoBrand | undefined> = panelLogos;
  */
 export const getPanelBrand = (): PanelLogoBrand | undefined => {
   return panelLogosByAbbr[getPanelAbbr()];
+};
+
+/** Запись каталога вместе с её ключом — так список панелей знает, чей знак рисует. */
+export interface PanelEntry extends PanelLogoBrand {
+  panel: PanelName;
+}
+
+/**
+ * Панели каталога, кроме этой, — список для колонки соседей.
+ *
+ * Своя из него убрана: человек уже в ней, и ссылка вела бы туда, где он стоит.
+ * Панели, которой в каталоге нет, это не мешает — тогда в списке просто все.
+ */
+export const getOtherPanels = (): readonly PanelEntry[] => {
+  const current = getPanelAbbr();
+
+  return (Object.keys(panelLogos) as PanelName[])
+    .filter((panel) => panel !== current)
+    .map((panel) => ({ panel, ...panelLogos[panel] }));
 };
 
 export interface PanelLogoProps extends LogoTemplateProps {
@@ -102,6 +139,10 @@ export interface PanelLogoProps extends LogoTemplateProps {
  * Подставлять тогда нечего, и `LogoTemplate` рисует пилюлю с буквами и именем
  * из окружения, без иконки.
  *
+ * Свой логотип ведёт на корень панели — туда, куда ведёт логотип на любом сайте.
+ * Чужой не ведёт никуда: он показывает, а куда по нему идти, решает место
+ * вызова — колонка соседей, например, оборачивает его ссылкой на чужой адрес.
+ *
  * Пропсы `LogoTemplate` проходят насквозь и перекрывают запись — так панель,
  * которой нужен свой цвет или своя иконка на одном экране, получает их, не
  * заводя вторую запись в каталоге.
@@ -109,7 +150,27 @@ export interface PanelLogoProps extends LogoTemplateProps {
 export const PanelLogo = (props: PanelLogoProps) => {
   const { panel, ...rest } = props;
 
-  const brand = panel === undefined ? getPanelBrand() : panelLogos[panel];
+  /* Роутер ставит `PapiProvider`, но панель вправе собрать провайдеры сама и без
+     него — вне роутера `Link` бросается, поэтому логотип там остаётся картинкой. */
+  const inRouter = useInRouterContext();
 
-  return <LogoTemplate {...brand} {...rest} />;
+  const isOwn = panel === undefined;
+  const brand = isOwn ? getPanelBrand() : panelLogos[panel];
+
+  /* Адрес — про панель, а не про её знак: оставленный в записи, он ушёл бы через
+     `LogoTemplate` прямо в разметку атрибутом `url`. */
+  const { url: _url, ...logo } = brand ?? {};
+
+  const logoTemplate = <LogoTemplate {...logo} {...rest} />;
+
+  if (!isOwn || !inRouter) return logoTemplate;
+
+  /* `inline-flex`, а не строчная ссылка по умолчанию: под текстовой строкой у
+     логотипа осталось бы место под нижние выносные, и в шапке он встал бы выше
+     середины. */
+  return (
+    <Link to={ROOT_ROUTE} style={{ display: 'inline-flex' }}>
+      {logoTemplate}
+    </Link>
+  );
 };

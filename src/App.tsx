@@ -1,6 +1,6 @@
 import { App as AntdApp } from 'antd';
 
-import { type AsideLink, Icon, type UserMenuItem } from '@papi/components';
+import { Icon, type UserMenuItem } from '@papi/components';
 import { useAuth } from '@papi/hooks';
 import { type PapiRoute, PapiRouter } from '@papi/routing';
 
@@ -28,30 +28,12 @@ const APP_ROUTES: PapiRoute[] = [
   },
 ];
 
-interface LinkDefinition {
-  href: string;
-  label: string;
-  iconName: string;
-}
-
-const ASIDE_LINKS: LinkDefinition[] = [
-  { href: 'https://ant.design/components/overview', label: 'Ant Design', iconName: 'book-open' },
-  { href: 'https://reactrouter.com', label: 'React Router', iconName: 'route' },
-  { href: 'https://redux-toolkit.js.org', label: 'Redux Toolkit', iconName: 'layers' },
-];
-
 export const App = () => {
   const t = useTranslation();
 
   const { message } = AntdApp.useApp();
 
   const { logout } = useAuth();
-
-  const asideItems: AsideLink[] = ASIDE_LINKS.map((link) => ({
-    href: link.href,
-    icon: <Icon name={link.iconName} />,
-    label: link.label,
-  }));
 
   const handleLogout = () => {
     logout();
@@ -75,5 +57,5 @@ export const App = () => {
     },
   ];
 
-  return <PapiRouter asideItems={asideItems} routes={APP_ROUTES} user={{ items: userMenuItems }} />;
+  return <PapiRouter routes={APP_ROUTES} user={{ items: userMenuItems }} />;
 };
