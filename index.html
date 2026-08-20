@@ -3,9 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Путь в src, а не в public: vite разбирает index.html как точку входа,
-         поэтому на сборке иконка попадёт в dist с хешем в имени. -->
-    <link rel="icon" type="image/svg+xml" href="/src/assets/icons/main.svg" />
+    <!-- Иконка вкладки — знак панели: красный круг с её буквами. Не картинкой в
+         src, потому что тогда её пришлось бы перерисовывать каждой панели:
+         буквы подставляет сюда vite из VITE_APP_ABBR, и панель называет себя
+         один раз, в .env.
+
+         Буквы, а не иконка панели: иконки нарисованы в каталоге ядра, то есть в
+         JS, куда html не дотягивается. Отрисованный знак ставит поверх этого
+         PanelFavicon — но только когда загрузятся скрипты, а вкладке нужно
+         что-то показывать сразу.
+
+         Переменная тут нужна заданной: в коде она необязательная — буквы
+         собираются из имени, — но подставить их до JS некому.
+
+         Цвета записаны через rgb(), а не решёткой: решётка в data-URI начинает
+         фрагмент, а закодированная в проценты сбила бы подстановку — vite ищет
+         в html пары процентов, и лишний процент съел бы начало имени
+         переменной.
+
+         textLength растягивает буквы на постоянную ширину: у одной панели их
+         две, у другой четыре, а знак должен выглядеть одинаково. -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='rgb(219,62,63)'/><text x='32' y='33' fill='rgb(255,255,255)' font-family='system-ui,sans-serif' font-size='26' font-weight='800' text-anchor='middle' dominant-baseline='central' textLength='42' lengthAdjust='spacingAndGlyphs'>%VITE_APP_ABBR%</text></svg>"
+    />
     <title>%VITE_APP_NAME%</title>
   </head>
   <body>

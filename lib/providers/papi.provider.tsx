@@ -2,6 +2,7 @@ import type { ThemeConfig } from 'antd';
 import type { ReactNode } from 'react';
 import { BrowserRouter } from 'react-router';
 
+import { PanelFavicon } from '../components/shared/PanelFavicon';
 import type { I18nConfig } from '../types/interfaces/i18nConfig.interface';
 
 import { ApiProvider } from './api.provider';
@@ -34,6 +35,10 @@ export interface PapiProviderProps {
  * — роутер внутри всех: наружу он ничего не даёт — ни стору, ни теме, ни языку
  *   маршруты не нужны, — а всё, что ходит по адресам, живёт в `children`.
  *
+ * Знак панели во вкладке браузера тоже ставит он — через `PanelFavicon`: иконку
+ * и цвет тот берёт из каталога `panelLogos` по `VITE_APP_ABBR`. Панель, которая
+ * собирает провайдеры сама, ставит этот компонент сама же.
+ *
  * Роутер ставит ядро, и панели заводить свой больше не нужно. `basename` он
  * берёт из `import.meta.env.BASE_URL` — Vite подставляет туда `base` из конфига
  * сборки, то есть ровно тот префикс, под которым панель задеплоена. Панель
@@ -50,6 +55,10 @@ export const PapiProvider = (props: PapiProviderProps) => {
 
   return (
     <StoreProvider>
+      {/* Знак во вкладку: провайдерам он не нужен, но и на экране его нет —
+          стоит там, где до него точно доходит рендер. */}
+      <PanelFavicon />
+
       <I18nProvider i18n={i18n}>
         <ThemeProvider theme={theme}>
           <ApiProvider>

@@ -193,8 +193,13 @@ input:-webkit-autofill:focus {
   line-height: 0;
 }
 
+/*
+ * `!important`, потому что размер тут задаёт слот, а не иконка: пришедшая в
+ * `icon` картинка приносит свой инлайновый размер (`Icon` ставит его от кегля), и
+ * без пометки он перебил бы правило — инлайн сильнее стилей документа.
+ */
 .papi-logo-template-icon > * {
   display: block;
-  height: 100%;
-  width: 100%;
+  height: 100% !important;
+  width: 100% !important;
 }

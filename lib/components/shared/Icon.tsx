@@ -30,6 +30,28 @@ const LUCIDE_ICONS = lucideIcons as unknown as Record<
 >;
 
 /**
+ * Своя иконка ставится маской, а не картинкой: файл задаёт форму, цвет даёт CSS
+ * — заливка под маской. Так `color` и `currentColor` работают на ней ровно как
+ * на именованных иконках: белой внутри пилюли логотипа, цвета текста в меню.
+ *
+ * Цена — цвета самого файла: от него остаётся силуэт. Для иконки это правильный
+ * размен, она и должна краситься по месту; картинку, которая обязана сохранить
+ * свои цвета, ставят обычным `<img>`, а не иконкой.
+ *
+ * Свойства парами с `-webkit-`: Safari до 15.4 знает только префиксную запись, а
+ * в остальном они совпадают.
+ */
+const MASK_STYLE: CSSProperties = {
+  display: 'inline-block',
+  WebkitMaskPosition: 'center',
+  WebkitMaskRepeat: 'no-repeat',
+  WebkitMaskSize: 'contain',
+  maskPosition: 'center',
+  maskRepeat: 'no-repeat',
+  maskSize: 'contain',
+};
+
+/**
  * Размер по умолчанию — от размера шрифта, как у иконок antd. Иначе lucide
  * рисовал бы свои 24px рядом с 14px antd, и в одной строке они разъезжались бы.
  */
@@ -53,17 +75,9 @@ const reportUnknown = (name: string): void => {
   warn(`Unknown icon "${name}" — no such name in @ant-design/icons or lucide-react.`);
 };
 
-export interface IconProps {
-  /**
-   * Имя иконки — из любого набора: `UserOutlined` (antd), `Columns2` или
-   * `columns-2` (lucide).
-   *
-   * Наборы не пересекаются: у antd все имена оканчиваются на `Outlined`,
-   * `Filled` или `TwoTone`, поэтому одно имя всегда попадает ровно в один
-   * набор.
-   */
-  name: string;
+interface IconOwnProps {
   className?: string;
+  /** Цвет иконки — любой, хоть из набора, хоть своей: см. `MASK_STYLE`. */
   color?: string;
   /** Число — пиксели. По умолчанию иконка наследует размер шрифта. */
   size?: number | string;
@@ -71,16 +85,81 @@ export interface IconProps {
 }
 
 /**
- * Иконка по имени — из antd или lucide.
+ * Иконка задаётся одним из двух: именем из набора или файлом.
+ *
+ * Объединением, а не двумя необязательными полями: так `<Icon />` без того и
+ * другого не собирается, а `<Icon name="mail" src={ball} />` не притворяется
+ * осмысленным.
+ */
+export type IconProps =
+  | (IconOwnProps & {
+      /**
+       * Имя иконки — из любого набора: `UserOutlined` (antd), `Columns2` или
+       * `columns-2` (lucide).
+       *
+       * Наборы не пересекаются: у antd все имена оканчиваются на `Outlined`,
+       * `Filled` или `TwoTone`, поэтому одно имя всегда попадает ровно в один
+       * набор.
+       */
+      name: string;
+      src?: never;
+    })
+  | (IconOwnProps & {
+      /**
+       * Своя иконка файлом — то, что вернул его импорт: `import ball from
+       * './ball.svg'`, дальше `<Icon src={ball} />`.
+       *
+       * Для иконки, которой нет ни в одном наборе, — у панели она обычно
+       * нарисована своя. От файла берётся форма, цвет задаётся снаружи, как и
+       * у именованных: рядом с ними такая иконка ведёт себя так же.
+       */
+      src: string;
+      name?: never;
+    });
+
+/**
+ * Иконка по имени — из antd или lucide — либо своя, файлом через `src`.
  *
  * Нужна, чтобы иконку можно было задать данными: в конфиге, в ответе API, в
- * списке пунктов меню — там, где импортировать компонент неоткуда.
+ * списке пунктов меню — там, где импортировать компонент неоткуда. `src`
+ * добавляет к этому свою картинку: одна запись каталога рисуется `<Icon
+ * name="shield-alert" />`, соседняя — `<Icon src={ball} />`, и место вызова
+ * разницы не замечает.
  *
  * Имени нет ни в одном наборе — вернёт `null` и напишет в консоль: иконка не то,
  * ради чего стоит ронять экран.
  */
 export const Icon = (props: IconProps) => {
-  const { className, color, name, size = DEFAULT_SIZE, style } = props;
+  const { className, color, size = DEFAULT_SIZE, style } = props;
+
+  /* Ветками по `props`, а не по разобранным полям: деструктуризация теряет связь
+     между `src` и `name`, и после неё TypeScript не знает, что второе есть,
+     когда первого нет. */
+  if (props.src !== undefined) {
+    /* Адрес в кавычках: в разработке импорт файла возвращает не путь, а data-URI
+       с разметкой внутри, и без них `url()` разорвался бы на первом же символе,
+       который в адресе не ждут. */
+    const mask = `url("${props.src}")`;
+
+    return (
+      // aria-hidden — как у lucide ниже: иконка декоративная.
+      <span
+        aria-hidden
+        className={className}
+        style={{
+          ...MASK_STYLE,
+          WebkitMaskImage: mask,
+          backgroundColor: color ?? 'currentColor',
+          height: size,
+          maskImage: mask,
+          width: size,
+          ...style,
+        }}
+      />
+    );
+  }
+
+  const { name } = props;
 
   const AntdIcon = ANTD_ICONS[name];
 

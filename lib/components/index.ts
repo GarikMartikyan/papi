@@ -27,8 +27,13 @@
  * которой своего логотипа ещё нет. Каркасы его не ставят — у них картинка
  * ядра и проп `logo`; панель показывает его там, где решит сама.
  *
- * `PanelLogo` — он же, но для панели из каталога: `panel="rmp"` вместо трёх
- * брендовых пропсов. Сам каталог лежит там же, рядом с компонентом.
+ * `PanelFavicon` — тот же знак, но во вкладке браузера: иконка панели на круге
+ * её цвета вместо букв, которые ставит `index.html`. Его ставит `PapiProvider`,
+ * панели он нужен, только если она собирает провайдеры сама.
+ *
+ * `PanelLogo` — он же, но с записью из каталога вместо трёх брендовых пропсов:
+ * свою панель он находит по `VITE_APP_ABBR` сам, чужую покажет по пропу
+ * `panel="rmp"`. Сам каталог лежит там же, рядом с компонентом.
  *
  * Барель на всю папку один: `@papi/components` — то, что панель видит, и делить
  * его по подпапкам незачем, границы `layouts`/`shared` внутренние.
@@ -39,6 +44,7 @@ export * from './layouts/MainLayout/MainLayout';
 export * from './shared/Icon';
 export * from './shared/LocaleSelect';
 export * from './shared/LogoTemplate';
+export * from './shared/PanelFavicon';
 export * from './shared/PanelLogo';
 export * from './shared/SplashScreen';
 export * from './shared/ThemeSwitcher';

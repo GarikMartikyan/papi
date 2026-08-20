@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 
 import logoLarge from '../../../assets/images/logo-large.svg';
 import { LocaleSelect } from '../../shared/LocaleSelect';
+import { PanelLogo } from '../../shared/PanelLogo';
 import { ThemeSwitcher } from '../../shared/ThemeSwitcher';
 
 import { AuthBackground } from './elements/AuthBackground';
@@ -13,8 +14,29 @@ import { AuthBackground } from './elements/AuthBackground';
  */
 const CARD_WIDTH = 360;
 
-/** Пропорции логотипа 124:49, поэтому ширина считается от высоты, а не задаётся. */
-const LOGO_HEIGHT = 52;
+/**
+ * Высота знака панели над карточкой: он на этом экране главный, поэтому заметно
+ * крупнее картинки в углу.
+ */
+const PANEL_LOGO_HEIGHT = 40;
+
+/**
+ * Высота картинки в углу. Пропорции логотипа ядра — 124:49, поэтому от высоты
+ * считается и ширина, а не задаётся вторым числом.
+ */
+const CORNER_LOGO_HEIGHT = 50;
+
+/**
+ * Отступ угловых блоков от края — картинки слева, языка с темой справа. Он же
+ * поле страницы: в углу и в потоке содержимое стоит на одной линии.
+ */
+const CORNER_INSET = 24;
+
+/**
+ * Тень логотипов. И картинка в углу, и знак над карточкой стоят прямо на кадре,
+ * без своей подложки, — на светлом участке фото без тени они теряются.
+ */
+const LOGO_SHADOW = 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55))';
 
 /**
  * Своя высота на весь экран: входные страницы стоят вне `MainLayout`, а тот
@@ -29,7 +51,7 @@ const PAGE_STYLE: CSSProperties = {
   justifyContent: 'center',
   minHeight: '100vh',
   overflow: 'hidden',
-  padding: 24,
+  padding: CORNER_INSET,
   position: 'relative',
 };
 
@@ -67,7 +89,7 @@ const CONTENT_STYLE: CSSProperties = {
 const GLASS: CSSProperties = {
   WebkitBackdropFilter: 'blur(20px)',
   backdropFilter: 'blur(20px)',
-  background: 'light-dark(rgba(255, 255, 255, 0.86), rgba(10, 12, 18, 0.55))',
+  background: 'light-dark(rgba(255, 255, 255, 0.56), rgba(10, 12, 18, 0.55))',
   border: '1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.14))',
 };
 
@@ -78,27 +100,49 @@ const CARD_STYLE: CSSProperties = {
 };
 
 /**
- * Язык и тема в правом верхнем углу — там же, где их держит шапка каркаса.
+ * Верхняя полоса: картинка слева, язык с темой справа — там же, где их держит
+ * шапка каркаса.
  *
  * Абсолютом, а не первой строкой колонки: карточка должна стоять по центру
  * экрана, а не съезжать вниз на высоту этой полосы.
+ *
+ * Полоса одна на оба угла, а не два абсолюта порознь: `align-items: center`
+ * ставит кнопки по середине картинки сам, какой бы высоты та ни оказалась.
+ * Прижатые каждый к своему углу, они разъезжались бы на разницу высот —
+ * картинка 36, кнопки `controlHeight` темы.
  */
-const CONTROLS_STYLE: CSSProperties = {
-  insetBlockStart: 24,
-  insetInlineEnd: 24,
+const HEADER_STYLE: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  insetBlockStart: CORNER_INSET,
+  insetInline: CORNER_INSET,
+  justifyContent: 'space-between',
   position: 'absolute',
   zIndex: 1,
 };
 
-/** Тень под логотипом: он стоит прямо на кадре, без своей подложки. */
-const LOGO_STYLE: CSSProperties = {
+/**
+ * Картинка в левом углу полосы.
+ *
+ * `display: block` убирает зазор под ней: строчной картинке остаётся место под
+ * базовую линию, и по центру полосы она встала бы со сдвигом вверх.
+ */
+const CORNER_LOGO_STYLE: CSSProperties = {
   display: 'block',
-  filter: 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55))',
+  filter: LOGO_SHADOW,
+};
+
+/**
+ * Знак над карточкой. Одна тень: `display` ему не задаётся — пилюля стоит на
+ * своём `inline-flex`, и заменить его блоком значит разложить её содержимое.
+ */
+const PANEL_LOGO_STYLE: CSSProperties = {
+  filter: LOGO_SHADOW,
 };
 
 export interface AuthLayoutProps extends CardProps {
   /**
-   * Логотип над карточкой — путь к картинке. По умолчанию логотип ядра.
+   * Картинка в левом верхнем углу — путь к файлу. По умолчанию логотип ядра.
    *
    * Проп, а не жёстко зашитый файл: `lib/` в панелях read-only, поэтому
    * подменить сам ассет там нельзя, а бренд на входном экране у каждой панели
@@ -110,19 +154,24 @@ export interface AuthLayoutProps extends CardProps {
 /**
  * Каркас входных страниц: вход, восстановление пароля, приглашение.
  *
- * Кадры на весь экран, тема с языком в углу, логотип и стеклянная карточка по
- * центру — странице остаётся её содержимое:
+ * Кадры на весь экран, картинка и тема с языком по углам, знак панели и
+ * стеклянная карточка по центру — странице остаётся её содержимое:
  *
  * ```
  * ┌──────────────────────────────────────────┐
- * │                            [тема] [язык] │
- * │                 ▄▄▄▄▄                    │
+ * │ ▄▄▄▄                       [тема] [язык] │
+ * │                (● RMP)                   │
  * │              ┌─────────┐                 │
  * │              │  title  │                 │
  * │              │ children│                 │
  * │              └─────────┘                 │
  * └──────────────────────────────────────────┘
  * ```
+ *
+ * Знак над карточкой — `PanelLogo` без пропсов, то есть логотип панели этого
+ * окружения: буквы, имя и иконку он находит сам по `VITE_APP_ABBR`. Настраивать
+ * его тут нечем и незачем — панель, которой он не нужен, ставит свою страницу
+ * входа без этого каркаса.
  *
  * Карточка входит в каркас, а не остаётся за страницей: у всех входных страниц
  * она одна и та же — те же стекло, ширина и тень, — и вынесенная наружу
@@ -144,19 +193,25 @@ export const AuthLayout = (props: AuthLayoutProps) => {
     <div style={PAGE_STYLE}>
       <AuthBackground />
 
-      {/* Порядок как в шапке каркаса: сначала тема, следом язык.
-
-          Язык кнопкой, а не списком: рядом стоит круглая кнопка темы, и поле в
-          140px тянуло бы угол вширь ради названия, которое и так видно в меню. */}
-      <Space size="middle" style={CONTROLS_STYLE}>
-        <ThemeSwitcher style={GLASS} />
-        <LocaleSelect variant="button" style={GLASS} />
-      </Space>
-
-      <div style={CONTENT_STYLE}>
+      <div style={HEADER_STYLE}>
         {/* alt пустой намеренно: логотип декоративный, а своих строк ядро не
             возит — подпись на чужом языке была бы хуже её отсутствия. */}
-        <img src={logo} alt="" height={LOGO_HEIGHT} style={LOGO_STYLE} />
+        <img src={logo} alt="" height={CORNER_LOGO_HEIGHT} style={CORNER_LOGO_STYLE} />
+
+        {/* Порядок как в шапке каркаса: сначала тема, следом язык.
+
+            Язык кнопкой, а не списком: рядом стоит круглая кнопка темы, и поле в
+            140px тянуло бы угол вширь ради названия, которое и так видно в меню. */}
+        <Space size="middle">
+          <ThemeSwitcher style={GLASS} />
+          <LocaleSelect variant="button" style={GLASS} />
+        </Space>
+      </div>
+
+      <div style={CONTENT_STYLE}>
+        {/* `large` — со второй строкой: над карточкой знак читается как заголовок
+            экрана, и имя панели в нём объясняет три буквы аббревиатуры. */}
+        <PanelLogo size="large" height={PANEL_LOGO_HEIGHT} style={PANEL_LOGO_STYLE} />
 
         <Card style={{ ...CARD_STYLE, ...style }} {...rest}>
           {children}

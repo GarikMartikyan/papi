@@ -17,7 +17,6 @@ import { selectSearch, selectSelectedUserId } from '../../store/store';
 import type { User } from '../../types/interfaces/user.interfaces';
 import type { CreateUserPayload } from '../../types/types/user.types';
 
-import { LogoShowcase } from './LogoShowcase';
 import { UserFormModal } from './UserFormModal';
 
 export const UsersPage = () => {
@@ -135,9 +134,6 @@ export const UsersPage = () => {
 
   return (
     <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-      {/* TODO: витрина логотипа — убрать, когда логотип выбран. */}
-      <LogoShowcase />
-
       <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
         <Space wrap>
           <Input.Search
