@@ -1,5 +1,7 @@
 import type { ThemeConfig } from 'antd';
 
+import { BASE_THEME } from '../theme/base.theme';
+
 type ThemeComponents = NonNullable<ThemeConfig['components']>;
 
 /**
@@ -37,3 +39,16 @@ export const mergeThemes = (base: ThemeConfig, override?: ThemeConfig): ThemeCon
     components: mergeComponents(base.components ?? {}, override.components ?? {}),
   };
 };
+
+/**
+ * Полная тема панели: переданное поверх `BASE_THEME`. Обычно панель меняет
+ * здесь один `colorPrimary`, а всё остальное — скругления, фоны, токены
+ * компонентов — достаётся от ядра. Где значения совпадают по ключу, побеждает
+ * переданное.
+ *
+ * Для панели, которой нужен сам объект: прочитать итоговый токен, собрать
+ * несколько тем и выбирать между ними. Ради одного `PapiProvider` вызывать не
+ * обязательно — его `ThemeProvider` сливает с ядром сам и принимает только
+ * отличия; готовую тему он тоже примет, повторное слияние ничего не меняет.
+ */
+export const createTheme = (theme?: ThemeConfig): ThemeConfig => mergeThemes(BASE_THEME, theme);

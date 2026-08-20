@@ -4,9 +4,8 @@ import { App as AntdApp, ConfigProvider, theme as antdTheme, type ThemeConfig } 
 
 import { useAppSelector } from '../hooks/useAppSelector';
 import { selectThemeMode } from '../store/slices/config.slice';
-import { BASE_THEME } from '../theme/base.theme';
 import { ThemeMode } from '../types/enums/global.enum';
-import { mergeThemes } from '../utils/theme.util';
+import { createTheme } from '../utils/theme.util';
 
 export interface ThemeProviderProps {
   children: ReactNode;
@@ -30,7 +29,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   const mode = useAppSelector(selectThemeMode);
   const isDark = mode === ThemeMode.DARK;
 
-  const config = mergeThemes(BASE_THEME, theme);
+  const config = createTheme(theme);
 
   useEffect(() => {
     /*
