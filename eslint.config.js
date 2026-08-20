@@ -158,11 +158,15 @@ export default tseslint.config(
   },
 
   /*
-   * Конфиги вне `tsconfig.json`, поэтому type-aware правила на них отключены.
-   * `vite.config.ts` сюда не входит: он в `include`, и правила на нём работают.
+   * Конфиги и скрипты вне `tsconfig.json`, поэтому type-aware правила на них
+   * отключены. `vite.config.ts` сюда не входит: он в `include`, и правила на нём
+   * работают.
+   *
+   * Глобалы у них не браузерные, а node: `process`, `console` и прочее — там,
+   * где иначе `no-undef` ругался бы на каждую строку.
    */
   {
-    files: ['eslint.config.js', 'prettier.config.js'],
+    files: ['eslint.config.js', 'prettier.config.js', 'scripts/**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { globals: globals.node },
   },
