@@ -181,3 +181,20 @@ input:-webkit-autofill:focus {
     mask-image: none;
   }
 }
+
+/*
+ * Слот иконки в `LogoTemplate`: то, что панель передала в `icon`, растягивается
+ * на слот целиком. В CSS, а не в `style`: узел чужой, и инлайн-стиль ему не
+ * поставить, а размер слота при этом задан инлайном — от высоты пилюли.
+ */
+.papi-logo-template-icon {
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.papi-logo-template-icon > * {
+  display: block;
+  height: 100%;
+  width: 100%;
+}

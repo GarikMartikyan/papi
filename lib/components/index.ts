@@ -22,6 +22,14 @@
  * его, пока гард проверяет сессию; панели он нужен под `Suspense` вокруг
  * лениво подгружаемых страниц.
  *
+ * `LogoTemplate` — шаблон логотипа: пилюля с иконкой панели, буквами из
+ * `VITE_APP_ABBR` и именем из `VITE_APP_NAME`, в трёх размерах. Для панели, у
+ * которой своего логотипа ещё нет. Каркасы его не ставят — у них картинка
+ * ядра и проп `logo`; панель показывает его там, где решит сама.
+ *
+ * `PanelLogo` — он же, но для панели из каталога: `panel="rmp"` вместо трёх
+ * брендовых пропсов. Сам каталог лежит там же, рядом с компонентом.
+ *
  * Барель на всю папку один: `@papi/components` — то, что панель видит, и делить
  * его по подпапкам незачем, границы `layouts`/`shared` внутренние.
  */
@@ -30,6 +38,8 @@ export * from './layouts/AuthLayout/AuthLayout';
 export * from './layouts/MainLayout/MainLayout';
 export * from './shared/Icon';
 export * from './shared/LocaleSelect';
+export * from './shared/LogoTemplate';
+export * from './shared/PanelLogo';
 export * from './shared/SplashScreen';
 export * from './shared/ThemeSwitcher';
 export * from './shared/UserMenu';

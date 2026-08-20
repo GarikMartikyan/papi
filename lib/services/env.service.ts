@@ -11,6 +11,15 @@ import { warn } from '../utils/logger.util';
 /** Без переменной запросы уходят на тот же origin, откуда открыта панель. */
 const FALLBACK_API_BASE_URL = '/';
 
+/** Имя самого ядра: панель, которая его не сменила, так и подписывается. */
+const FALLBACK_APP_NAME = 'papi';
+
+/**
+ * Сколько букв влезает в знак логотипа. Столько же берётся из имени, когда
+ * аббревиатуру не задали: из «Really Long Project Title Here» выйдет `RLPT`.
+ */
+const MAX_ABBR_LENGTH = 4;
+
 /**
  * Про ненастроенное окружение сообщаем один раз на переменную. `baseQuery`
  * спрашивает адрес однажды, при загрузке модуля, но панель вправе позвать
@@ -54,4 +63,37 @@ const readEnv = (name: string, value: string | undefined, fallback: string): str
  */
 export const getApiBaseUrl = (): string => {
   return readEnv('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL, FALLBACK_API_BASE_URL);
+};
+
+/**
+ * Имя панели — то, что человек видит во вкладке и рядом с логотипом.
+ *
+ * Из окружения, а не из пропа провайдера: то же имя подставляется в `<title>`
+ * ещё в `index.html`, куда код панели не дотягивается, и второе место, где его
+ * можно задать, разошлось бы с первым.
+ */
+export const getAppName = (): string => {
+  return readEnv('VITE_APP_NAME', import.meta.env.VITE_APP_NAME, FALLBACK_APP_NAME);
+};
+
+/**
+ * Буквы внутри знака логотипа — `RMP`, `MMP`.
+ *
+ * Переменная необязательная, поэтому мимо `readEnv`: его предупреждение — про
+ * окружение, которое забыли настроить, а здесь пустое значение штатное. Без
+ * неё буквы собираются из первых букв слов имени — для `Example Panel` это
+ * `EP`, и отдельно задавать их нужно только панели, у которой аббревиатура
+ * устоялась и с именем не совпадает.
+ */
+export const getAppAbbr = (): string => {
+  const abbr = import.meta.env.VITE_APP_ABBR;
+
+  if (abbr !== undefined && abbr !== '') return abbr;
+
+  return getAppName()
+    .split(/\s+/)
+    .map((word) => word.charAt(0))
+    .join('')
+    .slice(0, MAX_ABBR_LENGTH)
+    .toUpperCase();
 };

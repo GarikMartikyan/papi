@@ -17,4 +17,8 @@
 interface ImportMetaEnv {
   /** Префикс, который приписывается ко всем путям эндпоинтов. */
   readonly VITE_API_BASE_URL?: string;
+  /** Имя панели: `<title>` и подпись у логотипа по умолчанию. */
+  readonly VITE_APP_NAME?: string;
+  /** Буквы внутри знака логотипа. Без неё — первые буквы слов имени. */
+  readonly VITE_APP_ABBR?: string;
 }
