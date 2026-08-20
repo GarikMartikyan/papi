@@ -2,7 +2,7 @@ import type { CSSProperties, HTMLAttributes } from 'react';
 
 import logoLarge from '../../assets/images/logo-large.svg';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
-import { useToken } from '../../hooks/useToken';
+import { useThemeToken } from '../../hooks/useThemeToken';
 
 /**
  * Пропорции логотипа 124:49, поэтому ширина считается от высоты, а не задаётся.
@@ -70,7 +70,7 @@ export const SplashScreen = (props: SplashScreenProps) => {
 
   const t = usePapiTranslation();
 
-  const token = useToken();
+  const token = useThemeToken();
 
   return (
     <div style={{ ...PAGE_STYLE, background: token.colorBgContainer, ...style }} {...rest}>

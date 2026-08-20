@@ -10,7 +10,7 @@ import {
 import { BLOCK_RADIUS } from '../../../constants/theme.constants';
 import { useAppDispatch } from '../../../hooks/useAppDispatch';
 import { useAppSelector } from '../../../hooks/useAppSelector';
-import { useToken } from '../../../hooks/useToken';
+import { useThemeToken } from '../../../hooks/useThemeToken';
 import { selectSidebarCollapsed, toggleSidebar } from '../../../store/slices/config.slice';
 import type { ThemeSwitcherVariant } from '../../shared/ThemeSwitcher';
 import type { UserMenuProps } from '../../shared/UserMenu';
@@ -243,7 +243,7 @@ export const MainLayout = (props: MainLayoutProps) => {
     user,
   } = props;
 
-  const token = useToken();
+  const token = useThemeToken();
 
   const dispatch = useAppDispatch();
   const collapsed = useAppSelector(selectSidebarCollapsed);

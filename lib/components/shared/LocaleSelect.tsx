@@ -2,7 +2,7 @@ import { Button, type ButtonProps, Dropdown, type MenuProps, Select, type Select
 import type { CSSProperties } from 'react';
 
 import { getLocaleFlag } from '../../assets/icons/flags/flags';
-import { useToken } from '../../hooks';
+import { useThemeToken } from '../../hooks';
 import { useLocale } from '../../hooks/useLocale';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import type { LocaleDefinition } from '../../types/interfaces/localeDefinition.interface';
@@ -93,7 +93,7 @@ export type LocaleSelectProps =
  * там, где переключатель хочется показать ещё раз.
  */
 export const LocaleSelect = (props: LocaleSelectProps) => {
-  const token = useToken();
+  const token = useThemeToken();
   const t = usePapiTranslation();
 
   const { locale, locales, setLocale } = useLocale();

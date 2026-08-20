@@ -2,7 +2,7 @@ import { Layout, type SiderProps } from 'antd';
 import type { ReactNode } from 'react';
 
 import { BLOCK_RADIUS } from '../../../../constants/theme.constants';
-import { useToken } from '../../../../hooks/useToken';
+import { useThemeToken } from '../../../../hooks/useThemeToken';
 
 import { MainLayoutTrigger } from './MainLayoutTrigger';
 
@@ -82,7 +82,7 @@ export const MainLayoutSider = (props: MainLayoutSiderProps) => {
     ...rest
   } = props;
 
-  const token = useToken();
+  const token = useThemeToken();
 
   /*
    * Свёрнутая колонка узкая, и прижатая к краю кнопка в ней выглядит случайной,

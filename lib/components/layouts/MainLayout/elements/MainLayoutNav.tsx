@@ -1,7 +1,7 @@
 import { ConfigProvider, Menu, type MenuProps } from 'antd';
 import { useLocation, useNavigate } from 'react-router';
 
-import { useToken } from '../../../../hooks/useToken';
+import { useThemeToken } from '../../../../hooks/useThemeToken';
 import type { NavItem } from '../MainLayout';
 
 type MenuItem = NonNullable<MenuProps['items']>[number];
@@ -90,7 +90,7 @@ export const MainLayoutNav = (props: MainLayoutNavProps) => {
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const token = useToken();
+  const token = useThemeToken();
 
   const active = resolveActiveNav(items, pathname);
 

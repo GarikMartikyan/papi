@@ -7,7 +7,7 @@ import { theme } from 'antd';
  * `theme` из него нужны css-in-js самой antd, а не коду панели. Заодно избавляет
  * от импорта `theme` там, где из antd больше ничего не нужно.
  */
-export const useToken = () => {
+export const useThemeToken = () => {
   const { token } = theme.useToken();
 
   return token;

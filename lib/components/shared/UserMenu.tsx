@@ -13,7 +13,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
-import { useToken } from '../../hooks/useToken';
+import { useThemeToken } from '../../hooks/useThemeToken';
 
 /**
  * Аватар в карточке меню. Дефолтные 32 у antd: рядом с ним две строки текста —
@@ -214,7 +214,7 @@ export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
 export const UserMenu = (props: UserMenuProps) => {
   const { avatar, children, description, fullName, items, name, ...rest } = props;
 
-  const token = useToken();
+  const token = useThemeToken();
   const t = usePapiTranslation();
 
   /* Каждое имя подменяет другое, когда его не передали: панель, у которой имя

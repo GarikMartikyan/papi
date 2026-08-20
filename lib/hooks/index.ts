@@ -12,5 +12,5 @@ export * from './useAuth';
 export * from './useLocale';
 export * from './usePermissions';
 export * from './useThemeMode';
-export * from './useToken';
+export * from './useThemeToken';
 export * from './useTranslation';

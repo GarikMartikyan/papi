@@ -3,7 +3,7 @@ import { Button, type ButtonProps, Switch, type SwitchProps } from 'antd';
 
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { useThemeMode } from '../../hooks/useThemeMode';
-import { useToken } from '../../hooks/useToken';
+import { useThemeToken } from '../../hooks/useThemeToken';
 
 export type ThemeSwitcherVariant = 'switch' | 'button';
 
@@ -42,7 +42,7 @@ export type ThemeSwitcherProps =
  * странице настроек.
  */
 export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
-  const token = useToken();
+  const token = useThemeToken();
   const t = usePapiTranslation();
 
   const { isDark, toggleMode } = useThemeMode();

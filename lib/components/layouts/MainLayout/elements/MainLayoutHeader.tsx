@@ -2,7 +2,7 @@ import { Layout, Space } from 'antd';
 import type { ReactNode } from 'react';
 
 import logoLarge from '../../../../assets/images/logo-large.svg';
-import { useToken } from '../../../../hooks/useToken';
+import { useThemeToken } from '../../../../hooks/useThemeToken';
 import { LocaleSelect } from '../../../shared/LocaleSelect';
 import { ThemeSwitcher, type ThemeSwitcherVariant } from '../../../shared/ThemeSwitcher';
 import { UserMenu, type UserMenuProps } from '../../../shared/UserMenu';
@@ -34,7 +34,7 @@ export interface MainLayoutHeaderProps {
 export const MainLayoutHeader = (props: MainLayoutHeaderProps) => {
   const { extra, localeSelect, logo = logoLarge, themeSwitcher, user } = props;
 
-  const token = useToken();
+  const token = useThemeToken();
 
   return (
     <Layout.Header
