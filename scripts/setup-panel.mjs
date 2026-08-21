@@ -44,6 +44,9 @@ const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 /** Ctrl+C: общепринятый код выхода — 128 + номер сигнала. */
 const SIGINT_EXIT_CODE = 130;
 
+/** Отказ от предложенного ответа: одиночный дефис, как у git и curl. */
+const SKIP_ANSWER = '-';
+
 /*
  * Пути от самого файла, а не от `process.cwd()`: скрипт зовут и через
  * `npm run setup` из корня, и напрямую из любой папки, а корень репозитория
@@ -62,6 +65,15 @@ const ENV = new URL('../.env', import.meta.url);
  * в файл, где они читаются как мусор.
  */
 const isColorful = Boolean(process.stdout.isTTY) && !process.env.NO_COLOR;
+
+/**
+ * Плейсхолдер — серый текст прямо в строке ввода, поверх которого печатают.
+ *
+ * Требует и живого ввода, и цвета: без TTY его некуда рисовать, а без цвета он
+ * неотличим от уже набранного ответа — и человек стёр бы его руками, приняв за
+ * свой ввод. Там, где его нет, подсказка пишется словами в скобках.
+ */
+const hasPlaceholders = isColorful && Boolean(process.stdin.isTTY);
 
 const paint = (code, text) => (isColorful ? `\u001B[${code}m${text}\u001B[0m` : text);
 const bold = (text) => paint('1', text);
@@ -125,7 +137,7 @@ const run = (command, ...args) => execFileSync(command, args, { cwd: ROOT, stdio
  * ввода и перехват Ctrl+C).
  */
 const createPrompt = () => {
-  const state = { suggestions: [] };
+  const state = { placeholder: '', suggestions: [] };
 
   const rl = createInterface({
     input: process.stdin,
@@ -182,7 +194,38 @@ const createPrompt = () => {
   const prompt = (text) => {
     rl.setPrompt(text);
     rl.prompt();
+    drawPlaceholder();
   };
+
+  /**
+   * Серый ответ-заготовка в пустой строке ввода: Enter принимает его как есть,
+   * Tab вписывает его настоящим текстом, любая буква — начинает свой ответ.
+   *
+   * Рисуется поверх пустой строки и тут же возвращает курсор в начало, поэтому
+   * это именно подсказка, а не подставленное значение: стирать её backspace'ом
+   * не нужно, она исчезнет сама при первом же нажатии.
+   */
+  const drawPlaceholder = () => {
+    if (!hasPlaceholders || state.placeholder === '' || rl.line !== '') return;
+
+    const width = [...state.placeholder].length;
+
+    process.stdout.write(`${dim(state.placeholder)}\u001B[${width}D`);
+  };
+
+  /*
+   * Заготовку приходится рисовать заново после каждого нажатия: readline на
+   * каждой перерисовке стирает всё до конца экрана, и без этого она пропала бы
+   * с первым же backspace, вернувшим строку в пустое состояние.
+   *
+   * Enter пропускается: строка на нём пустеет, и заготовка ушла бы уже на
+   * следующую строку, под вопросом.
+   */
+  process.stdin.on('keypress', (_char, key) => {
+    if (key?.name === 'return' || key?.name === 'enter') return;
+
+    drawPlaceholder();
+  });
 
   /**
    * Подсказка в скобках: чем ответит Enter и что подставит Tab.
@@ -190,23 +233,20 @@ const createPrompt = () => {
    * Пишется рядом с вопросом, а не в шапке скрипта: подсказка нужна там, где
    * курсор, — прочитанную один раз в начале к пятому вопросу уже не помнят.
    */
-  const buildHint = ({ example, fallback, optional, suggestions }) => {
+  const buildHint = ({ example, fallback, note, optional }) => {
     const parts = [];
 
-    if (fallback !== '') parts.push(`Enter — ${fallback}`);
-    else if (optional) parts.push('Enter — пропустить');
-    else if (example !== '') parts.push(`например, ${example}`);
+    if (note !== '') parts.push(note);
 
     /*
-     * Что подставит Tab, пишется целиком, если это не дефолт: на вопросе про
-     * репозиторий подсказка `Tab — git@github.com:owner/rmp.git` и есть главный
-     * ответ, а `Tab — подставить` там ничего не сообщало бы.
+     * Заготовка стоит в самой строке, поэтому дублировать её словами незачем:
+     * `(Enter — RMP)` рядом с серым `RMP` в поле ввода — это одно и то же,
+     * сказанное дважды. А там, где заготовки нет (не терминал, `NO_COLOR`),
+     * она остаётся единственным способом узнать про дефолт.
      */
-    const [primary] = suggestions;
-
-    if (primary !== undefined) {
-      parts.push(primary === fallback ? 'Tab — подставить' : `Tab — ${primary}`);
-    }
+    if (!hasPlaceholders && fallback !== '') parts.push(`Enter — ${fallback}`);
+    else if (optional) parts.push('Enter — пропустить');
+    else if (fallback === '' && example !== '') parts.push(`например, ${example}`);
 
     return parts.length > 0 ? ` ${dim(`(${parts.join(', ')})`)}` : '';
   };
@@ -217,15 +257,16 @@ const createPrompt = () => {
    */
   const ask = async (
     question,
-    { example = '', fallback = '', optional = false, suggestions = [], validate } = {},
+    { example = '', fallback = '', note = '', optional = false, suggestions = [], validate } = {},
   ) => {
     /*
      * Дефолт всегда и первый вариант по Tab: его чаще правят, чем набирают
-     * заново, а подставленный он редактируется как обычный текст.
+     * заново, а вписанный он редактируется как обычный текст.
      */
     state.suggestions = [...new Set([fallback, ...suggestions])].filter(Boolean);
+    state.placeholder = fallback;
 
-    const hint = buildHint({ example, fallback, optional, suggestions: state.suggestions });
+    const hint = buildHint({ example, fallback, note, optional });
 
     for (;;) {
       prompt(`${cyan('?')} ${bold(question)}${hint}: `);
@@ -242,6 +283,13 @@ const createPrompt = () => {
   /** Да/нет: `y`, `yes`, `да` или Enter — согласиться; `n`, `no`, `нет` — отказаться. */
   const confirm = async (question, { fallbackYes = true } = {}) => {
     state.suggestions = ['yes', 'no'];
+
+    /*
+     * Заготовки тут нет: у да/нет дефолт показывает заглавная буква в `(Y/n)` —
+     * соглашение, которое читается без объяснений, а серое `yes` в строке ввода
+     * только сбивало бы с толку.
+     */
+    state.placeholder = '';
 
     const hint = dim(fallbackYes ? '(Y/n)' : '(y/N)');
 
@@ -344,12 +392,27 @@ const askSettings = async (ask) => {
     suggestions: API_BASE_URL_SUGGESTIONS,
   });
 
-  const originUrl = await ask('Адрес репозитория панели', {
-    optional: true,
-    suggestions: originSuggestion(packageName),
+  /*
+   * Адрес свой репозиторий получает заготовкой, а не пустой строкой: панели он
+   * почти всегда нужен, и собранный из адреса ядра он верен чаще, чем набранный
+   * руками. Поэтому и отказ здесь явный — `-`, а не Enter: пустым Enter'ом
+   * пропускают то, чего не предлагали.
+   */
+  const [originFallback = ''] = originSuggestion(packageName);
+
+  const originAnswer = await ask('Адрес репозитория панели', {
+    fallback: originFallback,
+    note: originFallback === '' ? '' : `${SKIP_ANSWER} — пропустить`,
+    optional: originFallback === '',
   });
 
-  return { abbr: abbr.toUpperCase(), apiBaseUrl, appName, originUrl, packageName };
+  return {
+    abbr: abbr.toUpperCase(),
+    apiBaseUrl,
+    appName,
+    originUrl: originAnswer === SKIP_ANSWER ? '' : originAnswer,
+    packageName,
+  };
 };
 
 /**
@@ -446,11 +509,24 @@ const commit = (packageName, branch) => {
   step(`коммит в ${bold(branch)}`);
 };
 
+/**
+ * Неудачный push — не повод ронять настройку.
+ *
+ * Адрес репозитория предлагается заготовкой, собранной из адреса ядра, поэтому
+ * попасть можно и в репозиторий, который ещё не создали. Всё остальное к этому
+ * моменту уже сделано и лежит в коммите — панель настроена, отправить её можно
+ * когда угодно.
+ */
 const push = (branch) => {
   console.log(`\n${dim('Отправляю первый коммит в origin.')}\n`);
 
-  run('git', 'push', '-u', 'origin', branch);
-  step(`${bold(branch)} отправлена в origin`);
+  try {
+    run('git', 'push', '-u', 'origin', branch);
+    step(`${bold(branch)} отправлена в origin`);
+  } catch {
+    console.log(`\n${red('✖')} Push не прошёл — репозиторий уже создан на хостинге?`);
+    console.log(`${dim(`Панель настроена, отправить можно позже: git push -u origin ${branch}`)}`);
+  }
 };
 
 const printPlan = ({ abbr, apiBaseUrl, appName, originUrl, packageName }, branch) => {
@@ -509,7 +585,20 @@ const setupPanel = async () => {
 
   try {
     console.log(`\n${bold('Настройка панели papi')}`);
-    console.log(`${dim('Enter — принять подсказку, Tab — подставить вариант, Ctrl+C — выйти.')}\n`);
+
+    /*
+     * Правила ввода объясняются те, что человек видит: с заготовками речь про
+     * серый текст в строке, без них — про подсказку в скобках. Рассказать про
+     * серое там, где его нет, значит отправить искать несуществующее.
+     */
+    if (hasPlaceholders) {
+      console.log(`${dim('Серое в строке — ответ по умолчанию: Enter принимает его,')}`);
+      console.log(`${dim('Tab вписывает его текстом для правки, Ctrl+C выходит.')}\n`);
+    } else {
+      console.log(
+        `${dim('В скобках — ответ по умолчанию: Enter принимает его, Ctrl+C выходит.')}\n`,
+      );
+    }
 
     const settings = await askSettings(ask);
     const branch = git('rev-parse', '--abbrev-ref', 'HEAD');
