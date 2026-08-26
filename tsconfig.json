@@ -47,6 +47,6 @@
      */
     "types": ["vite/client", "node"]
   },
-  "include": ["lib", "src", "vite.config.ts"],
+  "include": ["lib", "src", "vite.config.ts", ".claude/skills/*/example"],
   "exclude": ["dist", "node_modules"]
 }

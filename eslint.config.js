@@ -8,8 +8,8 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 /**
- * Ручной мемоизации в репозитории нет: `useMemo` и `useCallback` пишет за нас
- * React Compiler на сборке — см. `vite.config.ts`.
+ * Ручной мемоизации в репозитории нет: `useMemo`, `useCallback` и `memo` пишет за
+ * нас React Compiler на сборке — см. `vite.config.ts`.
  *
  * Запрет добавляется в `paths` уже существующих блоков ниже, а не отдельным
  * блоком: flat config заменяет правило целиком, и свой блок с
@@ -18,8 +18,9 @@ import tseslint from 'typescript-eslint';
  */
 const NO_MANUAL_MEMO = {
   name: 'react',
-  importNames: ['useCallback', 'useMemo'],
-  message: 'Ручной мемоизации в papi нет — за неё отвечает React Compiler.',
+  importNames: ['useCallback', 'useMemo', 'memo'],
+  message:
+    'Ручной мемоизации в papi нет — за неё отвечает React Compiler. Нужна руками — только по прямой просьбе, отдельным eslint-disable с объяснением.',
 };
 
 /**
@@ -154,6 +155,19 @@ export default tseslint.config(
           ],
         },
       ],
+    },
+  },
+
+  /*
+   * Эталонные примеры из скиллов линтуются как обычный код проекта: они в
+   * `tsconfig.json`, и правило, которое они показывают, должно на них же и
+   * проверяться. Границ импортов у них нет — они ни к ядру, ни к панели не
+   * относятся, — а запрет ручной мемоизации есть.
+   */
+  {
+    files: ['.claude/skills/*/example/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [NO_MANUAL_MEMO] }],
     },
   },
 

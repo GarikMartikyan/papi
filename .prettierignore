@@ -2,6 +2,9 @@ node_modules
 dist
 coverage
 /tmp
-.claude
+# Проза скиллов форматируется руками — prettier переносит строки по-своему и
+# ломает вёрстку таблиц. Примеры кода рядом с ними (example/*.tsx) он правит,
+# как обычные файлы проекта.
+.claude/**/*.md
 *.min.*
 package-lock.json
