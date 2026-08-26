@@ -96,7 +96,9 @@ const resolveI18n = (config: I18nConfig): ResolvedI18n => {
   return { definitions, fallback: first.code };
 };
 
+/** Пропсы `I18nProvider`. */
 export interface I18nProviderProps {
+  /** Приложение панели — всё, что говорит на активном языке. */
   children: ReactNode;
   /**
    * Языки панели и запасной среди них.
@@ -116,6 +118,17 @@ export interface I18nProviderProps {
  * Здесь же язык сверяется со списком панели: в сторе он оказывается раньше, чем
  * этот список, — стор ядра создаётся при импорте. Здесь же дочитываются и
  * остальные языки браузера: в сторе лежит только первая догадка.
+ *
+ * Каталог ядра он подкладывает под каталог панели сам, поэтому строки входа и
+ * ошибок переведены и без её участия — а одноимённый ключ в её `messages`
+ * перекрывает строку ядра.
+ *
+ * @example
+ * ```tsx
+ * <I18nProvider i18n={{ default: 'ru', locales: [ru, en] }}>
+ *   <App />
+ * </I18nProvider>
+ * ```
  */
 export const I18nProvider = (props: I18nProviderProps) => {
   const { children, i18n } = props;

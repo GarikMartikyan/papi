@@ -7,6 +7,13 @@ import type { MessageDescriptor } from 'react-intl';
  *
  * Намеренно `string`, а не union: набор языков задаёт панель, а ядро не знает
  * ни одного — английского в том числе. Панель при желании сужает тип у себя.
+ *
+ * @example
+ * ```ts
+ * const { locale, setLocale } = useLocale();
+ *
+ * setLocale('pt-BR' satisfies Locale);
+ * ```
  */
 export type Locale = string;
 
@@ -16,6 +23,14 @@ export type Locale = string;
  * Ключ — сам английский текст строки в нижнем регистре (`'sign out'`,
  * `'{count} users'`), а не путь вроде `'users.title'`. Плоские они при этом
  * по-прежнему: react-intl ищет id как есть и во вложенный объект не заглядывает.
+ *
+ * @example
+ * ```ts
+ * export const ru: LocaleMessages = {
+ *   'sign out': 'Выйти',
+ *   '{count} users': '{count, plural, one {# пользователь} other {# пользователей}}',
+ * };
+ * ```
  */
 export type LocaleMessages = Record<string, string>;
 

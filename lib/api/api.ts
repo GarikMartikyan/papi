@@ -6,19 +6,9 @@ import type { PapiTag } from '../types/types/tag.type';
 import { papiBaseQuery } from './baseQuery';
 
 /**
- * Единственный api на всю панель.
+ * Набор тегов кеша, с которым создаётся api.
  *
- * Живёт в ядре, а не в панели, потому что его редьюсер и middleware
- * регистрируются при создании стора, а после этого middleware уже не добавить.
- * Поэтому свой api панель не создаёт — она дописывает эндпоинты в этот:
- *
- * ```ts
- * import { api } from '@papi/api';
- *
- * export const usersApi = api.injectEndpoints({ endpoints: (build) => ({ … }) });
- * ```
- *
- * `tagTypes` — весь набор ядра сразу, а не по тегу на файл эндпоинтов:
+ * Весь набор ядра сразу, а не по тегу на файл эндпоинтов:
  * `createApi` фиксирует набор при создании, и файл, объявляющий только свои
  * теги, не смог бы инвалидировать чужой. Теги перечислены константами из
  * `constants/tags.constants` — опечатка в строке по месту не ломает сборку, она
@@ -36,6 +26,32 @@ import { papiBaseQuery } from './baseQuery';
  */
 const tagTypes: PapiTag[] = Object.values(papiRtkTags);
 
+/**
+ * Единственный api на всю панель.
+ *
+ * Живёт в ядре, а не в панели, потому что его редьюсер и middleware
+ * регистрируются при создании стора, а после этого middleware уже не добавить.
+ * Поэтому свой api панель не создаёт — она дописывает эндпоинты в этот.
+ *
+ * Запросы уходят через `papiBaseQuery`: адрес из `VITE_API_BASE_URL`, токен в
+ * заголовке, тосты на ошибку и на успех, выход из сессии по 401.
+ *
+ * @example
+ * ```ts
+ * import { api } from '@papi/api';
+ *
+ * export const usersApi = api.injectEndpoints({
+ *   endpoints: (build) => ({
+ *     getUsers: build.query<User[], void>({
+ *       query: () => '/users',
+ *       providesTags: [rtkTags.users],
+ *     }),
+ *   }),
+ * });
+ *
+ * export const { useGetUsersQuery } = usersApi;
+ * ```
+ */
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: papiBaseQuery,

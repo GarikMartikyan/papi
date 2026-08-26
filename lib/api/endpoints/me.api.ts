@@ -40,4 +40,18 @@ export const meApi = api.injectEndpoints({
   }),
 });
 
-export const { useGetMeQuery } = meApi;
+/**
+ * Вошедший пользователь: имя, аватар, права.
+ *
+ * Ответ лежит в кеше — его наполняет гард ещё до того, как панель отрисуется,
+ * поэтому лишнего запроса вызов не делает. Прав хватает `usePermissions`, он
+ * читает тот же кеш.
+ *
+ * @example
+ * ```tsx
+ * const { data: me, isLoading } = useGetMeQuery();
+ *
+ * return <UserMenu user={me} loading={isLoading} />;
+ * ```
+ */
+export const useGetMeQuery = meApi.useGetMeQuery;

@@ -25,14 +25,31 @@ const remove = (key: string): void => {
   }
 };
 
+/**
+ * Сохранить проект для одной вкладки: соседняя останется на своём. Так в двух
+ * вкладках открываются два разных проекта.
+ *
+ * Напрямую нужна редко — оба хранилища сразу пишет `setProjectId` из
+ * `projectId.util`, он же проверяет формат значения.
+ *
+ * @param projectId Идентификатор проекта; число приводится к строке.
+ */
 export const setProjectIdSS = (projectId: number | string) => {
   write(PROJECT_ID_KEY, projectId.toString());
 };
 
+/**
+ * Проект этой вкладки.
+ *
+ * @returns Идентификатор; `null` — вкладка своего проекта не выбирала, и тогда
+ * действует общий из localStorage. Читать лучше через `getStoredProjectId` — он
+ * смотрит в оба хранилища по порядку.
+ */
 export const getProjectIdSS = () => {
   return read(PROJECT_ID_KEY);
 };
 
+/** Забыть проект этой вкладки. Обе стороны сразу стирает `removeProjectId`. */
 export const removeProjectIdSS = () => {
   remove(PROJECT_ID_KEY);
 };

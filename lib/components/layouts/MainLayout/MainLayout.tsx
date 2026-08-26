@@ -25,6 +25,16 @@ import { MainLayoutSider } from './elements/MainLayoutSider';
  * Подпись приходит готовым узлом, а не ключом сообщения: собственного каталога
  * строк у ядра нет — языки целиком задаёт панель (см. `I18nConfig`). Панель
  * пишет `label: t('users')`.
+ *
+ * Под `PapiRouter` эти пункты собираются из `routes` сами — вручную список
+ * нужен только тому, кто ставит `MainLayout` напрямую.
+ *
+ * @example
+ * ```tsx
+ * const navItems: NavItem[] = [
+ *   { key: '/users', label: t('users'), icon: <Icon name="Users" /> },
+ * ];
+ * ```
  */
 export interface NavItem {
   /**
@@ -35,6 +45,7 @@ export interface NavItem {
   key: string;
   /** Подпись — уже переведённая. */
   label: ReactNode;
+  /** Иконка слева от подписи. В свёрнутой колонке от пункта остаётся она одна. */
   icon?: ReactNode;
   /**
    * Вложенные пункты. Такой пункт разворачивает подменю, а не ведёт на
@@ -44,12 +55,20 @@ export interface NavItem {
   children?: readonly NavItem[];
 }
 
+/**
+ * Пропсы `MainLayout`.
+ *
+ * Под `PapiRouter` они же — его собственные пропсы, кроме `children` и
+ * `navItems`: страницу подставляет маршрут, меню собирается из `routes`.
+ */
 export interface MainLayoutProps {
   /** Контент страницы — обычно `<Routes>` панели. */
   children: ReactNode;
   /**
    * Ширина правой колонки. Одна на все состояния: колонка не открывается — это
    * столбик знаков соседних панелей, а не список, который разворачивают.
+   *
+   * @defaultValue `DEFAULT_SIDER_COLLAPSED_WIDTH` — 48 пикселей.
    */
   asideWidth?: number;
   /** Правая часть шапки: то, что панель добавляет к языку и теме. */
@@ -57,6 +76,8 @@ export interface MainLayoutProps {
   /**
    * Переключатель языка в шапке. Стоит по умолчанию — как и переключатель темы.
    * С одним языком в `I18nConfig` не показывается сам: выбирать не из чего.
+   *
+   * @defaultValue `true`
    */
   localeSelect?: boolean;
   /**
@@ -69,8 +90,14 @@ export interface MainLayoutProps {
    *
    * Ссылкой на картинку, а не узлом: логотип стоит в трёх местах разного размера
    * (шапка, вход, экран ожидания), и высоту каждое из них задаёт себе само.
+   *
+   * @defaultValue Знак панели — `PanelLogo` по `VITE_APP_ABBR`.
    */
   logo?: string;
+  /**
+   * Пункты левого меню. Не переданы — колонка пустая; под `PapiRouter` они
+   * собираются из `routes` и этим пропом не задаются.
+   */
   navItems?: readonly NavItem[];
   /**
    * Тема навигации: от неё зависят цвета меню и логотипа, а с ними и то, какой
@@ -86,10 +113,21 @@ export interface MainLayoutProps {
    *
    * Одно значение на обе колонки: это один и тот же приём, «блок на странице», и
    * разъехавшись по теме, они перестали бы читаться как пара.
+   *
+   * @defaultValue `'light'`
    */
   siderTheme?: 'light' | 'dark';
+  /**
+   * Ширина левой навигации в развёрнутом виде.
+   *
+   * @defaultValue `DEFAULT_SIDER_WIDTH` — 220 пикселей.
+   */
   siderWidth?: number;
-  /** Ширина навигации в свёрнутом виде. */
+  /**
+   * Ширина навигации в свёрнутом виде.
+   *
+   * @defaultValue `DEFAULT_SIDER_COLLAPSED_WIDTH` — 48 пикселей.
+   */
   siderCollapsedWidth?: number;
   /**
    * Переключатель темы в шапке. Стоит по умолчанию: он нужен каждой панели, и
@@ -97,6 +135,8 @@ export interface MainLayoutProps {
    *
    * Вид по умолчанию задаёт сам `ThemeSwitcher`, а не этот проп: иначе дефолт
    * пришлось бы держать в двух местах и следить, чтобы они совпадали.
+   *
+   * @defaultValue Вид `ThemeSwitcher` по умолчанию.
    */
   themeSwitcher?: ThemeSwitcherVariant | 'none';
   /**
@@ -153,6 +193,18 @@ export interface MainLayoutProps {
  * Страница не скроллится вообще: высота фиксирована в `100vh`, а навигация,
  * контент и правый сайдбар прокручиваются каждый внутри себя. Поэтому `height`,
  * а не `minHeight`, — иначе внутреннему `overflow` не от чего считать.
+ *
+ * Панели, собирающей маршруты через `PapiRouter`, ставить его руками не нужно:
+ * тот ставит каркас сам, а эти пропсы принимает своими.
+ *
+ * @example
+ * ```tsx
+ * <MainLayout navItems={navItems} user={{ items: userMenuItems }} headerExtra={<ProjectSelect />}>
+ *   <Routes>
+ *     <Route path="/users" element={<UsersPage />} />
+ *   </Routes>
+ * </MainLayout>
+ * ```
  */
 export const MainLayout = (props: MainLayoutProps) => {
   const {

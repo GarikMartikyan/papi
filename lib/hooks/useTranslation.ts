@@ -2,7 +2,14 @@ import { type MessageDescriptor, type PrimitiveType, useIntl } from 'react-intl'
 
 import type { MessageId } from '../types/types/i18n.type';
 
-/** Значения для подстановки в ICU-строку: `{count}`, `{name}`. */
+/**
+ * Значения для подстановки в ICU-строку: `{count}`, `{name}`.
+ *
+ * @example
+ * ```ts
+ * const values: MessageValues = { count: 3, name: 'Аня' };
+ * ```
+ */
 export type MessageValues = Record<string, PrimitiveType>;
 
 /**
@@ -35,6 +42,21 @@ export type MessageValues = Record<string, PrimitiveType>;
  * дескриптора, и без ограничения ключ не пролез бы в `formatMessage`. Он же
  * стоит умолчанием, так что панель, объявившая свои ключи в `FormatjsIntl`,
  * получает проверку и без собственной обёртки — та остаётся ради имени.
+ *
+ * @typeParam Key — union ключей каталога панели. Не задан — любой `MessageId`.
+ * @returns `t(message, values?)`: `message` — ключ каталога или дескриптор от
+ * `papiMessage`, `values` — подстановки в ICU-строку; на выходе готовая строка
+ * на активном языке.
+ * @example
+ * ```tsx
+ * const t = useTranslation<AppMessageKey>();
+ *
+ * return <h1>{t('users', { count: users.length })}</h1>;
+ * ```
+ * @example Своя обёртка панели — чтобы не повторять параметр типа:
+ * ```ts
+ * export const useAppTranslation = () => useTranslation<AppMessageKey>();
+ * ```
  */
 export const useTranslation = <Key extends MessageId = MessageId>() => {
   const intl = useIntl();

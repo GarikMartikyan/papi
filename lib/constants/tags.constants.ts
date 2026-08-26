@@ -16,7 +16,13 @@
  * Теги панели живут у неё же — ядро о её сущностях не знает. Она объявляет их
  * одним `injectTags` (см. `src/constants/tags.constants.ts`) и получает оттуда
  * весь набор целиком, вместе с этими, — импортировать их отсюда ей не нужно.
+ *
+ * @example
+ * ```ts
+ * export const tags = injectTags({ users: 'Users' });
+ * ```
  */
 export const papiRtkTags = {
+  /** Текущий пользователь — ответ `GET /me`. Инвалидируется входом и выходом. */
   me: 'Me',
 } as const;

@@ -4,11 +4,18 @@ import { usePermissions } from '../hooks/usePermissions';
 import { ForbiddenPage } from '../pages/ForbiddenPage/ForbiddenPage';
 import type { PapiPermission } from '../types/types/permission.type';
 
+/** Пропсы `PermissionGate`. */
 export interface PermissionGateProps {
   /** Право, без которого содержимое не показывается. Не указано — показывается всем. */
   permission?: PapiPermission;
+  /** Содержимое под правом: страница, секция, кнопка. */
   children: ReactNode;
-  /** Что вместо содержимого, когда права нет. По умолчанию — `ForbiddenPage`. */
+  /**
+   * Что вместо содержимого, когда права нет.
+   *
+   * @defaultValue `<ForbiddenPage />`. Внутри страницы обычно передают `null` —
+   * кнопке или колонке отказ во весь экран не нужен.
+   */
   fallback?: ReactNode;
 }
 
@@ -25,6 +32,16 @@ export interface PermissionGateProps {
  *
  * Прятать пункт в меню — забота `PapiRouterLayout`: этот компонент про
  * содержимое, а не про навигацию к нему.
+ *
+ * Пока ответ `GET /me` не пришёл, содержимое закрыто: открыться на время
+ * загрузки значит показать закрытое правом на секунду каждому.
+ *
+ * @example
+ * ```tsx
+ * <PermissionGate permission={Permission.USERS_DELETE} fallback={null}>
+ *   <Button danger>Удалить</Button>
+ * </PermissionGate>
+ * ```
  */
 export const PermissionGate = (props: PermissionGateProps) => {
   const { permission, children, fallback } = props;

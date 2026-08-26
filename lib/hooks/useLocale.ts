@@ -17,6 +17,21 @@ import { useAppSelector } from './useAppSelector';
  * его кладёт `I18nProvider`: набор языков задан панелью на этапе сборки, он не
  * меняется, и ни контекст, ни слайс ему не нужны — см. `locales.service`.
  * Вне `I18nProvider` список пустой.
+ *
+ * @returns `locale` — активный язык; `locales` — все языки панели из
+ * `I18nConfig`; `setLocale(next)` — сменить язык.
+ * @example
+ * ```tsx
+ * const { locale, locales, setLocale } = useLocale();
+ *
+ * return (
+ *   <Select
+ *     value={locale}
+ *     options={locales.map(({ code, label }) => ({ value: code, label }))}
+ *     onChange={setLocale}
+ *   />
+ * );
+ * ```
  */
 export const useLocale = () => {
   const locales = getLocales();

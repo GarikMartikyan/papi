@@ -36,6 +36,15 @@ export type LoginPageProps = Omit<AuthLayoutProps, 'children'>;
  * становится истиной, и страница уводит на исходный адрес ранним возвратом
  * ниже. Тот же возврат закрывает и вторую дверь — на `/login` по прямой ссылке
  * уже вошедший не попадёт.
+ *
+ * На маршрут `/login` её ставит `PapiRouter` сам. Отдельно она нужна панели,
+ * которая показывает вход в своём обрамлении: пропсы каркаса — логотип, кадры,
+ * ширина карточки — идут сюда и уходят в `AuthLayout`.
+ *
+ * @example
+ * ```tsx
+ * <PapiRouter routes={routes} loginElement={<LoginPage logo={logo} />} />
+ * ```
  */
 export const LoginPage = (props: LoginPageProps) => {
   const location = useLocation();

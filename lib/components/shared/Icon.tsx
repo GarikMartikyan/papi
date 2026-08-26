@@ -14,7 +14,7 @@ import { warn } from '../../utils/logger.util';
  */
 const ANTD_ICONS = antdIcons as unknown as Record<
   string,
-  ComponentType<{ className?: string; style?: CSSProperties }> | undefined
+  ComponentType<{ className?: string; style?: CSSProperties; 'aria-hidden'?: boolean }> | undefined
 >;
 
 const LUCIDE_ICONS = lucideIcons as unknown as Record<
@@ -75,12 +75,19 @@ const reportUnknown = (name: string): void => {
   warn(`Unknown icon "${name}" — no such name in @ant-design/icons or lucide-react.`);
 };
 
+/** Общая часть обоих видов `IconProps`. */
 interface IconOwnProps {
+  /** Класс на корневом узле иконки. */
   className?: string;
   /** Цвет иконки — любой, хоть из набора, хоть своей: см. `MASK_STYLE`. */
   color?: string;
-  /** Число — пиксели. По умолчанию иконка наследует размер шрифта. */
+  /**
+   * Число — пиксели.
+   *
+   * @defaultValue `'1em'` — иконка наследует размер шрифта, как у antd.
+   */
   size?: number | string;
+  /** Стили на корневом узле — они ложатся поверх вычисленных. */
   style?: CSSProperties;
 }
 
@@ -90,6 +97,13 @@ interface IconOwnProps {
  * Объединением, а не двумя необязательными полями: так `<Icon />` без того и
  * другого не собирается, а `<Icon name="mail" src={ball} />` не притворяется
  * осмысленным.
+ *
+ * @example
+ * ```tsx
+ * <Icon name="UserOutlined" />
+ * <Icon name="columns-2" size={20} color="var(--accent)" />
+ * <Icon src={ball} />
+ * ```
  */
 export type IconProps =
   | (IconOwnProps & {
@@ -102,6 +116,7 @@ export type IconProps =
        * набор.
        */
       name: string;
+      /** Занят именем: иконка задаётся чем-то одним. */
       src?: never;
     })
   | (IconOwnProps & {
@@ -114,6 +129,7 @@ export type IconProps =
        * у именованных: рядом с ними такая иконка ведёт себя так же.
        */
       src: string;
+      /** Занят файлом: иконка задаётся чем-то одним. */
       name?: never;
     });
 
@@ -128,6 +144,15 @@ export type IconProps =
  *
  * Имени нет ни в одном наборе — вернёт `null` и напишет в консоль: иконка не то,
  * ради чего стоит ронять экран.
+ *
+ * Декоративная: `aria-hidden` стоит на ней всегда, подпись несёт кнопка или
+ * пункт меню вокруг неё.
+ *
+ * @example
+ * ```tsx
+ * // Иконка раздела приходит данными — именем в `PapiRoute.iconName`:
+ * { path: '/users', element: <UsersPage />, iconName: 'Users' }
+ * ```
  */
 export const Icon = (props: IconProps) => {
   const { className, color, size = DEFAULT_SIZE, style } = props;
@@ -164,8 +189,12 @@ export const Icon = (props: IconProps) => {
   const AntdIcon = ANTD_ICONS[name];
 
   if (AntdIcon !== undefined) {
-    // antd рисует иконку шрифтом, поэтому размер и цвет идут стилями.
-    return <AntdIcon className={className} style={{ fontSize: size, color, ...style }} />;
+    /* antd рисует иконку шрифтом, поэтому размер и цвет идут стилями. aria-hidden
+       здесь ещё и перебивает `aria-label` с именем иконки, который antd ставит сам:
+       без него иконка в кнопке без текста читалась бы вслух дважды. */
+    return (
+      <AntdIcon aria-hidden className={className} style={{ fontSize: size, color, ...style }} />
+    );
   }
 
   const LucideIcon = LUCIDE_ICONS[name] ?? LUCIDE_ICONS[toPascalCase(name)];

@@ -84,9 +84,11 @@ const getInitials = (name: string): string | undefined => {
  * пишет `label: t('sign out')`.
  */
 export interface UserMenuAction {
+  /** Ключ пункта — им antd отличает пункты друг от друга. */
   key: string;
   /** Подпись — уже переведённая. */
   label: ReactNode;
+  /** Иконка слева от подписи. */
   icon?: ReactNode;
   /**
    * Маршрут панели. Задан — пункт становится настоящей ссылкой, а не строкой с
@@ -102,6 +104,7 @@ export interface UserMenuAction {
   onClick?: () => void;
   /** Красный пункт: выход, удаление аккаунта. */
   danger?: boolean;
+  /** Пункт виден, но не нажимается. */
   disabled?: boolean;
 }
 
@@ -113,9 +116,22 @@ export interface UserMenuAction {
  * под ним.
  */
 export interface UserMenuDivider {
+  /** Признак разделителя — им он и отличается от пункта. */
   type: 'divider';
 }
 
+/**
+ * Элемент меню пользователя: пункт или разделитель.
+ *
+ * @example
+ * ```tsx
+ * const items: UserMenuItem[] = [
+ *   { key: 'profile', label: t('profile'), icon: <Icon name="User" />, to: '/profile' },
+ *   { type: 'divider' },
+ *   { key: 'logout', label: t('sign out'), danger: true, onClick: logout },
+ * ];
+ * ```
+ */
 export type UserMenuItem = UserMenuAction | UserMenuDivider;
 
 /**
@@ -146,6 +162,7 @@ const toMenuItem = (item: UserMenuItem): MenuItem => {
  * них панель меняет поведение поповера, ничего не пересобирая.
  */
 export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
+  /** Пункты меню в порядке показа — вместе с разделителями между группами. */
   items: readonly UserMenuItem[];
   /**
    * Имя на кнопке в шапке — короткое: место там делится с языком и темой, и
@@ -167,6 +184,8 @@ export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
   /**
    * Пропсы antd `Avatar` целиком: `src`, `icon`, `shape`, `size`, `style`. Не
    * задан — в кружке инициалы из полного имени, а если имени нет — силуэт.
+   *
+   * @defaultValue Инициалы из `fullName`; имени нет — силуэт.
    */
   avatar?: AvatarProps;
 }
@@ -210,6 +229,17 @@ export interface UserMenuProps extends Omit<DropdownProps, 'menu'> {
  *
  * Кнопку целиком можно заменить своей: `children` из `DropdownProps` остаётся на
  * месте, и переданный узел встаёт триггером вместо аватара с именем.
+ *
+ * @example
+ * ```tsx
+ * <MainLayout
+ *   user={{
+ *     items: [{ key: 'logout', label: t('sign out'), danger: true, onClick: logout }],
+ *   }}
+ * >
+ *   {children}
+ * </MainLayout>
+ * ```
  */
 export const UserMenu = (props: UserMenuProps) => {
   const { avatar, children, description, fullName, items, name, ...rest } = props;

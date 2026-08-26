@@ -10,6 +10,15 @@
  * Остальные формы (`error`, `detail`, список ошибок) намеренно не угадываются:
  * панели ходят к разным бэкендам, и угаданное поле однажды окажется не текстом
  * для пользователя, а внутренним кодом, который ему покажут.
+ *
+ * @param data Тело ответа как есть — объект, строка или что угодно ещё.
+ * @returns Текст из `message` или само тело, если это непустая строка;
+ * `undefined` — текста в теле нет.
+ * @example
+ * ```ts
+ * readApiMessage({ message: 'Пользователь удалён' }); // 'Пользователь удалён'
+ * readApiMessage({ code: 'USER_DELETED' }); // undefined
+ * ```
  */
 export const readApiMessage = (data: unknown): string | undefined => {
   if (typeof data === 'string' && data.trim() !== '') return data;

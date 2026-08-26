@@ -65,14 +65,29 @@ const TEXT_COLUMN_STYLE: CSSProperties = {
   flexDirection: 'column',
 };
 
+/**
+ * Композиция логотипа: `large` — иконка, буквы и имя второй строкой; `middle` —
+ * иконка и буквы; `small` — круг с одной иконкой.
+ */
 export type LogoTemplateSize = 'large' | 'middle' | 'small';
 
+/**
+ * Пропсы `LogoTemplate`: бренд и геометрия плюс атрибуты `<div>` — `className`,
+ * `style`, `onClick` уходят на корневой узел. `color` из них вычеркнут: здесь
+ * это заливка пилюли, а не цвет текста.
+ */
 export interface LogoTemplateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
-  /** Аббревиатура в пилюле — две-четыре буквы, как `RMP`. По умолчанию `VITE_APP_ABBR`. */
+  /**
+   * Аббревиатура в пилюле — две-четыре буквы, как `RMP`.
+   *
+   * @defaultValue `VITE_APP_ABBR`, а без неё — первые буквы слов имени.
+   */
   abbr?: string;
   /**
    * Полное имя панели: вторая строка в `large`, подпись для читающих с экрана
-   * в остальных размерах. По умолчанию `VITE_APP_NAME`.
+   * в остальных размерах.
+   *
+   * @defaultValue `VITE_APP_NAME`.
    */
   name?: string;
   /**
@@ -86,13 +101,16 @@ export interface LogoTemplateProps extends Omit<HTMLAttributes<HTMLDivElement>, 
    */
   icon?: ReactElement;
   /**
-   * Заливка пилюли. Не задана — `PAPI_LOGO_COLOR`. Иконка, буквы и имя поверх
-   * заливки всегда белые.
+   * Заливка пилюли. Иконка, буквы и имя поверх заливки всегда белые.
+   *
+   * @defaultValue `PAPI_LOGO_COLOR` — красный логотипа ядра.
    */
   color?: string;
   /**
    * Композиция: `large` — иконка, буквы и имя второй строкой; `middle` —
    * иконка и буквы; `small` — круг с одной иконкой.
+   *
+   * @defaultValue `'large'`
    */
   size?: LogoTemplateSize;
   /** Высота пилюли в пикселях; всё внутри считается от неё. */
@@ -130,6 +148,11 @@ export interface LogoTemplateProps extends Omit<HTMLAttributes<HTMLDivElement>, 
  * настоящий текст, который масштабируется кеглем от высоты и читается с
  * экрана. `aria-label` стоит там, где имени на экране нет, — в `middle` и
  * `small`; в `large` оно и так написано.
+ *
+ * @example
+ * ```tsx
+ * <LogoTemplate size="large" icon={<Icon name="shield-alert" />} height={52} />
+ * ```
  */
 export const LogoTemplate = (props: LogoTemplateProps) => {
   const {

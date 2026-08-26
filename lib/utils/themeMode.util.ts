@@ -6,7 +6,12 @@ import { warn } from './logger.util';
 
 const THEME_MODES = new Set<string>(Object.values(ThemeMode));
 
-/** Тема, которую сейчас запрашивает система. `null`, если узнать нельзя. */
+/**
+ * Тема, которую сейчас запрашивает система, — `prefers-color-scheme`.
+ *
+ * @returns Схему системы; `null` — окружение без `matchMedia`, то есть узнать
+ * неоткуда.
+ */
 export const getSystemThemeMode = (): ThemeMode | null => {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return null;
@@ -22,6 +27,9 @@ export const getSystemThemeMode = (): ThemeMode | null => {
  *
  * Значение из хранилища валидируется, а не берётся на веру: `getThemeModeLS`
  * делает cast, поэтому там может оказаться что угодно.
+ *
+ * @returns Схему для `configInitialState`. Про неизвестное значение в хранилище
+ * предупреждает в консоль и уходит к системной.
  */
 export const resolveInitialThemeMode = (): ThemeMode => {
   const stored = getThemeModeLS();

@@ -140,6 +140,10 @@ const PANEL_LOGO_STYLE: CSSProperties = {
   filter: LOGO_SHADOW,
 };
 
+/**
+ * Пропсы `AuthLayout`: логотип в углу плюс пропсы `Card` из antd — `title`,
+ * `extra`, `styles` и остальные уходят прямо в карточку по центру.
+ */
 export interface AuthLayoutProps extends CardProps {
   /**
    * Картинка в левом верхнем углу — путь к файлу. По умолчанию логотип ядра.
@@ -147,6 +151,8 @@ export interface AuthLayoutProps extends CardProps {
    * Проп, а не жёстко зашитый файл: `lib/` в панелях read-only, поэтому
    * подменить сам ассет там нельзя, а бренд на входном экране у каждой панели
    * свой.
+   *
+   * @defaultValue Большой логотип ядра.
    */
   logo?: string;
 }
@@ -185,6 +191,14 @@ export interface AuthLayoutProps extends CardProps {
  *
  * Про вход ничего не знает: ни формы, ни запроса, ни редиректа — всё это
  * остаётся страницам.
+ *
+ * @example
+ * ```tsx
+ * // Своя страница восстановления пароля в том же обрамлении, что и вход:
+ * <AuthLayout title={t('password recovery')} logo={logo}>
+ *   <RecoveryForm />
+ * </AuthLayout>
+ * ```
  */
 export const AuthLayout = (props: AuthLayoutProps) => {
   const { children, logo = logoLarge, style, ...rest } = props;

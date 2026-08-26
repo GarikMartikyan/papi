@@ -21,6 +21,9 @@ const getPrimarySubtag = (tag: Locale): string => {
  * Тег не обрезается: регион отличает `pt-PT` от `pt-BR`, а есть ли такая пара у
  * панели, решает `matchSupportedLocale`. Список отдаётся целиком — первого языка
  * у панели может не быть, а второй может найтись.
+ *
+ * @returns Теги вроде `['ru-RU', 'ru', 'en-US']`; пустой список — окружение без
+ * `navigator` (сборка вне браузера).
  */
 export const getSystemLocales = (): readonly Locale[] => {
   if (typeof navigator === 'undefined') return [];
@@ -39,6 +42,8 @@ export const getSystemLocales = (): readonly Locale[] => {
  * Сверять её не с чем: список языков приносит панель, а стор ядра создаётся
  * раньше. Проверит догадку `resolveSupportedLocale` — там список уже известен,
  * и там же дочитываются остальные предпочтения браузера.
+ *
+ * @returns Первый язык браузера; `null` — узнать его неоткуда.
  */
 export const getSystemLocale = (): Locale | null => {
   return getSystemLocales()[0] ?? null;
@@ -50,6 +55,8 @@ export const getSystemLocale = (): Locale | null => {
  * Своего значения по умолчанию у ядра нет: какой язык запасной, знает только
  * панель. Результат ещё не обязан быть поддерживаемым — это лучшая догадка до
  * того, как панель передала `I18nConfig`.
+ *
+ * @returns Выбор пользователя, язык браузера или `UNKNOWN_LOCALE`.
  */
 export const resolveInitialLocale = (): Locale => {
   return getLocaleLS() ?? getSystemLocale() ?? UNKNOWN_LOCALE;
@@ -58,6 +65,16 @@ export const resolveInitialLocale = (): Locale => {
 /**
  * Ближайший поддерживаемый язык: точное совпадение → совпадение по основному
  * субтегу (`pt` ↔ `pt-BR`) → `null`.
+ *
+ * @param candidate Искомый язык. Регистр не важен.
+ * @param supported Языки панели — коды из `I18nConfig.locales`.
+ * @returns Код **из списка панели**, а не сам `candidate`; `null` — ничего
+ * похожего в списке нет.
+ * @example
+ * ```ts
+ * matchSupportedLocale('pt-BR', ['en', 'pt']); // 'pt'
+ * matchSupportedLocale('de', ['en', 'pt']); // null
+ * ```
  */
 export const matchSupportedLocale = (
   candidate: Locale,
@@ -86,6 +103,12 @@ export const matchSupportedLocale = (
  * Не подошедший кандидат — не конец подбора: дальше разбираются остальные языки
  * браузера. Стор везёт один тег, а у браузера их список, и сюда — в первую
  * точку, где известны языки панели, — он не доезжает, поэтому читается заново.
+ *
+ * @param candidate Язык из стора — выбор пользователя или догадка старта.
+ * @param supported Языки панели — коды из `I18nConfig.locales`.
+ * @param fallback Запасной язык панели — `I18nConfig.default`.
+ * @returns Язык, который панель точно умеет показать. Про выбор, который панель
+ * поддерживать перестала, в консоль уходит предупреждение.
  */
 export const resolveSupportedLocale = (
   candidate: Locale,

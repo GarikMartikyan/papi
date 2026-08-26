@@ -15,6 +15,18 @@ import type { papiRtkTags } from '../../constants/tags.constants';
  * тегами панели: `values` панель объявляет руками, и стоит ей перечислить там
  * только свои теги, как тег ядра перестал бы проходить в файлах эндпоинтов
  * самого ядра.
+ *
+ * @example
+ * ```ts
+ * usersApi.injectEndpoints({
+ *   endpoints: (build) => ({
+ *     getUsers: build.query<User[], void>({
+ *       query: () => '/users',
+ *       providesTags: ['Users'] satisfies PapiTag[],
+ *     }),
+ *   }),
+ * });
+ * ```
  */
 export type PapiTag =
   | (typeof papiRtkTags)[keyof typeof papiRtkTags]

@@ -75,8 +75,18 @@ const toMenuItem = (definition: LocaleDefinition) => ({
  * фиксирован — см. комментарий у ветки.
  */
 export type LocaleSelectProps =
-  | (Omit<SelectProps, 'variant'> & { variant?: 'select' })
-  | (Omit<ButtonProps, 'variant'> & { variant: 'button' });
+  | (Omit<SelectProps, 'variant'> & {
+      /**
+       * Обычный список: флаг и название во всю ширину поля. База — `Select`.
+       *
+       * @defaultValue `'select'`
+       */
+      variant?: 'select';
+    })
+  | (Omit<ButtonProps, 'variant'> & {
+      /** Круглая кнопка с флагом, названия — в выпадающем меню. База — `Button`. */
+      variant: 'button';
+    });
 
 /**
  * Переключатель языка панели: флаг и название на самом этом языке.
@@ -91,6 +101,14 @@ export type LocaleSelectProps =
  *
  * `MainLayout` ставит его в шапку сам, поэтому отдельно компонент нужен только
  * там, где переключатель хочется показать ещё раз.
+ *
+ * Языков меньше двух — не рисуется вовсе: выбирать не из чего.
+ *
+ * @example
+ * ```tsx
+ * <LocaleSelect />
+ * <LocaleSelect variant="button" />
+ * ```
  */
 export const LocaleSelect = (props: LocaleSelectProps) => {
   const token = useThemeToken();

@@ -60,6 +60,15 @@ const readEnv = (name: string, value: string | undefined, fallback: string): str
  * Выходит наружу, потому что адрес нужен и вне RTK Query — на ссылку в новой
  * вкладке или на `src` картинки. Собирать его там из переменной заново значит
  * завести второй источник правды.
+ *
+ * @returns `VITE_API_BASE_URL` или `'/'`, если переменную не задали — тогда же в
+ * консоль уходит предупреждение, по одному на переменную.
+ * @example
+ * ```tsx
+ * <a href={`${getApiBaseUrl()}/reports/${id}/export`} target="_blank" rel="noreferrer">
+ *   Выгрузить
+ * </a>
+ * ```
  */
 export const getApiBaseUrl = (): string => {
   return readEnv('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL, FALLBACK_API_BASE_URL);
@@ -71,6 +80,12 @@ export const getApiBaseUrl = (): string => {
  * Из окружения, а не из пропа провайдера: то же имя подставляется в `<title>`
  * ещё в `index.html`, куда код панели не дотягивается, и второе место, где его
  * можно задать, разошлось бы с первым.
+ *
+ * @returns `VITE_APP_NAME` или `'papi'`, если переменную не задали.
+ * @example
+ * ```tsx
+ * <Typography.Title>{getAppName()}</Typography.Title>
+ * ```
  */
 export const getAppName = (): string => {
   return readEnv('VITE_APP_NAME', import.meta.env.VITE_APP_NAME, FALLBACK_APP_NAME);
@@ -84,6 +99,14 @@ export const getAppName = (): string => {
  * неё буквы собираются из первых букв слов имени — для `Example Panel` это
  * `EP`, и отдельно задавать их нужно только панели, у которой аббревиатура
  * устоялась и с именем не совпадает.
+ *
+ * @returns `VITE_APP_ABBR` как есть или первые буквы слов имени прописными, не
+ * больше четырёх.
+ * @example
+ * ```ts
+ * // VITE_APP_NAME="Really Long Project Title Here", VITE_APP_ABBR не задан
+ * getAppAbbr(); // 'RLPT'
+ * ```
  */
 export const getAppAbbr = (): string => {
   const abbr = import.meta.env.VITE_APP_ABBR;
@@ -106,6 +129,13 @@ export const getAppAbbr = (): string => {
  * свою запись. Регистр приводится здесь, а не в месте чтения: в `.env`
  * аббревиатура пишется прописными, в каталоге ключи строчные, и переводить одно
  * в другое каждому читающему — значит рано или поздно разойтись.
+ *
+ * @returns Аббревиатуру строчными — ключ панели в каталоге логотипов.
+ * @example
+ * ```ts
+ * // VITE_APP_ABBR="RMP"
+ * getPanelAbbr(); // 'rmp'
+ * ```
  */
 export const getPanelAbbr = (): string => {
   return getAppAbbr().toLowerCase();

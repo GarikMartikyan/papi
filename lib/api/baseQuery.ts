@@ -125,6 +125,23 @@ const fetchQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), prepareHeaders });
  * Ответ при этом продолжает возвращаться вызывающему как обычно. Показ — не
  * замена обработке: странице по-прежнему приходит и `isError`, и `data`, и она
  * вправе нарисовать своё пустое состояние.
+ *
+ * Панель его не подключает — он уже стоит в `api` ядра. Сюда стоит заглядывать
+ * за тем, что происходит с запросом само: тосты и выход из сессии по 401.
+ *
+ * @param args Адрес запроса или объект `FetchArgs` — то, что вернул `query`
+ * эндпоинта.
+ * @param api Контекст RTK Query: `dispatch`, `getState`, тип операции.
+ * @param extraOptions Настройки эндпоинта — см. `PapiQueryExtraOptions`.
+ * @returns Ответ `fetchBaseQuery` как есть: `{ data }` или `{ error }`.
+ * @example
+ * ```ts
+ * // Настройки читаются отсюда, а задаются на эндпоинте:
+ * createUser: build.mutation<User, UserPayload>({
+ *   query: (body) => ({ url: '/users', method: 'POST', body }),
+ *   extraOptions: { showSuccessMessage: papiMessage('done') },
+ * });
+ * ```
  */
 export const papiBaseQuery: BaseQueryFn<
   string | FetchArgs,

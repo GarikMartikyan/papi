@@ -19,6 +19,9 @@ type CoreTagValue = CoreTags[keyof CoreTags];
  *
  * Переименованием ключей, а не `Omit`: `Omit` вычёркивает только по ключу, а
  * вторая половина проверки смотрит на значение.
+ *
+ * @typeParam Tags — объект тегов панели: ключ, под которым к тегу обращаются, →
+ * само значение тега.
  */
 export type InjectedTags<Tags extends Record<string, string>> = CoreTags & {
   [
@@ -32,11 +35,6 @@ export type InjectedTags<Tags extends Record<string, string>> = CoreTags & {
 
 /**
  * Объявляет теги панели: дописывает их в набор api ядра и отдаёт весь набор.
- *
- * ```ts
- * // src/constants/tags.constants.ts
- * export const rtkTags = injectTags({ user: 'User', order: 'Order' });
- * ```
  *
  * Занятое ядром не проходит — ни ключ, ни значение тега: и то, и другое связывает
  * два места кеша, и тег панели, совпавший с тегом ядра, сбрасывал бы чужие
@@ -62,6 +60,19 @@ export type InjectedTags<Tags extends Record<string, string>> = CoreTags & {
  * перестаёт проверять теги.
  *
  * `as const` на объекте писать не нужно: `const`-параметр типа берёт литералы сам.
+ *
+ * @param tags Теги панели: ключ → значение тега. Совпавшие с ядром по ключу или
+ * по значению пропускаются с предупреждением в консоль.
+ * @returns Теги панели вместе с тегами ядра — одна точка импорта для файлов
+ * эндпоинтов.
+ * @example
+ * ```ts
+ * // src/constants/tags.constants.ts
+ * export const rtkTags = injectTags({ user: 'User', order: 'Order' });
+ *
+ * rtkTags.user; // 'User'
+ * rtkTags.me; // 'Me' — тег ядра здесь же
+ * ```
  */
 export const injectTags = <const Tags extends Record<string, string>>(
   tags: Tags,

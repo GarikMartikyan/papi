@@ -5,7 +5,9 @@ import { App as AntdApp } from 'antd';
 import { setApiNotifiers } from '../api/notifier';
 import { useTranslation } from '../hooks/useTranslation';
 
+/** Пропсы `ApiProvider`. */
 export interface ApiProviderProps {
+  /** Приложение панели — всё, откуда уходят запросы. */
   children: ReactNode;
 }
 
@@ -23,6 +25,15 @@ export interface ApiProviderProps {
  *
  * Ставится внутри `ThemeProvider` — там смонтирован `AntdApp`. Отдельно панель
  * его не подключает: он входит в `PapiProvider`.
+ *
+ * @example
+ * ```tsx
+ * <ThemeProvider>
+ *   <ApiProvider>
+ *     <App />
+ *   </ApiProvider>
+ * </ThemeProvider>
+ * ```
  */
 export const ApiProvider = (props: ApiProviderProps) => {
   const { children } = props;

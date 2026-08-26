@@ -52,5 +52,13 @@ export type PapiMessageKey = keyof typeof enMessages;
  * Обёртка, а не литерал `{ id: '...' }` на месте: `MessageDescriptor['id']` —
  * обычный `string | number`, и опечатку в нём никто не поймает. Здесь ключ
  * сверяется с каталогом.
+ *
+ * @param key Ключ строки ядра — из английского каталога.
+ * @returns Дескриптор `{ id }`, который переведёт `t` в момент показа.
+ * @example
+ * ```ts
+ * // Своя строка вместо разобранного ответа бэкенда:
+ * extraOptions: { hideErrorMessage: papiMessage('something went wrong') };
+ * ```
  */
 export const papiMessage = (key: PapiMessageKey): MessageDescriptor => ({ id: key });

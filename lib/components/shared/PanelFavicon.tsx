@@ -21,6 +21,18 @@ const SLOT_STYLE = { display: 'none' } as const;
  * компонент не рисует ничего, а во вкладке остаются буквы из `index.html`.
  *
  * Один раз на загрузку: знак собирается из окружения и от стейта не зависит.
+ *
+ * На экране его нет — компонент рисует скрытый узел, из которого снимается
+ * разметка иконки.
+ *
+ * @example
+ * ```tsx
+ * // Нужен только там, где панель собирает провайдеры сама:
+ * <StoreProvider>
+ *   <PanelFavicon />
+ *   <I18nProvider i18n={i18n}>{children}</I18nProvider>
+ * </StoreProvider>
+ * ```
  */
 export const PanelFavicon = () => {
   const ref = useRef<HTMLSpanElement>(null);

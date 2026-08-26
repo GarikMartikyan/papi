@@ -43,6 +43,12 @@ export type PanelLogoBrand = Required<Pick<LogoTemplateProps, 'abbr' | 'icon' | 
  *
  * Адреса пока заглушки: панели ещё не задеплоены, а поле обязательное — пустая
  * строка вместо адреса дала бы ссылку в никуда, и молча.
+ *
+ * @example
+ * ```tsx
+ * // Своя запись дописывается сюда же, в репозитории papi:
+ * ep: { abbr: 'EP', name: 'Example Panel', icon: <Icon src={ball} />, url: '…' }
+ * ```
  */
 export const panelLogos = {
   papi: {
@@ -88,6 +94,9 @@ const panelLogosByAbbr: Record<string, PanelLogoBrand | undefined> = panelLogos;
  * Наружу, потому что лицо панели нужно не одному логотипу: иконку отсюда берёт
  * и знак во вкладке (`setFavicon` зовёт `PapiProvider`), а нарисовать её второй
  * раз картинкой значило бы завести второй источник правды.
+ *
+ * @returns Запись своей панели или `undefined`, если её аббревиатуры в каталоге
+ * нет.
  */
 export const getPanelBrand = (): PanelLogoBrand | undefined => {
   return panelLogosByAbbr[getPanelAbbr()];
@@ -95,6 +104,7 @@ export const getPanelBrand = (): PanelLogoBrand | undefined => {
 
 /** Запись каталога вместе с её ключом — так список панелей знает, чей знак рисует. */
 export interface PanelEntry extends PanelLogoBrand {
+  /** Короткое имя панели — ключ записи в `panelLogos`. */
   panel: PanelName;
 }
 
@@ -103,6 +113,18 @@ export interface PanelEntry extends PanelLogoBrand {
  *
  * Своя из него убрана: человек уже в ней, и ссылка вела бы туда, где он стоит.
  * Панели, которой в каталоге нет, это не мешает — тогда в списке просто все.
+ *
+ * @returns Записи каталога вместе с ключами — имя, аббревиатура, иконка, цвет и
+ * адрес каждой соседней панели.
+ * @example
+ * ```tsx
+ * // Так собрана правая колонка каркаса:
+ * getOtherPanels().map(({ panel, url }) => (
+ *   <a key={panel} href={url}>
+ *     <PanelLogo panel={panel} size="small" />
+ *   </a>
+ * ));
+ * ```
  */
 export const getOtherPanels = (): readonly PanelEntry[] => {
   const current = getPanelAbbr();
@@ -112,6 +134,10 @@ export const getOtherPanels = (): readonly PanelEntry[] => {
     .map((panel) => ({ panel, ...panelLogos[panel] }));
 };
 
+/**
+ * Пропсы `PanelLogo`: выбор панели плюс все пропсы `LogoTemplate` — они
+ * перекрывают запись каталога.
+ */
 export interface PanelLogoProps extends LogoTemplateProps {
   /**
    * Чей логотип показать. Запись берётся из `panelLogos`.
@@ -146,6 +172,12 @@ export interface PanelLogoProps extends LogoTemplateProps {
  * Пропсы `LogoTemplate` проходят насквозь и перекрывают запись — так панель,
  * которой нужен свой цвет или своя иконка на одном экране, получает их, не
  * заводя вторую запись в каталоге.
+ *
+ * @example
+ * ```tsx
+ * <PanelLogo size="middle" height={32} />
+ * <PanelLogo panel="rmp" size="small" />
+ * ```
  */
 export const PanelLogo = (props: PanelLogoProps) => {
   const { panel, ...rest } = props;

@@ -21,6 +21,18 @@ import { useAuth } from './useAuth';
  * секции, — и там ждать некому. Открыться на время загрузки значит показать
  * закрытое правом на секунду каждому, а после `logout` (там
  * `api.util.resetApiState()`) и на своей странице входа — не на секунду.
+ *
+ * @returns `permissions` — права вошедшего; `undefined` и когда правами не
+ * управляют, и пока `GET /me` в пути, так что ветвиться прямо на нём нельзя —
+ * на время загрузки это открыло бы закрытое. Два случая разводит
+ * `hasPermission(permission)` — открыто ли содержимое под этим правом
+ * (`undefined` — право не требуется, открыто всем).
+ * @example
+ * ```tsx
+ * const { hasPermission } = usePermissions();
+ *
+ * return hasPermission(Permission.USERS_DELETE) ? <DeleteButton /> : null;
+ * ```
  */
 export const usePermissions = () => {
   const { isAuthenticated } = useAuth();

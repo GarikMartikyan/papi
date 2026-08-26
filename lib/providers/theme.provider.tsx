@@ -7,12 +7,16 @@ import { selectThemeMode } from '../store/slices/config.slice';
 import { ThemeMode } from '../types/enums/global.enum';
 import { createTheme } from '../utils/theme.util';
 
+/** Пропсы `ThemeProvider`. */
 export interface ThemeProviderProps {
+  /** Приложение панели — всё, что рисуется в теме. */
   children: ReactNode;
   /**
    * antd theme config, merged over papi's `BASE_THEME`. Panels pass antd's own
    * `token` and `components` objects and only what they change; the algorithm
    * always comes from the store, so it cannot be overridden here.
+   *
+   * @defaultValue `BASE_THEME` ядра как есть.
    */
   theme?: ThemeConfig;
 }
@@ -22,6 +26,16 @@ export interface ThemeProviderProps {
  *
  * `AntdApp` is included so `message`, `notification` and `Modal.confirm` render
  * with the theme instead of falling outside the ConfigProvider.
+ *
+ * Светлая тема или тёмная — решает стор, а не проп: схему выбирает пользователь
+ * (`useThemeMode`), и она переживает перезагрузку.
+ *
+ * @example
+ * ```tsx
+ * <ThemeProvider theme={{ token: { colorPrimary: '#7c3aed' } }}>
+ *   <App />
+ * </ThemeProvider>
+ * ```
  */
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, theme } = props;

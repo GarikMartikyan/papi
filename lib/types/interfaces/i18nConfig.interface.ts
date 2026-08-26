@@ -9,6 +9,16 @@ import type { LocaleDefinition } from './localeDefinition.interface';
  * в papi, он всегда подмешивался в список и служил запасным — из-за чего панель
  * не могла ни собрать сборку без него, ни сделать запасным другой язык.
  * Теперь и список, и запасной приходят отсюда.
+ *
+ * @example
+ * ```tsx
+ * const i18n: I18nConfig = {
+ *   default: 'ru',
+ *   locales: [ru, en],
+ * };
+ *
+ * <PapiProvider i18n={i18n}>{children}</PapiProvider>
+ * ```
  */
 export interface I18nConfig {
   /**

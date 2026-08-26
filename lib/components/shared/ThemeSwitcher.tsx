@@ -5,6 +5,13 @@ import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 import { useThemeMode } from '../../hooks/useThemeMode';
 import { useThemeToken } from '../../hooks/useThemeToken';
 
+/**
+ * Вид переключателя темы: `'switch'` — тумблер солнце/луна, `'button'` — кнопка
+ * с иконкой текущей темы.
+ *
+ * Отдельным типом ради `MainLayoutProps.themeSwitcher`: каркас передаёт вид
+ * дальше, не зная про остальные пропсы компонента.
+ */
 export type ThemeSwitcherVariant = 'switch' | 'button';
 
 /**
@@ -23,9 +30,22 @@ export type ThemeSwitcherVariant = 'switch' | 'button';
  *
  * Из `ButtonProps` он вырезан: имя занято. Вид самой кнопки задаётся через
  * `type` и `color`.
+ *
+ * @defaultValue `variant` — `'button'`.
  */
 export type ThemeSwitcherProps =
-  (Omit<ButtonProps, 'variant'> & { variant?: 'button' }) | (SwitchProps & { variant: 'switch' });
+  | (Omit<ButtonProps, 'variant'> & {
+      /**
+       * Кнопка с иконкой текущей темы. База — `Button`.
+       *
+       * @defaultValue `'button'`
+       */
+      variant?: 'button';
+    })
+  | (SwitchProps & {
+      /** Тумблер солнце/луна. База — `Switch`. */
+      variant: 'switch';
+    });
 
 /**
  * Переключатель светлой и тёмной темы.
@@ -40,6 +60,12 @@ export type ThemeSwitcherProps =
  * `MainLayout` ставит его в шапку сам, поэтому отдельно этот компонент нужен
  * только там, где переключатель хочется показать ещё раз — например на
  * странице настроек.
+ *
+ * @example
+ * ```tsx
+ * <ThemeSwitcher />
+ * <ThemeSwitcher variant="switch" size="small" />
+ * ```
  */
 export const ThemeSwitcher = (props: ThemeSwitcherProps) => {
   const token = useThemeToken();

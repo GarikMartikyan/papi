@@ -6,6 +6,8 @@ import { authSlice } from './slices/auth.slice';
 import { configSlice } from './slices/config.slice';
 
 /**
+ * Корневой редьюсер ядра: `auth`, `config` и `api`.
+ *
  * `combineSlices`, а не `combineReducers`: панель докладывает свои слайсы в этот
  * же редьюсер через `injectSlices`.
  *

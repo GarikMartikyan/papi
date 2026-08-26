@@ -11,5 +11,16 @@
  *
  * Сам `Papi.Permissions` объявлен в `lib/types/permissions.d.ts` — там же
  * написано, почему в файле объявлений, а не здесь.
+ *
+ * @example Панель объявляет свой набор один раз, в `src/types/permissions.d.ts`:
+ * ```ts
+ * declare global {
+ *   namespace Papi {
+ *     interface Permissions {
+ *       values: Permission;
+ *     }
+ *   }
+ * }
+ * ```
  */
 export type PapiPermission = Papi.Permissions extends { values: infer Values } ? Values : string;

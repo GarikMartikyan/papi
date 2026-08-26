@@ -7,6 +7,10 @@ import {
 } from '../../services/localStorage.service';
 import type { AuthState } from '../../types/interfaces/authState.interface';
 
+/**
+ * Начальное состояние сессии: токен сразу берётся из localStorage, поэтому
+ * перезагрузка страницы вошедшего не выкидывает.
+ */
 export const authInitialState: AuthState = { token: getAccessTokenLS() };
 
 /**
@@ -47,6 +51,47 @@ export const authSlice = createSlice({
   },
 });
 
-export const { loggedIn, loggedOut } = authSlice.actions;
+/**
+ * Сессия началась: токен ложится и в стор, и в localStorage.
+ *
+ * Панель обычно зовёт `login` из `useAuth` — он делает то же и вдобавок
+ * сбрасывает кеш RTK Query, где могли осесть ответы, полученные с чужим токеном.
+ *
+ * @param token Токен, который вернул вход.
+ * @example
+ * ```ts
+ * dispatch(loggedIn(token));
+ * ```
+ */
+export const loggedIn = authSlice.actions.loggedIn;
 
-export const { selectToken, selectIsAuthenticated } = authSlice.selectors;
+/**
+ * Сессия закончилась: токен убирается и из стора, и из localStorage.
+ *
+ * Диспатчится не только пунктом «Выйти»: так же на него отвечает `baseQuery`,
+ * получив 401. `PapiRouter` следит за стором и уводит на вход сам, откуда бы
+ * экшен ни пришёл.
+ */
+export const loggedOut = authSlice.actions.loggedOut;
+
+/**
+ * Токен сессии.
+ *
+ * @returns Токен или `null`. Для проверки «вошёл ли» есть
+ * `selectIsAuthenticated` — он же отсекает пустую строку.
+ */
+export const selectToken = authSlice.selectors.selectToken;
+
+/**
+ * Вошёл ли пользователь.
+ *
+ * Проверка только на наличие токена: годен ли он, знает лишь тот, кто его выдал,
+ * и ответ приходит на `GET /me`.
+ *
+ * @returns `true`, если токен есть и он не пустой.
+ * @example
+ * ```tsx
+ * const isAuthenticated = useAppSelector(selectIsAuthenticated);
+ * ```
+ */
+export const selectIsAuthenticated = authSlice.selectors.selectIsAuthenticated;

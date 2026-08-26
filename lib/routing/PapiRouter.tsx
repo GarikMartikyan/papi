@@ -17,10 +17,19 @@ import { RouteProtector } from './RouteProtector';
  *
  * Одной записью, а не парой «маршрут отдельно, пункт меню отдельно»: раньше
  * панель писала путь дважды, и на двадцати разделах они расходились.
+ *
+ * @example
+ * ```tsx
+ * export const routes: PapiRoute[] = [
+ *   { path: '/users', element: <UsersPage />, labelId: 'users', iconName: 'Users', index: true },
+ *   { path: '/settings', element: <SettingsPage />, permission: Permission.SETTINGS },
+ * ];
+ * ```
  */
 export interface PapiRoute {
   /** Адрес. Он же ключ пункта меню — по нему подсвечивается активный раздел. */
   path: string;
+  /** Страница раздела — то, что рисуется внутри каркаса. */
   element: ReactNode;
   /**
    * Ключ подписи в каталоге панели. Есть — раздел появляется в меню, нет —
@@ -58,14 +67,29 @@ export interface PapiRoute {
   index?: boolean;
 }
 
+/**
+ * Пропсы `PapiRouter`.
+ *
+ * Всё, кроме `routes` и двух подмен, — пропсы каркаса: они уходят в `MainLayout`
+ * как есть. `children` и `navItems` из них вычеркнуты: страницу подставляет
+ * маршрут, а меню собирается из `routes`.
+ */
 export interface PapiRouterProps extends Omit<MainLayoutProps, 'children' | 'navItems'> {
+  /** Разделы панели: адреса, страницы и пункты меню. Порядок — порядок в меню. */
   routes: readonly PapiRoute[];
-  /** Своя страница входа вместо `LoginPage` ядра. */
+  /**
+   * Своя страница входа вместо `LoginPage` ядра.
+   *
+   * @defaultValue `<LoginPage />` — форма ядра на `POST /auth/login`.
+   */
   loginElement?: ReactNode;
   /**
    * Своя страница ненайденного адреса вместо `NotFoundPage` ядра. Рисуется
    * вместо каркаса, а не внутри, поэтому обрамление на ней своё — как и на
    * странице входа.
+   *
+   * @defaultValue `<NotFoundPage />` с логотипом из `logo`. Не передан он —
+   * на 404 стоит логотип ядра, а не знак панели.
    */
   notFoundElement?: ReactNode;
 }
@@ -96,6 +120,13 @@ export interface PapiRouterProps extends Omit<MainLayoutProps, 'children' | 'nav
  *
  * Здесь `Routes`, а не `Router`: сам `BrowserRouter` ставит `PapiProvider`, и
  * второй роутер вокруг этих маршрутов был бы вложенным в первый.
+ *
+ * @example
+ * ```tsx
+ * <PapiProvider i18n={i18n}>
+ *   <PapiRouter routes={routes} headerExtra={<ProjectSelect />} />
+ * </PapiProvider>
+ * ```
  */
 export const PapiRouter = (props: PapiRouterProps) => {
   const { routes, loginElement, notFoundElement, logo, ...rest } = props;

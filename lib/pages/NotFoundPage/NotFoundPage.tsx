@@ -5,10 +5,20 @@ import { SplashScreen } from '../../components/shared/SplashScreen';
 import { papiRoutes } from '../../constants/routes.constants';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 
+/**
+ * Пропсы `NotFoundPage`: логотип плюс пропсы `Result` из antd — ими панель
+ * перебивает заголовок, подпись и кнопку.
+ */
 export interface NotFoundPageProps extends ResultProps {
   /**
    * Логотип панели: страница стоит вместо каркаса, поэтому обрамление — и лицо
    * вместе с ним — приходит сюда, а не берётся из шапки.
+   *
+   * Ссылкой на картинку, как и у `MainLayout`.
+   *
+   * @defaultValue Большой логотип ядра — тот, которым `SplashScreen`
+   * обходится без этого пропа. Знак панели сюда, в отличие от шапки, сам не
+   * приезжает: страница отдаёт `logo` в `SplashScreen` как есть.
    */
   logo?: string;
 }
@@ -31,6 +41,15 @@ export interface NotFoundPageProps extends ResultProps {
  *
  * Ведёт на корень, а не на конкретный раздел: какой раздел у панели первый,
  * знает `PapiRouter`, и с корня он уводит туда сам.
+ *
+ * Ставит её `PapiRouter` сам — на всё, что не совпало ни с одним маршрутом.
+ * Отдельно она нужна там, где панель показывает «не найдено» внутри своего
+ * маршрута: запись, которой нет.
+ *
+ * @example
+ * ```tsx
+ * if (isNotFound) return <NotFoundPage subTitle="Такого пользователя нет" />;
+ * ```
  */
 export const NotFoundPage = (props: NotFoundPageProps) => {
   const { logo, ...rest } = props;

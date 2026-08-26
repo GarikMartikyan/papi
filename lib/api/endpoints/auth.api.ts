@@ -10,11 +10,15 @@ import { api } from '../api';
  */
 const LOGIN_PATH = '/auth/login';
 
+/** Что форма входа отправляет на `POST /auth/login`. */
 export interface LoginPayload {
+  /** Почта пользователя — она же логин. */
   email: string;
+  /** Пароль как есть: шифрует его канал, а не панель. */
   password: string;
 }
 
+/** Что бэкенд отвечает на удачный вход. */
 export interface LoginResponse {
   /** Токен доступа. Уходит в `Authorization: Bearer …` на каждом запросе. */
   token: string;
@@ -25,6 +29,9 @@ export interface LoginResponse {
  *
  * `hideErrorMessage` — потому что ошибку показывает сама форма: тост поверх неё
  * накрыл бы поле, в которое пользователю и нужно вернуться.
+ *
+ * Сам объект нужен редко — панель зовёт хук `useLoginMutation`. Он пригодится
+ * там, где вход нужен вне React: `dispatch(authApi.endpoints.login.initiate(…))`.
  */
 export const authApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -35,4 +42,22 @@ export const authApi = api.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation } = authApi;
+/**
+ * Вход: отправляет почту с паролем и возвращает токен.
+ *
+ * Токен нужно положить в сессию самому — `login` из `useAuth`. Ядро своим экраном
+ * входа так и делает; панели этот хук нужен, только если она рисует форму сама.
+ *
+ * @example
+ * ```tsx
+ * const [login, { isLoading, isError }] = useLoginMutation();
+ * const { login: startSession } = useAuth();
+ *
+ * const handleFinish = async (values: LoginPayload) => {
+ *   const { token } = await login(values).unwrap();
+ *
+ *   startSession(token);
+ * };
+ * ```
+ */
+export const useLoginMutation = authApi.useLoginMutation;

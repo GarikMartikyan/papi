@@ -4,6 +4,10 @@ import { Link } from 'react-router';
 import { papiRoutes } from '../../constants/routes.constants';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 
+/**
+ * Пропсы `ForbiddenPage` — пропсы `Result` из antd как есть: своих у страницы
+ * нет, а заголовок, подпись и кнопку панель при желании перебивает ими.
+ */
 export type ForbiddenPageProps = ResultProps;
 
 /**
@@ -18,6 +22,13 @@ export type ForbiddenPageProps = ResultProps;
  *
  * Ведёт на корень, а не на конкретный раздел: какой раздел у панели первый,
  * знает `PapiRouter`, и с корня он уводит туда сам.
+ *
+ * @example
+ * ```tsx
+ * <PermissionGate permission={Permission.REPORTS} fallback={<ForbiddenPage />}>
+ *   <ReportsSection />
+ * </PermissionGate>
+ * ```
  */
 export const ForbiddenPage = (props: ForbiddenPageProps) => {
   const t = usePapiTranslation();

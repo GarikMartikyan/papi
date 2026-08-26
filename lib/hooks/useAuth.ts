@@ -16,6 +16,17 @@ import { useAppSelector } from './useAppSelector';
  * одним браузером сидят разные люди, и второй не должен увидеть данные первого,
  * пока страница не перезапросит их. На входе — потому что до входа в кеше уже
  * могли осесть ответы, полученные без токена или с чужим.
+ *
+ * @returns `token` — токен из стора или `null`; `isAuthenticated` — есть ли он;
+ * `login(token)` — начать сессию; `logout()` — закончить.
+ * @example
+ * ```tsx
+ * const { isAuthenticated, logout } = useAuth();
+ *
+ * if (!isAuthenticated) return <Navigate to={papiRoutes.login} />;
+ *
+ * return <Button onClick={logout}>Выйти</Button>;
+ * ```
  */
 export const useAuth = () => {
   const dispatch = useAppDispatch();

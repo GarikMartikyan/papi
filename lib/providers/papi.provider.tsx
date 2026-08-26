@@ -10,13 +10,17 @@ import { I18nProvider } from './i18n.provider';
 import { StoreProvider } from './store.provider';
 import { ThemeProvider } from './theme.provider';
 
+/** Пропсы `PapiProvider`. */
 export interface PapiProviderProps {
+  /** Приложение панели — обычно `<PapiRouter />`. */
   children: ReactNode;
   /** Языки панели и запасной среди них — см. `I18nProviderProps.i18n`. */
   i18n: I18nConfig;
   /**
    * antd-тема панели: `token` и `components`. Ложится поверх темы ядра, поэтому
    * здесь только отличия, а не тема целиком. Алгоритм задаёт ядро.
+   *
+   * @defaultValue `BASE_THEME` ядра как есть.
    */
   theme?: ThemeConfig;
 }
@@ -49,6 +53,16 @@ export interface PapiProviderProps {
  * такой панели придётся собирать цепочку провайдеров у себя, из отдельных
  * `StoreProvider`, `I18nProvider`, `ThemeProvider` и `ApiProvider`: они
  * экспортируются по отдельности как раз для этого.
+ *
+ * @example
+ * ```tsx
+ * // src/App.tsx
+ * export const App = () => (
+ *   <PapiProvider i18n={{ default: 'ru', locales: [ru, en] }} theme={appTheme}>
+ *     <PapiRouter routes={routes} navItems={navItems} />
+ *   </PapiProvider>
+ * );
+ * ```
  */
 export const PapiProvider = (props: PapiProviderProps) => {
   const { children, i18n, theme } = props;

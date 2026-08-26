@@ -19,6 +19,11 @@
  * `light-dark()`, а не два значения по режимам: antd отдаёт значение токена в
  * `background` как есть, а режим браузер берёт из `color-scheme` на <html> —
  * его ставит `ThemeProvider`. Так тема остаётся одним статичным объектом.
+ *
+ * @example
+ * ```tsx
+ * <Card style={{ background: BLOCK_BG, borderRadius: BLOCK_RADIUS }} />
+ * ```
  */
 export const BLOCK_BG = 'light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.19))';
 
@@ -28,5 +33,7 @@ export const BLOCK_BG = 'light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.19))';
  *
  * Своё значение, а не `borderRadiusLG` темы: на нём висят ещё диалоги,
  * всплывающие панели и пункты меню, а такая мягкость нужна только блокам.
+ *
+ * Числом, а не строкой: значение уходит в `style`, и пиксели React дописывает сам.
  */
 export const BLOCK_RADIUS = 26;

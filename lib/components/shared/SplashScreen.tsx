@@ -30,10 +30,16 @@ const PAGE_STYLE: CSSProperties = {
 
 const LOGO_STYLE: CSSProperties = { display: 'block' };
 
+/**
+ * Пропсы `SplashScreen`: логотип плюс атрибуты `<div>` — `className`, `style`,
+ * `children` и остальные уходят на корневой узел экрана.
+ */
 export interface SplashScreenProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Свой логотип вместо логотипа ядра — тот же проп, что у `AuthLayout`, и с
    * тем же смыслом: панель показывает своё лицо, а ждёт по-нашему.
+   *
+   * @defaultValue Большой логотип ядра.
    */
   logo?: string;
 }
@@ -64,6 +70,13 @@ export interface SplashScreenProps extends HTMLAttributes<HTMLDivElement> {
  *
  * Панели он пригодится под `Suspense` вокруг лениво подгружаемых страниц: там
  * нужен ровно такой экран — ничего, кроме признака, что идёт загрузка.
+ *
+ * @example
+ * ```tsx
+ * <Suspense fallback={<SplashScreen />}>
+ *   <LazyReportsPage />
+ * </Suspense>
+ * ```
  */
 export const SplashScreen = (props: SplashScreenProps) => {
   const { children, logo = logoLarge, style, ...rest } = props;

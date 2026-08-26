@@ -11,7 +11,10 @@ export const DEFAULT_THEME_MODE = ThemeMode.LIGHT;
 /** Sider starts expanded. */
 export const DEFAULT_SIDEBAR_COLLAPSED = false;
 
-/** Ширина левого сайдбара в развёрнутом состоянии. */
+/**
+ * Ширина левого сайдбара в развёрнутом состоянии, в пикселях. Панель ставит своё
+ * пропом `siderWidth` у `MainLayout`.
+ */
 export const DEFAULT_SIDER_WIDTH = 220;
 
 /**
@@ -21,5 +24,7 @@ export const DEFAULT_SIDER_WIDTH = 220;
  *
  * Значение одно на обе: столбик иконок с какой стороны ни поставь, а иконки в
  * нём одного размера.
+ *
+ * В пикселях, как и `DEFAULT_SIDER_WIDTH`.
  */
 export const DEFAULT_SIDER_COLLAPSED_WIDTH = 48;

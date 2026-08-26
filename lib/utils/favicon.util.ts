@@ -170,6 +170,18 @@ const buildHref = async (icon: Element, color: string): Promise<string | null> =
  *
  * Буквы из `index.html` этим не отменяются: они стоят во вкладке сразу, до
  * загрузки скриптов, а знак заменяет их, когда панели есть что показать.
+ *
+ * @param icon Узел иконки со страницы — `<svg>` из набора или элемент, которому
+ * иконка задана маской (так её ставит `Icon`).
+ * @param color Цвет круга под иконкой — цвет логотипа панели из каталога, а не
+ * токен темы: во вкладке знак стоит один и переключение темы его не касается.
+ * @returns Промис, который исполняется, когда `<link rel="icon">` уже заменён.
+ * Не бросает: не собрался знак — вкладка остаётся с прежней иконкой.
+ * @example
+ * ```tsx
+ * // Так это делает PanelFavicon: знак рисуется скрытым, а его узел уходит сюда.
+ * await setFavicon(node, brand?.color ?? PAPI_LOGO_COLOR);
+ * ```
  */
 export const setFavicon = async (icon: Element, color: string): Promise<void> => {
   const href = await buildHref(icon, color);

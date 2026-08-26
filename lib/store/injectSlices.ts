@@ -30,12 +30,24 @@ const RESERVED_REDUCER_PATHS = new Set<string>(
  * Занятые ядром пути исключены: в рантайме их пропускает `injectSlices`, и без
  * `Exclude` тип обещал бы ключ, которого в объекте нет, — обращение к нему
  * проходило бы тайпчек и падало на первом же чтении.
+ *
+ * @typeParam Slices — список слайсов панели, тот же, что ушёл в `injectSlices`.
  */
 export type InjectedSlices<Slices extends readonly Slice[]> = {
   [S in Slices[number] as Exclude<S['reducerPath'], ReservedReducerPath>]: S;
 };
 
-/** Состояние, которое добавляют слайсы: `RootState & StateOf<typeof appSlices>`. */
+/**
+ * Состояние, которое добавляют слайсы панели.
+ *
+ * @typeParam Slices — результат `injectSlices`: `reducerPath` → слайс.
+ * @example
+ * ```ts
+ * export const appSlices = injectSlices([usersSlice]);
+ *
+ * export type AppState = RootState & StateOf<typeof appSlices>;
+ * ```
+ */
 export type StateOf<Slices> = {
   [Path in keyof Slices]: Slices[Path] extends { getInitialState: () => infer State }
     ? State
@@ -53,6 +65,18 @@ export type StateOf<Slices> = {
  * Проверка на занятые пути нужна в рантайме: `injectInto` принимает `injectable`
  * нетипизированно, поэтому защита `rootReducer.inject` на уровне типов здесь не
  * срабатывает.
+ *
+ * @param slices Слайсы панели. Занявший путь ядра (`auth`, `config`, `api`)
+ * пропускается с предупреждением в консоль и вычёркивается из типа.
+ * @returns Те же слайсы, разложенные по `reducerPath`, — уже подключённые, с
+ * безопасными селекторами.
+ * @example
+ * ```ts
+ * // src/store/store.ts
+ * export const appSlices = injectSlices([usersSlice, ordersSlice]);
+ *
+ * appSlices.users.selectors.selectAll(state);
+ * ```
  */
 export const injectSlices = <const Slices extends readonly Slice[]>(
   slices: Slices,

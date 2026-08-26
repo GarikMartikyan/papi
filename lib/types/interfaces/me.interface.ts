@@ -10,6 +10,7 @@ import type { PapiPermission } from '../types/permission.type';
  * показывать.
  */
 export interface Me {
+  /** Идентификатор пользователя. Единственное обязательное поле ответа. */
   id: string;
   /** Короткое имя для кнопки в шапке — там место делится с языком и темой. */
   name?: string;

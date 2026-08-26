@@ -9,6 +9,13 @@ import { readApiMessage } from './apiMessage.util';
 /**
  * Ответ «сессии больше нет». Единственный статус, на который ядро не только
  * показывает текст, но и действует, — поэтому он и выходит наружу.
+ *
+ * @example
+ * ```ts
+ * const { status } = toApiError(error);
+ *
+ * if (status === UNAUTHORIZED_STATUS) logout();
+ * ```
  */
 export const UNAUTHORIZED_STATUS = 401;
 
@@ -58,6 +65,21 @@ const resolveDescriptor = (status: number): MessageDescriptor => {
  * не из запроса, а из кода вокруг него (`transformResponse`, например). Его
  * `message` пользователю не показываем: это текст для разработчика, вплоть до
  * стека.
+ *
+ * @param error Ошибка из `useQuery`/`useMutation` — в любом из двух видов,
+ * которыми её отдаёт RTK Query.
+ * @returns Разобранную ошибку: статус, текст бэкенда и запасную строку ядра.
+ * @example
+ * ```tsx
+ * const { error } = useGetUsersQuery();
+ * const t = useTranslation();
+ *
+ * if (error) {
+ *   const { message, descriptor } = toApiError(error);
+ *
+ *   return <Alert type="error" message={message ?? t(descriptor)} />;
+ * }
+ * ```
  */
 export const toApiError = (error: FetchBaseQueryError | SerializedError): PapiApiError => {
   if (!('status' in error)) return { descriptor: papiMessage('something went wrong') };

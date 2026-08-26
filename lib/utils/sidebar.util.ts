@@ -8,6 +8,9 @@ import { warn } from './logger.util';
  *
  * В хранилище лежит строка, поэтому принимаются только `'true'` и `'false'` —
  * всё остальное считается отсутствующим значением.
+ *
+ * @returns Свёрнут ли сайдбар на старте. Про мусор в хранилище предупреждает в
+ * консоль и берёт значение по умолчанию.
  */
 export const resolveInitialSidebarCollapsed = (): boolean => {
   const stored = getSidebarCollapsedLS();

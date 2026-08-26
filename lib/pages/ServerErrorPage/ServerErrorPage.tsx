@@ -4,6 +4,10 @@ import { Link } from 'react-router';
 import { papiRoutes } from '../../constants/routes.constants';
 import { usePapiTranslation } from '../../hooks/usePapiTranslation';
 
+/**
+ * Пропсы `ServerErrorPage` — пропсы `Result` из antd как есть: своих у страницы
+ * нет, а заголовок, подпись и кнопку панель при желании перебивает ими.
+ */
 export type ServerErrorPageProps = ResultProps;
 
 /**
@@ -13,6 +17,18 @@ export type ServerErrorPageProps = ResultProps;
  * упало, — её показывают вместо содержимого раздела, а перезапросом занимается
  * тот, кто этот запрос делал (так, экран подтверждения сессии в
  * `PapiRouterLayout` рисует «Повторить» сам).
+ *
+ * Ядро её нигде не ставит: своих маршрутов на 500 у панели нет, и страница
+ * существует ради панели — на месте упавшего содержимого или в `ErrorBoundary`.
+ *
+ * @example
+ * ```tsx
+ * const { isError, refetch } = useGetReportsQuery();
+ *
+ * if (isError) {
+ *   return <ServerErrorPage extra={<Button onClick={refetch}>Повторить</Button>} />;
+ * }
+ * ```
  */
 export const ServerErrorPage = (props: ServerErrorPageProps) => {
   const t = usePapiTranslation();
