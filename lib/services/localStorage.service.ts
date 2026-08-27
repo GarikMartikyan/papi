@@ -2,6 +2,7 @@ import {
   ACCESS_TOKEN_KEY,
   LOCALE_KEY,
   PROJECT_ID_KEY,
+  REFRESH_TOKEN_KEY,
   SIDEBAR_COLLAPSED_KEY,
   THEME_MODE_KEY,
 } from '../constants/storageKeys.constants';
@@ -94,7 +95,7 @@ export const removeLocaleLS = () => {
 };
 
 /**
- * Токен сессии. Отсюда его берёт `baseQuery` перед каждым запросом — он
+ * Токен доступа. Отсюда его берёт `baseQuery` перед каждым запросом — он
  * работает вне React и до стора не дотягивается.
  *
  * @returns Токен; `null` — пользователь не вошёл.
@@ -104,18 +105,46 @@ export const getAccessTokenLS = () => {
 };
 
 /**
- * Сохранить токен. Зовётся из редьюсера `loggedIn` — панель начинает сессию
- * через `useAuth().login`, а не отсюда.
+ * Сохранить токен доступа. Зовётся из редьюсеров `loggedIn` и `tokensRotated` —
+ * панель начинает сессию через `useAuth().login`, а не отсюда.
  *
- * @param token Токен, который вернул вход.
+ * @param token Токен, который вернул вход или ротация.
  */
 export const setAccessTokenLS = (token: string) => {
   write(ACCESS_TOKEN_KEY, token);
 };
 
-/** Стереть токен. Зовётся из редьюсера `loggedOut`; после этого гард уводит на вход. */
+/** Стереть токен доступа. Зовётся из редьюсера `loggedOut`; после этого гард уводит на вход. */
 export const removeAccessTokenLS = () => {
   remove(ACCESS_TOKEN_KEY);
+};
+
+/**
+ * Токен обновления. Его читает `refreshSession` — тоже вне React и до стора не
+ * дотягиваясь, поэтому берётся он отсюда, а не из состояния.
+ *
+ * @returns Токен; `null` — сессии нет или она началась до того, как ядро стало
+ * хранить пару токенов.
+ */
+export const getRefreshTokenLS = () => {
+  return read(REFRESH_TOKEN_KEY);
+};
+
+/**
+ * Сохранить токен обновления.
+ *
+ * Пишется только целиком вместе с токеном доступа: половина пары бесполезна —
+ * без access не с чем ходить, без refresh нечем продлевать.
+ *
+ * @param token Токен, который вернул вход или ротация.
+ */
+export const setRefreshTokenLS = (token: string) => {
+  write(REFRESH_TOKEN_KEY, token);
+};
+
+/** Стереть токен обновления. Зовётся из редьюсера `loggedOut`, вместе с access. */
+export const removeRefreshTokenLS = () => {
+  remove(REFRESH_TOKEN_KEY);
 };
 
 /**

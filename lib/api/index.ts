@@ -19,4 +19,6 @@ export * from './api';
 export * from './baseQuery';
 export * from './endpoints/auth.api';
 export * from './endpoints/me.api';
+export * from './fetchQuery';
 export * from './injectTags';
+export * from './refreshSession';

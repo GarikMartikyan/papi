@@ -1,9 +1,12 @@
 import { api } from '../api/api';
+import { authApi } from '../api/endpoints/auth.api';
+import type { AuthTokensPayload } from '../store/slices/auth.slice';
 import {
   loggedIn,
   loggedOut,
+  selectAccessToken,
   selectIsAuthenticated,
-  selectToken,
+  selectRefreshToken,
 } from '../store/slices/auth.slice';
 
 import { useAppDispatch } from './useAppDispatch';
@@ -17,8 +20,12 @@ import { useAppSelector } from './useAppSelector';
  * пока страница не перезапросит их. На входе — потому что до входа в кеше уже
  * могли осесть ответы, полученные без токена или с чужим.
  *
- * @returns `token` — токен из стора или `null`; `isAuthenticated` — есть ли он;
- * `login(token)` — начать сессию; `logout()` — закончить.
+ * Продление сессии сюда не входит: оно случается само, внутри `baseQuery`, и
+ * кеш не трогает — иначе списки очищались бы под руками каждые несколько минут.
+ *
+ * @returns `accessToken` и `refreshToken` из стора или `null`;
+ * `isAuthenticated` — жива ли сессия; `login(tokens)` — начать её;
+ * `logout()` — закончить.
  * @example
  * ```tsx
  * const { isAuthenticated, logout } = useAuth();
@@ -30,18 +37,40 @@ import { useAppSelector } from './useAppSelector';
  */
 export const useAuth = () => {
   const dispatch = useAppDispatch();
-  const token = useAppSelector(selectToken);
+  const accessToken = useAppSelector(selectAccessToken);
+  const refreshToken = useAppSelector(selectRefreshToken);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  const login = (next: string) => {
-    dispatch(loggedIn(next));
+  const login = (tokens: AuthTokensPayload) => {
+    dispatch(loggedIn(tokens));
     dispatch(api.util.resetApiState());
   };
 
   const logout = () => {
+    const hasSession = refreshToken !== null && refreshToken !== '';
+
+    /*
+     * Бэкенду говорим, но ответа не ждём: он отзовёт всю семью токенов этой
+     * сессии, и без этого украденный refresh пережил бы выход. Уйти же человек
+     * должен немедленно и при лежащей сети, поэтому `loggedOut` идёт следом
+     * безусловно, а не в `then`.
+     *
+     * Кеш сбрасывается ПОСЛЕ ответа, а не сразу: `resetApiState` прерывает всё
+     * идущее, и сброс на месте оборвал бы этот самый запрос — то есть отзыва
+     * на бэкенде не случилось бы. Между выходом и сбросом чужих данных никто не
+     * увидит: сессии уже нет, и `PapiRouter` держит человека на экране входа. А
+     * вход, если он случится раньше ответа, сбросит кеш сам.
+     */
+    if (hasSession) {
+      void dispatch(authApi.endpoints.logout.initiate({ refreshToken })).finally(() => {
+        dispatch(api.util.resetApiState());
+      });
+    }
+
     dispatch(loggedOut());
-    dispatch(api.util.resetApiState());
+
+    if (!hasSession) dispatch(api.util.resetApiState());
   };
 
-  return { token, isAuthenticated, login, logout };
+  return { accessToken, refreshToken, isAuthenticated, login, logout };
 };

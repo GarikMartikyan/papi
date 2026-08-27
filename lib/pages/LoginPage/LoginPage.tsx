@@ -12,7 +12,8 @@ import { toApiError } from '../../utils/apiError.util';
 const ALERT_STYLE = { marginBottom: 16 };
 
 interface LoginFormValues {
-  email: string;
+  /** Логин или почта — бэкенд принимает и то, и другое одним полем. */
+  username: string;
   password: string;
 }
 
@@ -68,7 +69,7 @@ export const LoginPage = (props: LoginPageProps) => {
     void login(values).then(({ data }) => {
       if (data === undefined) return;
 
-      startSession(data.token);
+      startSession({ accessToken: data.accessToken, refreshToken: data.refreshToken });
     });
   };
 
@@ -81,15 +82,14 @@ export const LoginPage = (props: LoginPageProps) => {
       )}
 
       <Form<LoginFormValues> layout="vertical" onFinish={handleFinish} requiredMark={false}>
+        {/* Без проверки на почту: бэкенд ищет и по логину, и по почте, и правило
+            `type: 'email'` отсекало бы вход по логину ещё до запроса. */}
         <Form.Item
-          label={t('email')}
-          name="email"
-          rules={[
-            { required: true, message: t('enter your email') },
-            { type: 'email', message: t('this does not look like an email') },
-          ]}
+          label={t('username or email')}
+          name="username"
+          rules={[{ required: true, message: t('enter your username or email') }]}
         >
-          <Input autoComplete="email" size="large" />
+          <Input autoComplete="username" size="large" />
         </Form.Item>
 
         <Form.Item

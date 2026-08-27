@@ -11,6 +11,8 @@
   "sign in": "Войти",
   "sign in (page title)": "Вход",
   "email": "Почта",
+  "username or email": "Логин или почта",
+  "enter your username or email": "Введите логин или почту",
   "enter your email": "Введите почту",
   "this does not look like an email": "Это не похоже на почту",
   "password": "Пароль",

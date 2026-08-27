@@ -1,20 +1,18 @@
-import {
-  type BaseQueryFn,
-  type FetchArgs,
-  fetchBaseQuery,
-  type FetchBaseQueryError,
-  type FetchBaseQueryMeta,
+import type {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
 } from '@reduxjs/toolkit/query/react';
 import type { MessageDescriptor } from 'react-intl';
 
 import { papiMessage } from '../i18n/messages';
-import { getApiBaseUrl } from '../services/env.service';
-import { getAccessTokenLS } from '../services/localStorage.service';
-import { loggedOut } from '../store/slices/auth.slice';
 import { type PapiApiError, toApiError, UNAUTHORIZED_STATUS } from '../utils/apiError.util';
 import { readApiMessage } from '../utils/apiMessage.util';
 
+import { fetchQuery } from './fetchQuery';
 import { notifyApiError, notifyApiSuccess } from './notifier';
+import { refreshSession } from './refreshSession';
 
 /**
  * Настройки, которые эндпоинт передаёт baseQuery через `extraOptions`.
@@ -48,7 +46,9 @@ export interface PapiQueryExtraOptions {
    * Показать тост на удачный ответ. Только для мутаций — см. `papiBaseQuery`.
    *
    * `true` — текст берётся из поля `message` в теле ответа, а нет его —
-   * показывается «Готово» ядра. Для ручек, которые сами говорят, что сделали.
+   * показывается «Готово» ядра. Для ручек, которые сами говорят, что сделали;
+   * на само «Готово» полагаться не стоит — оно одинаково на создание, удаление
+   * и сохранение, и человеку не сообщает ничего.
    *
    * Дескриптор — своя строка эндпоинта, она и покажется; текст бэкенда в этом
    * случае не смотрится вовсе. Так пишется точная формулировка вроде
@@ -98,28 +98,27 @@ const resolveSuccess = (
   return readApiMessage(data) ?? papiMessage('done');
 };
 
-const prepareHeaders = (headers: Headers): Headers => {
-  const token = getAccessTokenLS();
-
-  if (token !== null && token !== '') {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
-  return headers;
-};
+/** Пути сессии: их 401 значит «неверные данные», а не «токен протух». */
+const SESSION_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
 
 /**
- * Адрес читается один раз, при загрузке модуля: `VITE_API_BASE_URL` Vite
- * подставляет в сборку константой, и меняться на рантайме ему негде. Токен —
- * наоборот, на каждом запросе: он появляется после входа и исчезает после
- * выхода, а `prepareHeaders` вызывается заново каждый раз.
+ * Стоит ли пытаться продлить сессию, получив от этого запроса 401.
+ *
+ * На самих ручках сессии — нет. Их 401 отвечает не про токен доступа: на входе
+ * это неверный пароль, а на ротации — конец сессии, и `refreshSession` уже
+ * сделал из этого выводы. Пустить их по общему пути значило бы отвечать на
+ * неверный пароль попыткой продлить сессию, которой ещё нет.
  */
-const fetchQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), prepareHeaders });
+const isSessionRequest = (args: string | FetchArgs): boolean => {
+  const url = typeof args === 'string' ? args : args.url;
+
+  return SESSION_PATHS.some((path) => url.startsWith(path));
+};
 
 /**
  * baseQuery ядра: запрос, разбор ответа и реакция на него.
  *
- * Обёртка вокруг `fetchBaseQuery`, а не свой транспорт: сам запрос делает он,
+ * Обёртка вокруг `fetchQuery`, а не свой транспорт: сам запрос делает он,
  * здесь только то, что должно случаться одинаково на всех запросах панели.
  *
  * Ответ при этом продолжает возвращаться вызывающему как обычно. Показ — не
@@ -127,7 +126,8 @@ const fetchQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), prepareHeaders });
  * вправе нарисовать своё пустое состояние.
  *
  * Панель его не подключает — он уже стоит в `api` ядра. Сюда стоит заглядывать
- * за тем, что происходит с запросом само: тосты и выход из сессии по 401.
+ * за тем, что происходит с запросом само: продление сессии по 401 с повтором
+ * запроса и тосты на ошибку и на успех.
  *
  * @param args Адрес запроса или объект `FetchArgs` — то, что вернул `query`
  * эндпоинта.
@@ -139,7 +139,7 @@ const fetchQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), prepareHeaders });
  * // Настройки читаются отсюда, а задаются на эндпоинте:
  * createUser: build.mutation<User, UserPayload>({
  *   query: (body) => ({ url: '/users', method: 'POST', body }),
- *   extraOptions: { showSuccessMessage: papiMessage('done') },
+ *   extraOptions: { showSuccessMessage: { id: 'user created' } },
  * });
  * ```
  */
@@ -150,7 +150,22 @@ export const papiBaseQuery: BaseQueryFn<
   PapiQueryExtraOptions,
   FetchBaseQueryMeta
 > = async (args, api, extraOptions) => {
-  const result = await fetchQuery(args, api, extraOptions);
+  let result = await fetchQuery(args, api, extraOptions);
+
+  /*
+   * 401 — токен доступа истёк или отозван. Он живёт минуты, поэтому это
+   * рутинный ответ, а не конец сессии: меняем пару токенов и повторяем запрос,
+   * и вызывающий не узнаёт, что запрос ушёл дважды.
+   *
+   * Ротация одна на все запросы сразу — см. `refreshSession`. Не вышло — она же
+   * и завершает сессию, поэтому отдельной ветки под выход здесь нет: результат
+   * с 401 просто едет дальше, к тосту, а `PapiRouter` уводит на вход.
+   */
+  if (result.error?.status === UNAUTHORIZED_STATUS && !isSessionRequest(args)) {
+    if (await refreshSession(api)) {
+      result = await fetchQuery(args, api, extraOptions);
+    }
+  }
 
   if (result.error === undefined) {
     /*
@@ -170,13 +185,6 @@ export const papiBaseQuery: BaseQueryFn<
   }
 
   const error = toApiError(result.error);
-
-  /*
-   * 401 — токен протух или отозван. Убираем его здесь, а не в интерфейсе: с
-   * этого момента он всё равно не работает, а `PapiRouter` следит за стором и
-   * уводит на вход сам, откуда бы запрос ни ушёл.
-   */
-  if (error.status === UNAUTHORIZED_STATUS) api.dispatch(loggedOut());
 
   const shown = resolveError(extraOptions?.hideErrorMessage, error);
 
