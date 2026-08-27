@@ -31,3 +31,29 @@ export interface Me {
    */
   permissions?: PapiPermission[];
 }
+
+/**
+ * Ответ бэкенда как есть — не то же самое, что `Me`.
+ *
+ * papi-authority отдаёт поля учётной записи, а `UserMenu` рисует карточку:
+ * подпись на кнопке, имя и вторую строку под ним. Совмещать эти два взгляда в
+ * одном интерфейсе значит либо тащить в ядро чужую форму ответа, либо чинить
+ * `UserMenu` под каждый бэкенд. Поэтому ответ разбирается в `transformResponse`
+ * у `getMe`, а наружу по-прежнему едет `Me`.
+ *
+ * Прав здесь нет: у papi-authority они лежат в claims токена доступа, а не в
+ * этой ручке.
+ */
+export interface MeResponse {
+  id: string;
+  email: string;
+  username: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  language: string;
+  timezone: string | null;
+  mustChangePassword: boolean;
+  roleId: string | null;
+  roleName: string | null;
+}
