@@ -21,4 +21,6 @@ interface ImportMetaEnv {
   readonly VITE_APP_NAME?: string;
   /** Буквы внутри знака логотипа. Без неё — первые буквы слов имени. */
   readonly VITE_APP_ABBR?: string;
+  /** Ключ панели у бэкенда — им она представляется при входе. Без неё — аббревиатура строчными. */
+  readonly VITE_PANEL_KEY?: string;
 }
