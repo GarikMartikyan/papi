@@ -82,70 +82,72 @@ export const configSlice = createSlice({
   },
 });
 
-/**
- * Поставить цветовую схему — выбор пользователя, поэтому он сохраняется.
- *
- * Панели обычно хватает `useThemeMode`.
- *
- * @param mode Схема, которую выбрали.
- */
-export const setThemeMode = configSlice.actions.setThemeMode;
+/* Экшены — одной деструктуризацией, описание каждого внутри паттерна. В
+   подсказку редактора оно оттуда не попадает: JSDoc у элемента деструктуризации
+   tsserver не берёт — описание читается здесь. */
+export const {
+  /**
+   * Поставить цветовую схему — выбор пользователя, поэтому он сохраняется.
+   *
+   * Панели обычно хватает `useThemeMode`.
+   *
+   * @param mode Схема, которую выбрали.
+   */
+  setThemeMode,
+  /**
+   * Поставить язык — выбор пользователя, поэтому он сохраняется.
+   *
+   * Панели обычно хватает `useLocale`. Поддерживается ли язык, решает
+   * `I18nProvider`: незнакомый он заменит на запасной из `I18nConfig`.
+   *
+   * @param locale Тег языка BCP-47.
+   */
+  setLocale,
+  /**
+   * Согласовать язык со списком панели — подбор ядра, а не выбор пользователя,
+   * поэтому в localStorage он не уходит.
+   *
+   * Диспатчит его `I18nProvider`; панели этот экшен не нужен — ей нужен
+   * `setLocale`.
+   *
+   * @param locale Тег языка, на который ядро согласилось.
+   */
+  syncLocale,
+  /**
+   * Свернуть или развернуть левый сайдбар. Состояние сохраняется наравне с темой
+   * и языком.
+   *
+   * @param collapsed Свёрнут ли сайдбар.
+   */
+  setSidebarCollapsed,
+  /** Перевернуть состояние сайдбара. Тем же экшеном это делает кнопка в шапке. */
+  toggleSidebar,
+} = configSlice.actions;
 
-/**
- * Поставить язык — выбор пользователя, поэтому он сохраняется.
- *
- * Панели обычно хватает `useLocale`. Поддерживается ли язык, решает
- * `I18nProvider`: незнакомый он заменит на запасной из `I18nConfig`.
- *
- * @param locale Тег языка BCP-47.
- */
-export const setLocale = configSlice.actions.setLocale;
-
-/**
- * Согласовать язык со списком панели — подбор ядра, а не выбор пользователя,
- * поэтому в localStorage он не уходит.
- *
- * Диспатчит его `I18nProvider`; панели этот экшен не нужен — ей нужен
- * `setLocale`.
- *
- * @param locale Тег языка, на который ядро согласилось.
- */
-export const syncLocale = configSlice.actions.syncLocale;
-
-/**
- * Свернуть или развернуть левый сайдбар. Состояние сохраняется наравне с темой
- * и языком.
- *
- * @param collapsed Свёрнут ли сайдбар.
- */
-export const setSidebarCollapsed = configSlice.actions.setSidebarCollapsed;
-
-/** Перевернуть состояние сайдбара. Тем же экшеном это делает кнопка в шапке. */
-export const toggleSidebar = configSlice.actions.toggleSidebar;
-
-/**
- * Активная цветовая схема.
- *
- * @returns `ThemeMode.LIGHT` или `ThemeMode.DARK`. Готовый флаг `isDark` есть у
- * `useThemeMode`.
- */
-export const selectThemeMode = configSlice.selectors.selectThemeMode;
-
-/**
- * Активный язык.
- *
- * @returns Тег языка. До того, как `I18nProvider` сверит его со списком панели,
- * здесь может лежать язык, которого у неё нет.
- */
-export const selectLocale = configSlice.selectors.selectLocale;
-
-/**
- * Свёрнут ли левый сайдбар.
- *
- * @returns `true` — сайдбар свёрнут в столбик иконок.
- * @example
- * ```tsx
- * const collapsed = useAppSelector(selectSidebarCollapsed);
- * ```
- */
-export const selectSidebarCollapsed = configSlice.selectors.selectSidebarCollapsed;
+/* Селекторы — тем же паттерном, что и экшены выше. */
+export const {
+  /**
+   * Активная цветовая схема.
+   *
+   * @returns `ThemeMode.LIGHT` или `ThemeMode.DARK`. Готовый флаг `isDark` есть у
+   * `useThemeMode`.
+   */
+  selectThemeMode,
+  /**
+   * Активный язык.
+   *
+   * @returns Тег языка. До того, как `I18nProvider` сверит его со списком панели,
+   * здесь может лежать язык, которого у неё нет.
+   */
+  selectLocale,
+  /**
+   * Свёрнут ли левый сайдбар.
+   *
+   * @returns `true` — сайдбар свёрнут в столбик иконок.
+   * @example
+   * ```tsx
+   * const collapsed = useAppSelector(selectSidebarCollapsed);
+   * ```
+   */
+  selectSidebarCollapsed,
+} = configSlice.selectors;
