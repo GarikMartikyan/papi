@@ -27,3 +27,5 @@ docs/superpowers
 
 # claude code — personal overrides stay local, the shared setup is committed
 .claude/settings.local.json
+*.local.md
+*.local.*
