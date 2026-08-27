@@ -55,8 +55,17 @@ export const usersApi = api.injectEndpoints({
        `src/types/types/user.types.ts` и придёт оттуда импортом. */
     createUser: build.mutation<User, Omit<User, 'id'>>({
       query: (body) => ({ url: USERS_PATH, method: 'POST', body }),
-      /* Своя строка панели — литералом: `papiMessage` сверяет ключ с каталогом
-         ядра, а этот ключ живёт в каталоге панели. */
+      /*
+       * Тост называет, что именно случилось. «Готово» — а это всё, что даёт
+       * `showSuccessMessage: true` без строки от бэкенда, — человек читает краем
+       * глаза и не отличает удачное создание от удачного сохранения соседней
+       * формы.
+       *
+       * Дескриптор литералом, а не через `papiMessage`: ключ живёт в каталоге
+       * панели. Непроверенным он при этом не остаётся — `src/types/formatjs.d.ts`
+       * подставляет её каталог в `FormatjsIntl`, и ключа, которого нет в
+       * `src/i18n/*.json`, не пропустит tsc (TS2820).
+       */
       extraOptions: { showSuccessMessage: { id: 'user created' } },
       /*
        * Патч идёт через `usersApi`, а не через `api` из `@papi/api`, и это не
@@ -142,6 +151,8 @@ export const usersApi = api.injectEndpoints({
 
     deleteUser: build.mutation<void, string>({
       query: (id) => ({ url: `${USERS_PATH}/${id}`, method: 'DELETE' }),
+      /* Своя строка и здесь: удаление и создание — разные события, и тост,
+         одинаковый на оба, не сообщает ничего. См. `createUser`. */
       extraOptions: { showSuccessMessage: { id: 'user deleted' } },
       /*
        * Ответа у удаления нет, и он не нужен: что убрать из списка, сказано в
@@ -177,9 +188,9 @@ export const usersApi = api.injectEndpoints({
   }),
 });
 
-/* Хуки — одной деструктуризацией: в панели это просто список того, что файл
-   отдаёт наружу. В ядре они экспортируются по одному, чтобы каждому досталось
-   своё описание. */
+/* Хуки — одной деструктуризацией: список того, что файл отдаёт наружу. Так же
+   их отдаёт и ядро, только там над каждым именем стоит ещё и описание — его
+   хуки публичны для всех панелей. */
 export const {
   useGetUsersQuery,
   useGetUserQuery,

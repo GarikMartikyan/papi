@@ -54,8 +54,27 @@ disagree, ask first.
   `useAuth.ts`.
 - **One file — one component, one hook.** No secondary component at the bottom of a file, however
   small: it gets a file of its own next door.
+- **`export default` is not used — only named exports.** `export const UserMenu = () => {}`, never
+  `export default UserMenu`. A named export pins one name to the entity across the whole repository:
+  grep finds every use, a barrel re-exports it as `export * from './UserMenu'` without listing it by
+  hand, and a rename propagates instead of turning into a fresh alias at each import site. The only
+  exception is a root config the tool itself requires in that shape — `vite.config.ts`,
+  `eslint.config.js`, `prettier.config.js`.
 - Types go to `types/`, texts to `i18n/`, values to `constants/`. An entity goes where its peers
   already live, not next to the place that uses it.
+
+## `docs/` holds the PRDs
+
+Product requirement documents live in `docs/` at the repository root — per project area, per page,
+and so on. That folder is theirs; nothing else belongs in it.
+
+**A PRD is written by the user, never by you.** Creating a document there, or changing one that is
+already there, takes an explicit request naming exactly that. "Write this down" or "we need a spec"
+dropped in passing is not one — ask instead of assuming.
+
+When the code and a PRD disagree, **report the mismatch and stop**. Which side is wrong — the
+implementation or the document — is the user's call. Do not edit `docs/` to match the code, and do
+not rewrite the code to match a document that may itself be out of date.
 
 ## Memoization is automatic only
 
