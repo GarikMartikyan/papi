@@ -1,13 +1,26 @@
 import { api } from '@papi/api';
+import { papiRtkTags } from '@papi/constants';
+
+import type { User } from '../../../../src/types/interfaces/user.interfaces';
 
 /*
- * Сущность и теги приходят импортом — своего объявления в файле ручек нет ни у
- * того, ни у другого. Путь длинный только потому, что пример лежит в `.claude/`:
- * из `src/api/users.api.ts` те же две строки читаются как
- * `../types/interfaces/user.interfaces` и `../constants/tags.constants`.
+ * `User` приходит импортом: `interface` в `*.api.ts` не объявляется никогда.
+ * Путь такой длинный только потому, что пример лежит в каталоге скилла, — у
+ * самой панели на его месте стоит `../types/interfaces/user.interfaces`.
+ *
+ * Строки тостов — тоже её, из `src/i18n/*.json`. `papiMessage` их не примет: он
+ * сверяет ключ с каталогом ядра, а там лежит только то, что ядро умеет сказать
+ * само, — «Готово» и ошибки под статусы ответа.
+ *
+ * У ядра пример занимает один тег: своих у скелета нет вовсе (`injectTags({})`),
+ * а привязка к ним роняла бы `npm run typecheck` каждый раз, когда панель их
+ * переименует или удалит. В настоящей панели тег объявляется одним вызовом на
+ * всю панель в `src/constants/tags.constants.ts` и читается оттуда —
+ * `injectTags({ user: 'User' })` возвращает и его, и теги ядра, так что ниже
+ * вместо `papiRtkTags.me` стояло бы `rtkTags.user`:
+ *
+ *     import { rtkTags } from '../constants/tags.constants';
  */
-import { rtkTags } from '../../../../src/constants/tags.constants';
-import type { User } from '../../../../src/types/interfaces/user.interfaces';
 
 /** Префикс ресурса — один на файл, чтобы адрес не переписывался в каждой ручке. */
 const USERS_PATH = '/users';
@@ -28,12 +41,12 @@ export const usersApi = api.injectEndpoints({
        что меняет прочитанное. */
     getUsers: build.query<User[], void>({
       query: () => USERS_PATH,
-      providesTags: [rtkTags.user],
+      providesTags: [papiRtkTags.me],
     }),
 
     getUser: build.query<User, string>({
       query: (id) => `${USERS_PATH}/${id}`,
-      providesTags: [rtkTags.user],
+      providesTags: [papiRtkTags.me],
     }),
 
     /* Пейлоад выведен из `User`, а не описан заново: `Omit` ничего не заводит —
@@ -159,7 +172,7 @@ export const usersApi = api.injectEndpoints({
        * остаются на месте у каждого запроса. Импорт заводит неизвестно сколько
        * записей, ответ их не возвращает, и собрать из него новый список нечем.
        */
-      invalidatesTags: [rtkTags.user],
+      invalidatesTags: [papiRtkTags.me],
     }),
   }),
 });

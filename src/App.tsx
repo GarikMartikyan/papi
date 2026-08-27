@@ -7,24 +7,16 @@ import { type PapiRoute, PapiRouter } from '@papi/routing';
 import { ROUTES } from './constants/routes.constants';
 import { useTranslation } from './hooks/useTranslation';
 import { SettingsPage } from './pages/SettingsPage/SettingsPage';
-import { UsersPage } from './pages/UsersPage/UsersPage';
 import { Permission } from './types/enums/permissions.enums';
 
 const APP_ROUTES: PapiRoute[] = [
-  {
-    path: ROUTES.users,
-    element: <UsersPage />,
-    labelId: 'users',
-    iconName: 'users',
-    permission: Permission.VIEW_USERS,
-    index: true,
-  },
   {
     path: ROUTES.settings,
     element: <SettingsPage />,
     labelId: 'settings',
     iconName: 'settings',
     permission: Permission.VIEW_SETTINGS,
+    index: true,
   },
 ];
 

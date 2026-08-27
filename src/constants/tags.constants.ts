@@ -1,5 +1,5 @@
 import { injectTags } from '@papi/api';
 
-export const rtkTags = injectTags({
-  user: 'User',
-});
+// TODO: заглушка — своих тегов у панели пока нет. Наполнится вместе с первым
+// её эндпоинтом: `injectTags({ user: 'User' })`.
+export const rtkTags = injectTags({});

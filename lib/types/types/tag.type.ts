@@ -30,4 +30,12 @@ import type { papiRtkTags } from '../../constants/tags.constants';
  */
 export type PapiTag =
   | (typeof papiRtkTags)[keyof typeof papiRtkTags]
+  /*
+   * Ветки совпадают ровно тогда, когда панель не объявила ни одного своего
+   * тега: `injectTags({})` возвращает один набор ядра, и `values` схлопывается
+   * в него же. У панели с тегами дубликата нет, а убрать ветку нельзя — вместе
+   * с ней пропадут все теги панели. Автофикс правила делает именно это, поэтому
+   * подавление живёт строкой ниже, у самого места.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | (Papi.ApiTags extends { values: infer Values } ? Values : string);
